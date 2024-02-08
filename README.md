@@ -13,6 +13,10 @@ MARS is comprised of multiple stakeholders, the end-user, the platform that gene
 
 ## Components
 
+
+![MARS overview](/MARS_overview.svg)
+
+
 ### ISA-JSON as metadata carrier
 
 We use [ISA-JSON](https://isatools.readthedocs.io/en/latest/isamodel.html) to store and interchange metadata between the end-user and the target repositories because:
@@ -53,14 +57,16 @@ The main steps of MARS-CLI are:
     => We could use the [ISA-API validation](https://isa-tools.org/isa-api/content/validation.html) library.
 
 2. **Registering samples in BioSamples**: Submitting an ISA-JSON to a newly developed API at BioSamples. The BioSamples accession will be reused by the other repositories and thus needs to be done first.
+After a successful submission, BioSamples sends back an updated ISA-JSON containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
 
     => The source code for the ISA-JSON API for BioSamples can be found in the [repository-services repo](/repository-services/isajson-biosamples/) and can be used for testing
 
-3. **Updating the ISA-JSON with BioSamples information**: After a successful submission, BioSamples sends back an updated ISA-JSON containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
- 
-    => Could also be done in the end when we have the responses back from the other repositories.
+3. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo
 
-4. **Registering linked records to other repositories**: Sending the ISA-JSON to the endpoints of the repositories who accept ISA-JSON.
+    => 
+
+
+4. **Registering linked records to other repositories**: Sending the ISA-JSON (updated with BioSamples IDs) to the endpoints of the repositories who accept ISA-JSON.
 
     => 
 
@@ -68,7 +74,7 @@ The main steps of MARS-CLI are:
 
     => 
 
-6. **Update the ISA-JSON with repositories' information**: The structure of the receipt is generic and common for all archives that joins MARS.
+6. **Update the ISA-JSON with repositories' information**: The structure of the receipt is standardized and common for all repositories that join MARS.
 
     => 
 
@@ -88,7 +94,8 @@ the MARS-CLI is not to be used as a platform to host data and will not store the
 
 ### ISA-JSON support by repositories
 
-To facilitate 
+ISA-JSON API endpoints have been developed by 
+
 
 ## File structure in this repo
 
