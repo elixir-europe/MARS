@@ -8,20 +8,36 @@ The initiative ensures mutual understanding and accurate interpretation of the d
 
 ## Stakeholders in MARS
 
-MARS is comprised of 4 stakeholders, the end-user, the platform that generates the ISA-JSON, target repositories and the data broker. Each representing key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
+MARS is comprised of multiple stakeholders, the end-user, the platform that generates the ISA-JSON, target repositories and the data broker. Each representing key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
 
 ## ISA-JSON as metadata carrier
 
+We use [ISA-JSON](https://isatools.readthedocs.io/en/latest/isamodel.html) to store and interchange metadata between the end-user and the target repositories because:
 
+- **Standardization**: ISA-JSON follows the ISA structure (Investigation- Study - Assay), ensuring structured metadata descriptions.
+- **Versatile**: It is not bound by any domain and can represent multi-omics experimental metadata.
+- **Interoperability**: Since ISA-JSON follows a standard format, it facilitates interoperability between different software tools and platforms that support the ISA standard. 
+- **Community Adoption**: Widely adopted within the life sciences research community for metadata standardization.
 
 
 ## Data broker platform
 
-The platform than will 
+A platform provided by the [Data broker](/stakeholders.md#data-broker) that should:
+
+  * Accept an ISA-JSON as input and submit it to the repositories without any loss of information.
+  * Extend the ISA-JSON with additional information provided by the target repositories. For example, the accessions assigned to the submitted objects.
+  * Process reporting errors
+  * Enable secure credential management and the possibility to set brokering accounts.
+  * (Could) Support data transfer through various protocols (e.g. FTP). This would include the verification of the checksums associated to the data files. 
+  * Setting up a brokering account or not.
+  * To ensure that the brokering account is not used beyond the purposes defined by the producer. In other words, not to modify or submit in the name of the producer without their consent.
+
 
 ### MARS-CLI
 
-This command line tool is the core of the Data brokering platform and will perform the actual submission of the ISA-JSON and data to the repositories. The application will be build as a Python library which can be used 
+This command line tool (CLI) is the core of the Data broker platform and will perform the actual submission of the ISA-JSON and data to the repositories. The application will be build as a Python library which can be integrated in other platforms including ARC and Galaxy. Source code and documentation can be found in the [mars_cli folder](/) in this repo.
+
+The main steps are:
 
 1. **Validate the ISA-JSON**: Syntax validation
  => We could use the [ISA-API validation](https://isa-tools.org/isa-api/content/validation.html)
