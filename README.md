@@ -36,36 +36,51 @@ A platform operated by the [Data broker](/stakeholders.md#data-broker) that shou
 * Allows the Data broker to set up a brokering account or the end-user a personal account.
 * To ensure that the brokering account is not used beyond the purposes defined by the producer. In other words, not to modify or submit in the name of the producer without their consent.
 
+> **To be discussed**:
+> Handling brokering accounts: who creates it? Same for all repositories? Who handles requests to broker data? Can it be done automatically? Are all namespaces for submissions would be shared? Check: https://ena-docs.readthedocs.io/en/latest/faq/data_brokering.html
+
+
+Examples of Data broker platforms could be ARC or Galaxy.
 
 ### MARS-CLI
 
-This command line tool (CLI) is the core of the Data broker platform and will perform the actual submission of the ISA-JSON and data to the repositories. The application will be build as a Python library which can be integrated in other platforms including ARC and Galaxy. Source code and documentation can be found in the [mars_cli folder](/) in this repo.
+This command line tool (CLI) will be used by the Data broker platform and will perform the actual submission of the ISA-JSON to the repositories. The application will be build as a Python library which can be integrated in a web application, ARC, Galaxy and others. Source code and documentation can be found in the [mars_cli folder](/) in this repo.
 
-The main steps are:
+The main steps of MARS-CLI are:
 
-1. **Validate the ISA-JSON**: Syntax validation
- => We could use the [ISA-API validation](https://isa-tools.org/isa-api/content/validation.html)
+1. **Validating the ISA-JSON**: Syntax validation
 
-2. **Register samples in BioSamples**: The API call from the data broker triggers the running of the [ISA-JSON to BioSamples code](https://github.com/elixir-europe/biohackathon-projects-2023/tree/main/27/ISABioSamplesProject27): code of the service that consumes the ISA-JSON, parses and submits it to BioSamples. [Example of ISA-JSON that the data broker sends to BioSamples](https://github.com/elixir-europe/biohackathon-projects-2023/blob/main/27/biosamples-input-isa.json).
+    => We could use the [ISA-API validation](https://isa-tools.org/isa-api/content/validation.html) library.
 
-3. **Update the ISA-JSON with BioSamples information**: After a successful submission, BioSamples sends to the data broker an updated ISA-JSON containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
+2. **Registering samples in BioSamples**: Submitting an ISA-JSON to a newly developed API at BioSamples. The BioSamples accession will be reused by the other repositories and thus needs to be done first.
 
-4. **Register linked records in other archives**:
-    The API call from the data broker triggers the running of the
-    * [ISA-JSON to ENA code](https://github.com/elixir-europe/biohackathon-projects-2023/tree/main/27/ISASRAProject27): code of the service that consumes the BioSamples accessioned ISA-JSON, parses and submits it to ENA.
-    * ISA-JSON to MetaboLights code
-    * ISA-JSON to eDAL-PGP code
+    => The source code for the ISA-JSON API for BioSamples can be found in the [repository-services repo](/repository-services/isajson-biosamples/) and can be used for testing
 
-5. **Update the ISA-JSON with other archives' information**: After a successful submission, each archive sends to the data broker a receipt in a standard format defined for MARS (see example below). The receipt contains the path of the objects in the ISA-JSON for wich an accession number has been generated, and the related accession number. The structure of the receipt is generic and common for all archives that joins MARS.
+3. **Updating the ISA-JSON with BioSamples information**: After a successful submission, BioSamples sends back an updated ISA-JSON containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
+ 
+    => Could also be done in the end when we have the responses back from the other repositories.
 
-6. **Update BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
+4. **Registering linked records to other repositories**: Sending the ISA-JSON to the endpoints of the repositories who accept ISA-JSON.
+
+    => 
+
+5. **Processing the receipts and errors from other repositories**: After a successful submission, each repository sends back a receipt in a standard format defined for MARS (see [repository-api info](/repository-services/repository-api.md)). The receipt contains the path of the objects in the ISA-JSON for which an accession number has been generated, and the related accession number. 
+
+    => 
+
+6. **Update the ISA-JSON with repositories' information**: The structure of the receipt is generic and common for all archives that joins MARS.
+
+    => 
+
+7. **Update BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
+
+    => *Done* by Marco, see [biosamples_externalReferences.py](/mars-cli/mars_lib/biosamples_externalReferences.py)
+
 
 #### Credential management
 
-The application is not responsible for storing and managing credentials, used for submission to the target repositories. Therefor, credentials should be managed by a third party application or platform like Galaxy.
+MARS-CLI is not responsible for storing and managing credentials, used for submission to the target repositories. Therefor, credentials should be managed by the [Data broker platform](#data-broker-platform).
 
-> **To be discussed**:
-> Handling brokering accounts: who creates it? Same for all repositories? Who handles requests to broker data? Can it be done automatically? Are all namespaces for submissions would be shared? Check: https://ena-docs.readthedocs.io/en/latest/faq/data_brokering.html
 
 #### Data submission
 
@@ -73,9 +88,9 @@ The application is not to be used as a platform to host data and will not store 
 
 ### ISA-JSON support by repositories
 
-THE MARS initiative 
+To facilitate 
 
-## File structure of this repo explained
+## File structure in this repo
 
 ```
 ├── mars-cli
@@ -93,7 +108,7 @@ THE MARS initiative
 └── README.md
 ```
 
-- **mars-cli**: Source code of the main Python library to submit (meta)data to the repositories. See [README](/mars-cli/README.md) to read more on how to use the command line tool.
+- **mars-cli**: Source code of the Python library to submit (meta)data to the repositories. See [README](/mars-cli/README.md) to read more on how to use the command line tool.
 - **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
 - **test-data**: Test data to be used in a submission.
 - **README.md**: This file
