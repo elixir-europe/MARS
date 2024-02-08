@@ -84,7 +84,7 @@ MARS-CLI is not responsible for storing and managing credentials, used for submi
 
 #### Data submission
 
-The application is not to be used as a platform to host data and will not store the data after submission to the target repository. The ISA JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
+the MARS-CLI is not to be used as a platform to host data and will not store the data after submission to the target repository. The ISA-JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
 
 ### ISA-JSON support by repositories
 
