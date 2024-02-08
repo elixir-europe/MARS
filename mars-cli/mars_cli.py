@@ -5,6 +5,7 @@ from mars_lib.biosamples_externalReferences import (
     BiosamplesRecord,
     validate_json_against_schema,
     handle_input_dict,
+    input_json_schema_filepath,
 )
 import argparse
 from argparse import RawTextHelpFormatter
