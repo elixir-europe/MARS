@@ -11,7 +11,9 @@ import argparse
 from argparse import RawTextHelpFormatter
 
 
-def main(biosamples_credentials, biosamples_externalReferences, production):
+def create_external_references(
+    biosamples_credentials, biosamples_externalReferences, production
+):
     """
     Main function to be executed when script is run.
 
@@ -42,7 +44,8 @@ def main(biosamples_credentials, biosamples_externalReferences, production):
         BSrecord.update_remote_record(header)
 
 
-if __name__ == "__main__":
+def main():
+    """Main function that handles the argument parsing and passes those to `create_external_references`"""
     # Command-line argument parsing
     parser = argparse.ArgumentParser(description="Handle biosamples records.")
     description = "This script extends a set of existing Biosamples records with a list of provided external references."
@@ -71,4 +74,10 @@ if __name__ == "__main__":
         parsed_args.biosamples_externalReferences
     )
 
-    main(biosamples_credentials, biosamples_externalReferences, parsed_args.production)
+    create_external_references(
+        biosamples_credentials, biosamples_externalReferences, parsed_args.production
+    )
+
+
+if __name__ == "__main__":
+    main()
