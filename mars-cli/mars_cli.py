@@ -1,5 +1,5 @@
 from mars_lib.authentication import get_webin_auth_token
-from mars_lib.biosamples_externalReferences import (
+from mars_lib.biosamples_external_references import (
     get_header,
     biosamples_endpoints,
     BiosamplesRecord,
