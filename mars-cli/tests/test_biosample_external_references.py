@@ -1,6 +1,4 @@
-from multiprocessing import Value
 import pytest
-import sys
 from mars_lib.biosamples_external_references import load_json_file
 
 
