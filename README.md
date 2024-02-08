@@ -22,7 +22,7 @@ MARS is comprised of multiple stakeholders, the end-user, the platform that gene
 We use [ISA-JSON](https://isatools.readthedocs.io/en/latest/isamodel.html) to store and interchange metadata between the end-user and the target repositories because:
 
 - **Standardization**: ISA-JSON follows the ISA structure (Investigation- Study - Assay), ensuring structured metadata descriptions.
-- **Versatile**: It is not bound by any domain and can represent multi-omics experimental metadata.
+- **Versatile**: It is not bound to any domain and can represent multi-omics experimental metadata.
 - **Interoperability**: Since ISA-JSON follows a standard format, it facilitates interoperability between different software tools and platforms that support the ISA standard. 
 - **Community Adoption**: Widely adopted within the life sciences research community for metadata standardization.
 
@@ -30,7 +30,7 @@ It is produced by the [ISA-JSON producing platforms](/stakeholders.md#isa-json-p
 
 ### Data broker platform
 
-A platform operated by the [Data broker](/stakeholders.md#data-broker) that should:
+A platform operated by the [Data broker](/stakeholders.md#data-broker) should:
 
 * Accept an ISA-JSON as input and submit it to the repositories without any loss of information.
 * Extend the ISA-JSON with additional information provided by the target repositories. For example, the accessions assigned to the submitted objects.
@@ -44,7 +44,7 @@ A platform operated by the [Data broker](/stakeholders.md#data-broker) that shou
 > Handling brokering accounts: who creates it? Same for all repositories? Who handles requests to broker data? Can it be done automatically? Are all namespaces for submissions would be shared? Check: https://ena-docs.readthedocs.io/en/latest/faq/data_brokering.html
 
 
-Examples of Data broker platforms could be ARC or Galaxy.
+Examples of Data broker platforms are ARC, Galaxy, ...
 
 ### MARS-CLI
 
@@ -63,24 +63,21 @@ After a successful submission, BioSamples sends back an updated ISA-JSON contain
 
 3. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo
 
-    => 
+    => We can use the `targetRepository` attribute to select assays.
 
+4. **Registering linked records to other repositories**: Sending the filtered ISA-JSON to the endpoints of the repositories who accept ISA-JSON. 
 
-4. **Registering linked records to other repositories**: Sending the ISA-JSON (updated with BioSamples IDs) to the endpoints of the repositories who accept ISA-JSON.
-
-    => 
+    => Currently we have ISA-JSON API services ready for ENA and BioSamples. This could be done asynchronously.
 
 5. **Processing the receipts and errors from other repositories**: After a successful submission, each repository sends back a receipt in a standard format defined for MARS (see [repository-api info](/repository-services/repository-api.md)). The receipt contains the path of the objects in the ISA-JSON for which an accession number has been generated, and the related accession number. 
 
-    => 
+    => We have to handle well when submissions go wrong.
 
-6. **Update the ISA-JSON with repositories' information**: The structure of the receipt is standardized and common for all repositories that join MARS.
-
-    => 
+6. **Update the ISA-JSON with repositories' information**: Based on the information in the receipts, the ISA-JSON can be populated with accession numbers linked to the submitted metadata objects.
 
 7. **Update BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
 
-    => *Done* by Marco, see [biosamples_externalReferences.py](/mars-cli/mars_lib/biosamples_externalReferences.py)
+    => *Done* by Marco, see [biosamples_externalReferences.py](mars-cli/mars_lib/biosamples_external_references.py)
 
 
 #### Credential management
@@ -90,12 +87,23 @@ MARS-CLI is not responsible for storing and managing credentials, used for submi
 
 #### Data submission
 
-the MARS-CLI is not to be used as a platform to host data and will not store the data after submission to the target repository. The ISA-JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
+MARS-CLI is not to be used as a platform to host data and will not store the data after submission to the target repository. This should be handled by the [Data broker platform](#data-broker-platform). The ISA-JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
+
+=> Data submission could be added to MARS-CLI?
 
 ### ISA-JSON support by repositories
 
-ISA-JSON API endpoints have been developed by 
+ISA-JSON API services are being developed and deployed by the repositories that are part of the MARS initiative. This includes programmatic submission, the digestion of ISA-JSON in order to register the metadata objects and the creation of a receipt according to the MARS [repository-api](/repository-services/repository-api.md) standard.
+ Track the status of each repository here:
 
+| Repository | Programmatic submission | Development status | Deployed? | Source code |
+|---|---|---|---|---|
+| [BioSamples](https://www.ebi.ac.uk/biosamples/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-biosamples) |
+| [ENA](https://www.ebi.ac.uk/ena/browser/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-json) |
+| [MetaboLights](https://www.ebi.ac.uk/metabolights/) | NA | Not started | no |  |
+| [BioStudies/ArrayExpress](https://www.ebi.ac.uk/biostudies/arrayexpress) | yes, in dev | Not started | no |  |
+| [e!DAL-PGP](https://edal-pgp.ipk-gatersleben.de/) | NA | Not started | no |  |
+| Your repository here? Join MARS!  |
 
 ## File structure in this repo
 
@@ -108,8 +116,9 @@ ISA-JSON API endpoints have been developed by
 ├── repository-services
 │   ├── isajson-biosamples/
 │   │── isajson-ena/
-│   ├── docker-compose.yml
+│   ├── repository-api.md
 │   └── README.md
+│   └── ...
 ├── test-data
 │   └── ...
 └── README.md
@@ -117,5 +126,6 @@ ISA-JSON API endpoints have been developed by
 
 - **mars-cli**: Source code of the Python library to submit (meta)data to the repositories. See [README](/mars-cli/README.md) to read more on how to use the command line tool.
 - **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
+    - **repository-api.md**: Describing the receipt standard for repository APIs to follow.
 - **test-data**: Test data to be used in a submission.
 - **README.md**: This file
