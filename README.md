@@ -31,11 +31,11 @@ MARS serves as a common ground where data producers and diverse data repositorie
 
 ## Stakeholders in MARS
 
-MARS is comprised of 4 stakeholders, the end-user, the platform that generates ISA-JSON, target archives and the data broker. Each representing key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
+MARS is comprised of 4 stakeholders, the end-user, the platform that generates the ISA-JSON, target repositories and the data broker. Each representing key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
 
-## The data broker platform
+## Data broker platform
 
-
+The data
 
 ### MARS-CLI
 
