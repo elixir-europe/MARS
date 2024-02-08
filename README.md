@@ -79,8 +79,8 @@ THE MARS initiative
 
 ```
 ├── mars-cli
-│   ├── lib/
-│   ├── mars-cli.py
+│   ├── mars_lib/
+│   ├── mars_cli.py
 │   ├── README.md
 │   └── ...
 ├── repository-services
@@ -94,6 +94,6 @@ THE MARS initiative
 ```
 
 - **mars-cli**: Source code of the main Python library to submit (meta)data to the repositories. See [README](/mars-cli/README.md) to read more on how to use the command line tool.
-- **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-test-services/README.md) for deployment instructions. 
+- **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
 - **test-data**: Test data to be used in a submission.
 - **README.md**: This file
