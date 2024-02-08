@@ -20,5 +20,10 @@ setup(
         "Source": "https://github.com/elixir-europe/MARS",
         "Bug Reports": "https://github.com/elixir-europe/MARS/issues",
     },
+    entry_points={  # Optional
+        "console_scripts": [
+            "mars-cli=mars_cli:main",
+        ],
+    },
     python_requires=">=3.10, <4",
 )
