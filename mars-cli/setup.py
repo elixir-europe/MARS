@@ -25,5 +25,5 @@ setup(
             "mars-cli=mars_cli:main",
         ],
     },
-    python_requires=">=3.10, <4",
+    python_requires=">=3.9, <4",
 )
