@@ -77,7 +77,7 @@ After a successful submission, BioSamples sends back an updated ISA-JSON contain
 
 7. **Update BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
 
-    => *Done* by Marco, see [biosamples_externalReferences.py](mars-cli/mars_lib/biosamples_external_references.py)
+    => *Done* by Marcos (@M-casado), see [biosamples_externalReferences.py](mars-cli/mars_lib/biosamples_external_references.py)
 
 
 #### Credential management
