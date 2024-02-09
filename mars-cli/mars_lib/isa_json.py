@@ -27,7 +27,7 @@ class TargetRepository:
 
 
 def reduce_isa_json_for_target_repo(
-    input_isa_json: Dict[str, str], target_repo: str
+    input_isa_json: Dict, target_repo: str
 ) -> Dict[str, str]:
     """
     Filters out assays that are not meant to be sent to the specified target repository.
@@ -69,7 +69,7 @@ def detect_target_repo_comment(comments: List[Dict[str, str]]) -> Dict[str, str]
             return comment
 
 
-def is_assay_for_target_repo(assay_dict: Dict[str, str], target_repo: str) -> bool:
+def is_assay_for_target_repo(assay_dict: Dict, target_repo: str) -> bool:
     """
     Defines whether the assays is meant for the target repository.
 

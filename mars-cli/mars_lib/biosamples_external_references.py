@@ -229,7 +229,7 @@ class BiosamplesRecord:
             return self.bs_json
         else:
             raise ValueError(
-                f"Neither the file containing the Biosamples JSON nor the Biosamples JSON itself were given to load it into the instance."
+                "Neither the file containing the Biosamples JSON nor the Biosamples JSON itself were given to load it into the instance."
             )
 
     def pop_links(self):
