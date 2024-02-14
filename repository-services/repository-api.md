@@ -36,7 +36,7 @@ Current format:
     * value is accession (or whatever identifier repository wants to respond with)
 
 (Examples below for illustration only)
-```
+```json
 {
    "targetRepository": "ena",
    "receipt": {...}
