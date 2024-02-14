@@ -161,4 +161,4 @@ def test_update_remote_record():
     bs_record.fetch_bs_json("https://wwwdev.ebi.ac.uk/biosamples/samples/")
 
     with pytest.raises(RuntimeError):
-        response = bs_record.update_remote_record(get_header("thisIsAFakeToken"))
+        bs_record.update_remote_record(get_header("thisIsAFakeToken"))

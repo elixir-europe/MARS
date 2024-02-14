@@ -1,4 +1,3 @@
-import pytest
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
