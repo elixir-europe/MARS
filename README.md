@@ -8,7 +8,7 @@ The initiative ensures mutual understanding and accurate interpretation of the d
 
 ## Stakeholders
 
-MARS is comprised of multiple stakeholders, the end-user, the platform that generates the ISA-JSON, target repositories and the data broker. Each representing key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
+MARS is comprised of multiple stakeholders: the end-user, the platform that generates the ISA-JSON, target repositories and the data broker. Each represents key roles in the data submission process. Read more about it in our [stakeholders page](/stakeholders.md).
 
 
 ## Components
