@@ -13,7 +13,7 @@ def test_load_isa_json():
 
 def test_reduce_isa_json_for_target_repo():
     good_isa_json = load_isa_json("../test-data/ISA-BH2023-ALL/isa-bh2023-all.json")
-    print(TargetRepository.ENA)
+
     filtered_isa_json = reduce_isa_json_for_target_repo(
         good_isa_json, TargetRepository.ENA
     )
