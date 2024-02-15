@@ -12,6 +12,7 @@ setup(
     name="mars",
     description="Multi-omics Adapter for Repository Submissions",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=find_packages(include=["mars-lib"]),
     version=__version__,
     license="MIT",
