@@ -1,0 +1,92 @@
+{
+  "name" : "AngH91",
+  "accession" : "SAMEA112654119",
+  "domain" : "self.BiosampleSyntheticData",
+  "taxId" : 9606,
+  "status" : "PUBLIC",
+  "release" : "2023-04-15T08:26:35.650Z",
+  "update" : "2023-04-15T08:26:38.356Z",
+  "submitted" : "2023-02-17T10:40:18.855Z",
+  "characteristics" : {
+    "ENA-CHECKLIST" : [ {
+      "text" : "ERC000026",
+      "tag" : "attribute"
+    } ],
+    "INSDC center name" : [ {
+      "text" : "Max Planck Institute for Evolutionary Anthropology"
+    } ],
+    "SRA accession" : [ {
+      "text" : "ERS14651830"
+    } ],
+    "Submitter Id" : [ {
+      "text" : "AngH91"
+    } ],
+    "broker name" : [ {
+      "text" : "EGA"
+    } ],
+    "common name" : [ {
+      "text" : "human"
+    } ],
+    "gender" : [ {
+      "text" : "female",
+      "ontologyTerms" : [ "http://purl.obolibrary.org/obo/PATO_0000383" ]
+    }, {
+      "text" : "female",
+      "tag" : "attribute"
+    } ],
+    "organism" : [ {
+      "text" : "Homo sapiens"
+    }, {
+      "text" : "Homo sapiens",
+      "ontologyTerms" : [ "http://purl.obolibrary.org/obo/NCBITaxon_9606" ]
+    } ],
+    "region" : [ {
+      "text" : "Angola",
+      "tag" : "attribute"
+    } ],
+    "scientific_name" : [ {
+      "text" : "Homo sapiens"
+    } ],
+    "subjectId" : [ {
+      "text" : "AngH91"
+    }, {
+      "text" : "AngH91",
+      "ontologyTerms" : [ "" ]
+    } ],
+    "subject_id" : [ {
+      "text" : "AngH91",
+      "tag" : "attribute"
+    } ]
+  },
+  "externalReferences" : [ {
+    "url" : "https://ega-archive.org/datasets/EGAD00010002458",
+    "duo" : [ ]
+  }, {
+    "url" : "https://ega-archive.org/metadata/v2/samples/EGAN00004248937",
+    "duo" : [ ]
+  }, {
+    "url" : "https://www.ebi.ac.uk/ena/browser/view/SAMEA112654119",
+    "duo" : [ ]
+  } ],
+  "submittedVia" : "JSON_API",
+  "create" : "2023-02-17T10:40:11.146Z",
+  "_links" : {
+    "self" : {
+      "href" : "https://www.ebi.ac.uk/biosamples/samples/SAMEA112654119"
+    },
+    "curationDomain" : {
+      "href" : "https://www.ebi.ac.uk/biosamples/samples/SAMEA112654119{?curationdomain}",
+      "templated" : true
+    },
+    "curationLinks" : {
+      "href" : "https://www.ebi.ac.uk/biosamples/samples/SAMEA112654119/curationlinks"
+    },
+    "curationLink" : {
+      "href" : "https://www.ebi.ac.uk/biosamples/samples/SAMEA112654119/curationlinks/{hash}",
+      "templated" : true
+    },
+    "structuredData" : {
+      "href" : "https://www.ebi.ac.uk/biosamples/structureddata/SAMEA112654119"
+    }
+  }
+}

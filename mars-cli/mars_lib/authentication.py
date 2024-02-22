@@ -5,7 +5,8 @@ import json
 def get_webin_auth_token(
     credentials_dict,
     header={"Content-Type": "application/json"},
-    auth_url="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
+    auth_base_url="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
+    token_expiration_time=1,
 ):
     """
     Obtain Webin authentication token.
@@ -13,11 +14,13 @@ def get_webin_auth_token(
     Args:
     credentials_dict (dict): The password dictionary for authentication.
     header (dict): The header information.
-    auth_url (str): The URL for authentication.
+    auth_base_url (str): The base URL for authentication.
+    token_expiration_time(int): Toke expiration time in hours.
 
     Returns:
     str: The obtained token.
     """
+    auth_url = f"{auth_base_url}?ttl={token_expiration_time}"
     data = json.dumps(
         {
             "authRealms": ["ENA"],

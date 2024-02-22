@@ -12,7 +12,9 @@ setup(
     name="mars",
     description="Multi-omics Adapter for Repository Submissions",
     long_description=long_description,
-    packages=find_packages(include=["mars-lib"]),
+    long_description_content_type="text/markdown",
+    packages=find_packages(include=["mars_lib"]),
+    py_modules=["mars_cli"],
     version=__version__,
     license="MIT",
     install_requires=[required_deps],
@@ -25,5 +27,5 @@ setup(
             "mars-cli=mars_cli:main",
         ],
     },
-    python_requires=">=3.10, <4",
+    python_requires=">=3.9, <4",
 )

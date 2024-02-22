@@ -67,6 +67,8 @@ def handle_input_dict(input):
 
             return loaded_dict
 
+        # TODO: Remove this because the json.JSONDecodeError is already caught in load_json_file
+        # In the meantime, it doesn't break anything.
         except json.JSONDecodeError:
             raise ValueError(f"The file '{input}' is not a valid JSON file.")
 
@@ -137,8 +139,6 @@ def validate_json_against_schema(
         )
     except SchemaError as e:
         raise SchemaError(f"Schema error: {e.message}")
-
-    return False
 
 
 class BiosamplesRecord:
@@ -229,7 +229,7 @@ class BiosamplesRecord:
             return self.bs_json
         else:
             raise ValueError(
-                f"Neither the file containing the Biosamples JSON nor the Biosamples JSON itself were given to load it into the instance."
+                "Neither the file containing the Biosamples JSON nor the Biosamples JSON itself were given to load it into the instance."
             )
 
     def pop_links(self):
