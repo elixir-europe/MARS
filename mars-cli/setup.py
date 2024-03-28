@@ -18,6 +18,15 @@ setup(
     version=__version__,
     license="MIT",
     install_requires=[required_deps],
+    extras_require={
+        "test": [
+            # Dependencies for testing only
+            "black",
+            "ruff",
+            "pytest",
+            "pytest-cov",
+        ]
+    },
     project_urls={
         "Source": "https://github.com/elixir-europe/MARS",
         "Bug Reports": "https://github.com/elixir-europe/MARS/issues",
