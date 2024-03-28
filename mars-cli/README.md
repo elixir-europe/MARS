@@ -1,3 +1,18 @@
+# Installing the mars-cli
+
+Installing the mars-cli from source:
+
+```sh
+cd mars-cli # Assuming you are in the root folder
+pip install .
+```
+
+If you want to install the optional testing dependencies as well, useful when contributing to the project:
+
+```sh
+pip install -e '.[test]'
+```
+
 # Extending BioSamples' records
 The Python script ``biosamples-externalReferences.py`` defines a class BiosamplesRecord for managing biosample records. This class is designed to interact with the BioSamples database, allowing operations like fetching, updating, and extending biosample records.
 The script takes in a dictionary of BioSamples' accessions and their associated external references, and expands the former with the latter.
