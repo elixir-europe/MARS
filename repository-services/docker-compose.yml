@@ -1,13 +1,13 @@
-version: '3'
-
 services:
   isa_biosamples:
       build: isajson-biosamples
       ports:
         - "8032:8032"
+      restart: unless-stopped
 
   isa_sra:
       build: isajson-ena
       ports:
         - "8042:8042"
+      restart: unless-stopped
 
