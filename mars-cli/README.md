@@ -10,7 +10,7 @@ pip install .
 If you want to install the optional testing dependencies as well, useful when contributing to the project:
 
 ```sh
-pip install -e '.[test]'
+pip install .[test]
 ```
 
 # Extending BioSamples' records
