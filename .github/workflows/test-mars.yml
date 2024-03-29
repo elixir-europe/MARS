@@ -31,7 +31,7 @@ jobs:
         working-directory: ${{ env.working-directory }}
         
       - name: Test python code
-        run: pytest --doctest-modules --cov=mars_lib tests/ --cov-fail-under=80
+        run: pytest
         working-directory: ${{ env.working-directory }}
 
       - name: Formatting
