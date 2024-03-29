@@ -7,8 +7,9 @@ from mars_lib.biosamples_external_references import (
     handle_input_dict,
     input_json_schema_filepath,
 )
-import argparse
-from argparse import RawTextHelpFormatter
+import click
+import logging
+from mars_lib.isa_json import TargetRepository
 
 
 def create_external_references(
@@ -22,16 +23,24 @@ def create_external_references(
     biosamples_externalReferences: Dictionary containing the mapping between the
     production: Boolean indicating the environment of BioSamples to use.
     """
+    if production:
+        logger_name = "production"
+        biosamples_endpoint = biosamples_endpoints["prod"]
+    else:
+        logger_name = "development"
+        biosamples_endpoint = biosamples_endpoints["dev"]
+
+        logging.basicConfig(
+            filename=logger_name + ".log",
+            filemode="w",
+            format="%(name)s - %(levelname)s - %(message)s",
+        )
+
     validate_json_against_schema(
         json_doc=biosamples_externalReferences, json_schema=input_json_schema_filepath
     )
     token = get_webin_auth_token(biosamples_credentials)
     header = get_header(token)
-
-    if production:
-        biosamples_endpoint = biosamples_endpoints["prod"]
-    else:
-        biosamples_endpoint = biosamples_endpoints["dev"]
 
     for biosample_r in biosamples_externalReferences["biosampleExternalReferences"]:
         bs_accession = biosample_r["biosampleAccession"]
@@ -44,40 +53,51 @@ def create_external_references(
         BSrecord.update_remote_record(header)
 
 
-def main():
-    """Main function that handles the argument parsing and passes those to `create_external_references`"""
-    # Command-line argument parsing
-    parser = argparse.ArgumentParser(description="Handle biosamples records.")
-    description = "This script extends a set of existing Biosamples records with a list of provided external references."
-    parser = argparse.ArgumentParser(
-        prog="biosamples-externalReferences.py",
-        description=description,
-        formatter_class=RawTextHelpFormatter,
-    )
-    parser.add_argument(
-        "biosamples_credentials",
-        help="Either a dictionary or filepath to the BioSamples credentials.",
-    )
-    parser.add_argument(
-        "biosamples_externalReferences",
-        help="Either a dictionary or filepath to the BioSamples' accessions mapping with external references.",
-    )
-    parser.add_argument(
-        "--production",
-        action="store_true",
-        help="Boolean indicating the usage of the production environment of BioSamples. If not present, the development instance will be used.",
-    )
-    # Handle inputs
-    parsed_args = parser.parse_args()
-    biosamples_credentials = handle_input_dict(parsed_args.biosamples_credentials)
-    biosamples_externalReferences = handle_input_dict(
-        parsed_args.biosamples_externalReferences
+@click.group()
+@click.option(
+    "--development",
+    is_flag=True,
+    help="Boolean indicating the usage of the development environment of the target repositories. If not present, the production instances will be used.",
+)
+def cli(development):
+    click.echo(
+        f"Running in {'Development environment' if development else 'Production environment'}"
     )
 
-    create_external_references(
-        biosamples_credentials, biosamples_externalReferences, parsed_args.production
+
+@cli.command()
+@click.argument(
+    "credentials_file",
+    type=click.File("r"),
+)
+@click.argument(
+    "isa_json_file",
+    type=click.File("r"),
+)
+@click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
+@click.option(
+    "--submit-to-metabolights",
+    type=click.BOOL,
+    default=True,
+    help="Submit to Metabolights.",
+)
+def submit(credentials_file, isa_json_file, submit_to_ena, submit_to_metabolights):
+    target_repositories = ["biosamples"]
+    if submit_to_ena:
+        target_repositories.append(TargetRepository.ENA)
+
+    if submit_to_metabolights:
+        target_repositories.append(TargetRepository.METABOLIGHTS)
+
+    click.echo(
+        f"Staring submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
     )
+
+
+@cli.command()
+def health_check():
+    click.echo("Checking the health of the target repositories.")
 
 
 if __name__ == "__main__":
-    main()
+    cli()
