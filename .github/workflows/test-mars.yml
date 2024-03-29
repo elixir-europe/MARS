@@ -12,12 +12,13 @@ on:
 
 jobs:
   test-mars:
-    runs-on: ubuntu-latest
-    env:
-      working-directory: ./mars-cli
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    env:
+      working-directory: ./mars-cli
         
     steps:
       - uses: actions/checkout@v4
