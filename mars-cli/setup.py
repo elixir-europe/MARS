@@ -47,7 +47,7 @@ setup(
     },
     entry_points={  # Optional
         "console_scripts": [
-            "mars-cli=mars_cli:main",
+            "mars-cli=mars_cli:cli",
         ],
     },
     python_requires=">=3.9, <4",
