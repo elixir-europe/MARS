@@ -3,6 +3,7 @@ from _version import __version__
 from setuptools import find_packages, setup
 import pathlib
 import os
+from generate_config import generate_config
 
 with open("requirements.txt", "r") as file:
     required_deps = file.read().splitlines()
@@ -16,7 +17,8 @@ class custom_install(install):
         # Default install command
         install.run(self)
 
-        os.system("python3 generate_config.py")
+        overwrite_settings = os.getenv("OVERWRITE_SETTINGS", "False").lower() == "true"
+        generate_config(overwrite_settings)
 
 
 setup(

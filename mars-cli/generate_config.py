@@ -1,16 +1,40 @@
 import configparser
 import pathlib
 
-# Create settings file in user's home directory
-settings_dir = pathlib.Path.home() / ".mars"
-if not settings_dir.exists():
-    settings_dir.mkdir()
 
-settings_path = settings_dir / "settings.ini"
-log_path = settings_dir / "app.log"
+def create_settings_file(settings_dir):
+    """
+    Create a settings file with the specified log path and settings path.
 
-config = configparser.ConfigParser()
-config["logging"] = {"log_level": "ERROR", "log_file": log_path}
+    Args:
+        settings_path (str): The path to the settings file.
 
-with open(settings_path, "w") as config_file:
-    config.write(config_file)
+    Returns:
+        None
+    """
+    log_path = settings_dir / "app.log"
+    settings_path = settings_dir / "settings.ini"
+    config = configparser.ConfigParser()
+    config["logging"] = {"log_level": "ERROR", "log_file": log_path}
+
+    with open(settings_path, "w") as config_file:
+        config.write(config_file)
+
+
+def generate_config(overwrite):
+    """
+    Generate the configuration file for the MARS CLI.
+
+    Returns:
+        None
+    """
+    settings_dir = pathlib.Path.home() / ".mars"
+    if not settings_dir.exists():
+        settings_dir.mkdir()
+
+    settings_path = settings_dir / "settings.ini"
+
+    if settings_path.exists() and not overwrite:
+        return
+
+    create_settings_file(settings_dir)
