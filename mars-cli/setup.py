@@ -1,6 +1,8 @@
-import pathlib
+from setuptools.command.install import install
 from _version import __version__
 from setuptools import find_packages, setup
+import pathlib
+import os
 
 with open("requirements.txt", "r") as file:
     required_deps = file.read().splitlines()
@@ -8,8 +10,20 @@ with open("requirements.txt", "r") as file:
 parent_folder = pathlib.Path(__file__).parent.resolve()
 long_description = (parent_folder / "README.md").read_text(encoding="utf-8")
 
+
+class custom_install(install):
+    def run(self):
+        # Default install command
+        install.run(self)
+
+        os.system("python3 generate_config.py")
+
+
 setup(
     name="mars",
+    cmdclass={
+        "install": custom_install,
+    },
     description="Multi-omics Adapter for Repository Submissions",
     long_description=long_description,
     long_description_content_type="text/markdown",
