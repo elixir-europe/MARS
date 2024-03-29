@@ -13,6 +13,45 @@ If you want to install the optional testing dependencies as well, useful when co
 pip install .[test]
 ```
 
+If you want to overwrite the `settings.ini` file when reinstalling, you need to set the environmental variable `OVERWRITE_SETTINGS` to `True`:
+
+```sh
+OVERWRITE_SETTINGS=True pip install .[test]
+```
+
+Once installed, the CLI application will be available from the terminal.
+
+# Configuration
+
+Installing this application will also generate a `settings.ini` file in `$HOME/.mars/`.
+
+```
+[logging]
+log_level = ERROR
+log_file = /my/logging/directory/.mars/app.log
+log_max_size = 1024
+log_max_files = 5
+```
+
+## Logging
+
+The MARS-CLI will automatically log events to a `.log` file.
+
+__log_level__: The verbosity of logging can be set to three different levels
+- CRITICAL: Only critical messages will be logged. __Not recommended!__
+- ERROR: Errors and critical messages will be logged.
+- WARNING: Warnings, errors and critical messages will be logged.
+- INFO: All events are logged.
+- DEBUG: For debugging purpose only. __Not recommended as it might log more sensitive information!__
+The default setting is ERROR. So only errors are logged!
+
+__log_file__: The path to the log file. By default this will be in `$HOME/.mars/app.log`.
+
+__log_max_size__: The maximum size in kB for the log file. By default the maximum size is set to 1024 kB or 1 MB.
+
+__log_max_files__: The maximum number of old log files to keep. By default, this is set to 5
+
+
 # Extending BioSamples' records
 The Python script ``biosamples-externalReferences.py`` defines a class BiosamplesRecord for managing biosample records. This class is designed to interact with the BioSamples database, allowing operations like fetching, updating, and extending biosample records.
 The script takes in a dictionary of BioSamples' accessions and their associated external references, and expands the former with the latter.
