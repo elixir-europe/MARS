@@ -185,6 +185,15 @@ class Assay(BaseModel):
     technologyType: Optional[TechnologyType] = Field(default=None)
     unitCategories: Optional[List[OntologyAnnotation]] = Field(default=[])
 
+    @validator("comments")
+    def detect_target_repo_comments(cls, v):
+        target_repo_comments = [comment.name for comment in v]
+        if len(target_repo_comments) == 0:
+            raise ValueError("'target repository' comment is missing")
+        if len(target_repo_comments) > 1:
+            raise ValueError("Multiple 'target repository' comments found")
+        return v
+
 
 class Person(BaseModel):
     id: Optional[str] = Field(alias="@id", default=None)
