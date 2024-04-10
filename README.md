@@ -48,36 +48,32 @@ Examples of Data broker platforms are ARC, Galaxy, ...
 
 ### MARS-CLI
 
-This command line tool (CLI) will be used by the Data broker platform and will perform the actual submission of the ISA-JSON to the repositories. The application will be build as a Python library which can be integrated in a web application, ARC, Galaxy and others. Source code and documentation can be found in the [mars_cli folder](/) in this repo.
+This command line tool (CLI) will be used by the Data broker platform and will perform the actual submission of the ISA-JSON to the repositories. Based on receipts repositories give back as response, the ISA-JSON will be updated with accession numbers. The application is build as a Python library which can be integrated in a web application, ARC, Galaxy and others. Source code and documentation can be found in the [mars-cli folder](/mars-cli/) in this repo.
 
 The main steps of MARS-CLI are:
 
-1. **Validating the ISA-JSON**: Syntax validation
+1. **Ingesting and validating the ISA-JSON**: Compared to the vanilla ISA specification, the MARS-CLI has certain fields required (for example `targetRepository`) in order to function properly. Upon ISA-JSON ingestion the information gets loaded in the
 
-    => We could use the [ISA-API validation](https://isa-tools.org/isa-api/content/validation.html) library.
+2. **Identifying the target repositories**: The order of submission can be depended on the target repositories specified in the ISA-JSON.
 
-2. **Registering samples in BioSamples**: Submitting an ISA-JSON to a newly developed API at BioSamples. The BioSamples accession will be reused by the other repositories and thus needs to be done first.
-After a successful submission, BioSamples sends back an updated ISA-JSON containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
+3. **Registering samples in BioSamples**: Submitting an ISA-JSON to a newly developed API at BioSamples. The BioSamples accession will be reused by the other repositories and thus needs to be done first.
+After a successful submission, BioSamples sends back a receipt containing BioSamples accession numbers for `Source` and `Sample` as `Source characteristics` and `Sample characteristics`, respectively. 
 
-    => The source code for the ISA-JSON API for BioSamples can be found in the [repository-services repo](/repository-services/isajson-biosamples/) and can be used for testing
+    > The source code for the ISA-JSON API for BioSamples can be found in the [repository-services repo](/repository-services/isajson-biosamples/) and can be used for testing
 
-3. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo
+4. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo. This will be facilitated by the `targetRepository` attribute present in the ISA-JSON assays.
 
-    => We can use the `targetRepository` attribute to select assays.
+5. **Submitting data to target repositories**: Since some repositories have the requirement that the actual data is already present in their upload space, the MARS-CLI could optionally take care of the data submission. This would guarantee the presence of the the data upon the metadata (ISA-JSON) submission and a checksum check.
 
-4. **Registering linked records to other repositories**: Sending the filtered ISA-JSON to the endpoints of the repositories who accept ISA-JSON. 
+6. **Registering ISA-JSON at the target repositories**: Sending the filtered ISA-JSON to the endpoints of the repositories who accept ISA-JSON, for example ENA.
 
-    => Currently we have ISA-JSON API services ready for ENA and BioSamples. This could be done asynchronously.
+    > The source code for the ISA-JSON API for ENA can be found in the [repository-services repo](/repository-services/isajson-ena/) and can be used for testing
 
-5. **Processing the receipts and errors from other repositories**: After a successful submission, each repository sends back a receipt in a standard format defined for MARS (see [repository-api info](/repository-services/repository-api.md)). The receipt contains the path of the objects in the ISA-JSON for which an accession number has been generated, and the related accession number. 
+7. **Processing the receipts and errors from the repositories**: After a successful submission, each repository sends back a receipt in a standard format defined for MARS (see [repository-api info](/repository-services/repository-api.md)). The receipt contains the path of the objects in the ISA-JSON for which an accession number has been generated, and the related accession number. 
 
-    => We have to handle well when submissions go wrong.
+8. **Updating the BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
 
-6. **Update the ISA-JSON with repositories' information**: Based on the information in the receipts, the ISA-JSON can be populated with accession numbers linked to the submitted metadata objects.
-
-7. **Update BioSamples External References**: Data broker uses the BioSamples accession numbers to download the submitted BioSamples JSON and extend the `External References` schema by adding the accession numbers provided by the other target archives.
-
-    => *Done* by Marcos (@M-casado), see [biosamples_externalReferences.py](mars-cli/mars_lib/biosamples_external_references.py)
+9. **Dumping back an updated ISA-JSON with repositories' information**: Based on the information in the receipts, the ISA-JSON is populated with accession numbers linked to the submitted metadata objects and can be given back as output.
 
 
 #### Credential management
@@ -93,8 +89,9 @@ MARS-CLI is not to be used as a platform to host data and will not store the dat
 
 ### ISA-JSON support by repositories
 
-ISA-JSON API services are being developed and deployed by the repositories that are part of the MARS initiative. This includes programmatic submission, the digestion of ISA-JSON in order to register the metadata objects and the creation of a receipt according to the MARS [repository-api](/repository-services/repository-api.md) standard.
- Track the status of each repository here:
+ISA-JSON API services are being developed and deployed by the repositories that are part of the MARS initiative. This includes programmatic submission, the ingestion of ISA-JSON in order to register the metadata objects and the creation of a receipt according to the MARS [repository-api](/repository-services/repository-api.md) standard.
+
+Track the status of each repository here:
 
 | Repository | Programmatic submission | Development status | Deployed? | Source code |
 |---|---|---|---|---|
