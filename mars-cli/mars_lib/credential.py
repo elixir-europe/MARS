@@ -1,6 +1,7 @@
 import keyring
 import os
 import getpass
+import keyring.util.platform_ as keyring_platform
 
 """
 Credential Manager Module
@@ -42,13 +43,13 @@ retrieved_password = cred_manager.get_password_keyring("username")
 
 # Don't forget to handle exceptions and secure your credentials properly.
 """
-import keyring.util.platform_ as keyring_platform
 
 print(keyring_platform.config_root())
 # /home/username/.config/python_keyring  # Might be different for you
 
 print(keyring.get_keyring())
 # keyring.backends.SecretService.Keyring (priority: 5)
+
 
 class CredentialManager:
     def __init__(self, service_name):
@@ -57,7 +58,7 @@ class CredentialManager:
     def get_credential_env(self, username):
         """
         Retrieves a credential from environment variables.
-        
+
         :param username: The environment variable username.
         :return: The value of the environment variable or None if not found.
         """
@@ -66,7 +67,7 @@ class CredentialManager:
     def prompt_for_password(self):
         """
         Securely prompts the user to enter a password in the console.
-        
+
         :return: The password entered by the user.
         """
         return getpass.getpass(prompt="Enter your password: ")
@@ -74,7 +75,7 @@ class CredentialManager:
     def set_password_keyring(self, username, password):
         """
         Stores a password in the keyring under the given username.
-        
+
         :param username: The username associated with the password.
         :param password: The password to store.
         """
@@ -83,7 +84,7 @@ class CredentialManager:
     def get_password_keyring(self, username):
         """
         Retrieves a password from the keyring for the given username.
-        
+
         :param username: The username whose password to retrieve.
         :return: The password or None if not found.
         """
@@ -92,8 +93,7 @@ class CredentialManager:
     def delete_password_keyring(self, username):
         """
         Deletes a password from the keyring for the given username.
-        
+
         :param username: The username whose password to delete.
         """
         keyring.delete_password(self.service_name, username)
-
