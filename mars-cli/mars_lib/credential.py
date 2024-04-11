@@ -1,6 +1,7 @@
 import keyring
 import os
 import getpass
+import keyring.util.platform_ as keyring_platform
 
 """
 Credential Manager Module
@@ -42,7 +43,6 @@ retrieved_password = cred_manager.get_password_keyring("username")
 
 # Don't forget to handle exceptions and secure your credentials properly.
 """
-import keyring.util.platform_ as keyring_platform
 
 print(keyring_platform.config_root())
 # /home/username/.config/python_keyring  # Might be different for you
