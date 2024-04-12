@@ -26,6 +26,7 @@ class ReceiptField(str, Enum):
     PATH = "path"
     WHERE = "where"
 
+
 class ReceiptEnumEncoder(json.JSONEncoder):
     """
     Json encoder for fields that are Enums

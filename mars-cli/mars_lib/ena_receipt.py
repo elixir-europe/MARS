@@ -9,6 +9,7 @@ def to_json(response: Dict[ReceiptField, Any]) -> Any:
     """
     return json.loads(json.dumps(response, cls=ReceiptEnumEncoder))
 
+
 def interpret(receipt: Dict, isa_json: Dict) -> Dict[ReceiptField, Any]:
     """
     Prepares the response
@@ -44,7 +45,7 @@ def interpret(receipt: Dict, isa_json: Dict) -> Dict[ReceiptField, Any]:
         if ena_study is None:
             response[ReceiptField.ERRORS].append(f"Cannot find a study with the alias '{isa_json_study_title}' in the ENA receipt")
             continue
-        
+
         response[ReceiptField.ACCESSIONS].append(get_study_response(isa_json_study_title, ena_study))
         for sample in study["materials"]["samples"]:
             isa_json_sample_id = sample["@id"]
@@ -127,9 +128,11 @@ def get_experiment_response():
     # TODO: Preparing the response for ISA-JSON assay from ENA experiment
     raise NotImplementedError(f"{get_experiment_response.__name__}() is not implemented!")
 
+
 def get_run_response():
     # TODO: Preparing the response for ISA-JSON dataFile from ENA run
     raise NotImplementedError(f"{get_run_response.__name__}() is not implemented!")
+
 
 
 if __name__ == "__main__":
