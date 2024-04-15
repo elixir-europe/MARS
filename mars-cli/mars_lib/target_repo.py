@@ -12,3 +12,4 @@ class TargetRepository(str, Enum):
     ENA = "ena"
     METABOLIGHTS = "metabolights"
     BIOSAMPLES = "biosamples"
+    EVA = "eva"
