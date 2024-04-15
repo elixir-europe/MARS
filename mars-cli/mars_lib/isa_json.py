@@ -2,18 +2,7 @@ import json
 from typing import Dict, Union, List
 from mars_lib.schemas.model import Investigation, Assay, Comment
 from pydantic import ValidationError
-
-TARGET_REPO_KEY = "target repository"
-
-
-class TargetRepository:
-    """
-    Holds constants, tied to the target repositories.
-    """
-
-    ENA = "ena"
-    METABOLIGHTS = "metabolights"
-    BIOSAMPLES = "biosamples"
+from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
 
 
 def reduce_isa_json_for_target_repo(
