@@ -20,10 +20,8 @@ def create_external_references(
     production: Boolean indicating the environment of BioSamples to use.
     """
     if production:
-        logger_name = "production"
         biosamples_endpoint = biosamples_endpoints["prod"]
     else:
-        logger_name = "development"
         biosamples_endpoint = biosamples_endpoints["dev"]
 
     validate_json_against_schema(
