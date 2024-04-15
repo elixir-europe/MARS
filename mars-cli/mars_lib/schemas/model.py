@@ -4,7 +4,6 @@ from enum import Enum
 import re
 from typing import List, Optional, Union
 
-from click import Option
 from pydantic import BaseModel, Field, validator, ConfigDict
 
 
