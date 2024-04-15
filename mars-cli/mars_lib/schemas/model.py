@@ -4,16 +4,22 @@ from enum import Enum
 import re
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from click import Option
+from pydantic import BaseModel, Field, validator, ConfigDict
 
 
-class Comment(BaseModel):
+class IsaBase(BaseModel):
+    # model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
+
+
+class Comment(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     name: Optional[str] = Field(default=None)
     value: Optional[str] = Field(default=None)
 
 
-class OntologySourceReference(BaseModel):
+class OntologySourceReference(IsaBase):
     comments: Optional[List[Comment]] = Field(default=[])
     description: Optional[str] = Field(default=None)
     file: Optional[str] = Field(default=None)
@@ -30,7 +36,7 @@ class DataTypeEnum(str, Enum):
     FREE_INDUCTION_DECAY_FILE = "Free Induction Decay File"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/)
 
 
-class Data(BaseModel):
+class Data(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     name: Optional[str] = Field(default=None)
@@ -43,7 +49,7 @@ class Data(BaseModel):
         return v
 
 
-class OntologyAnnotation(BaseModel):
+class OntologyAnnotation(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     annotationValue: Union[Optional[str], Optional[float], Optional[int]] = Field(
         default=[]
@@ -56,19 +62,26 @@ class OntologyAnnotation(BaseModel):
     )
 
 
-class MaterialAttributeValue(BaseModel):
+class MaterialAttributeValue(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    characteristicType: Optional[OntologyAnnotation] = Field(default=None)
+    category: Optional[OntologyAnnotation] = Field(default=None)
+    value: Union[
+        Optional[OntologyAnnotation], Optional[str], Optional[float], Optional[int]
+    ] = Field(default=None)
+    unit: Optional[OntologyAnnotation] = Field(default=None)
+    comments: Optional[List[Comment]] = Field(
+        default=[]
+    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-attribute-value-schema-json)
 
 
-class Factor(BaseModel):
+class Factor(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     factorName: Optional[str] = Field(default=None)
     factorType: Optional[OntologyAnnotation] = Field(default=None)
 
 
-class FactorValue(BaseModel):
+class FactorValue(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     category: Optional[Factor] = Field(default=None)
     value: Union[
@@ -77,26 +90,32 @@ class FactorValue(BaseModel):
     unit: Optional[OntologyAnnotation] = Field(default=None)
 
 
-class Source(BaseModel):
+class Source(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristics: Optional[List[MaterialAttributeValue]] = Field(default=[])
     name: Optional[str] = Field(default=None)
+    comments: Optional[List[Comment]] = Field(
+        default=[]
+    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#source-schema-json)
 
 
-class Sample(BaseModel):
+class Sample(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     name: Optional[str] = Field(default=None)
     characteristics: Optional[List[MaterialAttributeValue]] = Field(default=[])
     factorValues: Optional[List[FactorValue]] = Field(default=[])
     derivesFrom: Optional[List[Source]] = Field(default=[])
+    comments: Optional[List[Comment]] = Field(
+        default=[]
+    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#sample-schema-json)
 
 
-class ProtocolParameter(BaseModel):
+class ProtocolParameter(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     parameterName: Optional[OntologyAnnotation] = Field(default=None)
 
 
-class ProcessParameterValue(BaseModel):
+class ProcessParameterValue(IsaBase):
     category: Optional[ProtocolParameter] = Field(default=None)
     value: Union[
         Optional[str], Optional[float], Optional[int], Optional[OntologyAnnotation]
@@ -105,12 +124,12 @@ class ProcessParameterValue(BaseModel):
 
 
 # Helper class for protocol -> components
-class Component(BaseModel):
+class Component(IsaBase):
     componentName: Optional[str] = Field(default=None)
     componentType: Optional[OntologyAnnotation] = Field(default=None)
 
 
-class Protocol(BaseModel):
+class Protocol(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     components: Optional[List[Component]] = Field(default=[])
@@ -129,7 +148,7 @@ class MaterialTypeEnum(str, Enum):
     LABELED_EXTRACT_NAME = "Labeled Extract Name"
 
 
-class Material(BaseModel):
+class Material(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristics: List[MaterialAttributeValue] = Field(default=[])
     comments: Optional[List[Comment]] = Field(default=[])
@@ -144,7 +163,7 @@ class Material(BaseModel):
         return v
 
 
-class Process(BaseModel):
+class Process(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     date: Optional[str] = Field(default=None)
@@ -162,17 +181,13 @@ class Process(BaseModel):
     previousProcess: Optional[Process] = Field(default=None)
 
 
-class TechnologyType(BaseModel):
-    ontologyAnnotation: Optional[OntologyAnnotation] = Field(default=None)
-
-
 # Helper for assay -> materials
-class AssayMaterialType(BaseModel):
+class AssayMaterialType(IsaBase):
     samples: Optional[List[Sample]] = Field(default=[])
     otherMaterials: Optional[List[Material]] = Field(default=[])
 
 
-class Assay(BaseModel):
+class Assay(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristicCategories: Optional[List[MaterialAttribute]] = Field(default=[])
     comments: Optional[List[Comment]] = Field(default=[])
@@ -182,7 +197,7 @@ class Assay(BaseModel):
     measurementType: Optional[OntologyAnnotation]
     processSequence: Optional[List[Process]] = Field(default=[])
     technologyPlatform: Optional[str] = Field(default=None)
-    technologyType: Optional[TechnologyType] = Field(default=None)
+    technologyType: Optional[OntologyAnnotation] = Field(default=None)
     unitCategories: Optional[List[OntologyAnnotation]] = Field(default=[])
 
     @validator("comments")
@@ -195,7 +210,7 @@ class Assay(BaseModel):
         return v
 
 
-class Person(BaseModel):
+class Person(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     address: Optional[str] = Field(default=None)
     affiliation: Optional[str] = Field(default=None)
@@ -215,7 +230,7 @@ class Person(BaseModel):
         return v
 
 
-class Publication(BaseModel):
+class Publication(IsaBase):
     authorList: Optional[str] = Field(default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     doi: Optional[str] = Field(default=None)
@@ -224,18 +239,18 @@ class Publication(BaseModel):
     title: Optional[str] = Field(default=None)
 
 
-class StudyMaterialType(BaseModel):
+class StudyMaterialType(IsaBase):
     sources: Optional[List[Source]] = Field(default=[])
     samples: Optional[List[Sample]] = Field(default=[])
     otherMaterials: Optional[List[Material]] = Field(default=[])
 
 
-class MaterialAttribute(BaseModel):
+class MaterialAttribute(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristicType: Optional[OntologyAnnotation] = Field(default=None)
 
 
-class Study(BaseModel):
+class Study(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     assays: Optional[List[Assay]] = Field(default=[])
     characteristicCategories: Optional[List[MaterialAttribute]] = Field(default=[])
@@ -256,7 +271,7 @@ class Study(BaseModel):
     unitCategories: Optional[List[OntologyAnnotation]] = Field(default=[])
 
 
-class Investigation(BaseModel):
+class Investigation(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     comments: Optional[List[Comment]] = Field(default=[])
     description: Optional[str] = Field(default=None)
