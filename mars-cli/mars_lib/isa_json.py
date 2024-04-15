@@ -1,19 +1,9 @@
 import json
 from typing import Dict, Union, List
-import copy
+from mars_lib.schemas.model import Investigation, Assay, Comment
+from pydantic import ValidationError
 
 TARGET_REPO_KEY = "target repository"
-
-
-class IsaJsonValidationError(ValueError):
-    """
-    Custom Error object to be used when the validation fails.
-    This class extends the ValueError class.
-    """
-
-    def __init__(self, report, message="The Provided ISA JSON is invalid!"):
-        self.message = message + "\n" + str(report["errors"])
-        super().__init__(self.message)
 
 
 class TargetRepository:
@@ -27,49 +17,49 @@ class TargetRepository:
 
 
 def reduce_isa_json_for_target_repo(
-    input_isa_json: Dict, target_repo: str
-) -> Dict[str, str]:
+    input_isa_json: Investigation, target_repo: str
+) -> Investigation:
     """
     Filters out assays that are not meant to be sent to the specified target repository.
 
     Args:
-        input_isa_json (Dict[str, str]): Input ISA JSON that contains the original information.
+        input_isa_json (Investigation): Input ISA JSON that contains the original information.
         target_repo (TargetRepository): Target repository as a constant.
 
     Returns:
-        Dict[str, str]: Filtered ISA JSON.
+        Investigation: Filtered ISA JSON.
     """
-    filtered_isa_json = copy.deepcopy(input_isa_json)
+    filtered_isa_json = input_isa_json.model_copy(deep=True)
     new_studies = []
-    studies = filtered_isa_json.pop("studies")
+    studies = filtered_isa_json.studies
     for study in studies:
-        assays = study.pop("assays")
+        assays = study.assays
         filtered_assays = [
             assay for assay in assays if is_assay_for_target_repo(assay, target_repo)
         ]
         if len(filtered_assays) > 0:
-            study["assays"] = filtered_assays
+            study.assays = filtered_assays
             new_studies.append(study)
 
-    filtered_isa_json["studies"] = new_studies
+    filtered_isa_json.studies = new_studies
     return filtered_isa_json
 
 
-def detect_target_repo_comment(comments: List[Dict[str, str]]) -> Dict[str, str]:
-    """_summary_
+def detect_target_repo_comment(comments: List[Comment]) -> Comment:
+    """Will detect the comment that contains the target repository.
 
     Args:
-        comments (List[Dict[str, str]]): Dictionary of comments.
+        comments (List[Comment]): List of comments.
 
     Returns:
-        Dict[str, str]: The comment where the name corresponds with the name of the provided target repo.
+        Comment: The comment where the name corresponds with the name of the provided target repo.
     """
     for comment in comments:
-        if comment["name"] == TARGET_REPO_KEY:
+        if comment.name == TARGET_REPO_KEY:
             return comment
 
 
-def is_assay_for_target_repo(assay_dict: Dict, target_repo: str) -> bool:
+def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
     """
     Defines whether the assays is meant for the target repository.
 
@@ -80,14 +70,14 @@ def is_assay_for_target_repo(assay_dict: Dict, target_repo: str) -> bool:
     Returns:
         bool: Boolean defining whether the assay is destined for the provided target repo.
     """
-    target_repo_comment = detect_target_repo_comment(assay_dict["comments"])
-    if target_repo_comment["value"] == target_repo:
+    target_repo_comment = detect_target_repo_comment(assay.comments)
+    if target_repo_comment.value == target_repo:
         return True
     else:
         return False
 
 
-def load_isa_json(file_path: str) -> Union[Dict[str, str], IsaJsonValidationError]:
+def load_isa_json(file_path: str) -> Union[Dict[str, str], ValidationError]:
     """
     Reads the file and validates it as a valid ISA JSON.
 
@@ -95,11 +85,11 @@ def load_isa_json(file_path: str) -> Union[Dict[str, str], IsaJsonValidationErro
         file_path (str): Path to ISA JSON as string.
 
     Returns:
-        Union[Dict[str, str], IsaJsonValidationError]: Depending on the validation, returns a filtered ISA JSON or an Error.
+        Union[Dict[str, str], ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
     """
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)
 
     # TODO: Once we have an idea on what / how to validate, it should be added here
 
-    return isa_json
+    return Investigation.model_validate(isa_json)
