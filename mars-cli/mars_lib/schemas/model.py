@@ -4,7 +4,7 @@ from enum import Enum
 import re
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
 class IsaBase(BaseModel):
@@ -41,7 +41,7 @@ class Data(IsaBase):
     name: Optional[str] = Field(default=None)
     type: Optional[DataTypeEnum] = Field(default=None)
 
-    @validator("type")
+    @field_validator("type")
     def apply_enum(cls, v):
         if v not in [item.value for item in DataTypeEnum]:
             raise ValueError("Invalid material type")
@@ -155,7 +155,7 @@ class Material(IsaBase):
     type: Optional[str] = Field(default=None)
     derivesFrom: Optional[List[Material]] = Field(default=[])
 
-    @validator("type")
+    @field_validator("type")
     def apply_enum(cls, v):
         if v not in [item.value for item in MaterialTypeEnum]:
             raise ValueError("Invalid material type")
@@ -199,7 +199,7 @@ class Assay(IsaBase):
     technologyType: Optional[OntologyAnnotation] = Field(default=None)
     unitCategories: Optional[List[OntologyAnnotation]] = Field(default=[])
 
-    @validator("comments")
+    @field_validator("comments")
     def detect_target_repo_comments(cls, v):
         target_repo_comments = [comment.name for comment in v]
         if len(target_repo_comments) == 0:
@@ -222,7 +222,7 @@ class Person(IsaBase):
     phone: Optional[str] = Field(default=None)
     roles: Optional[List[OntologyAnnotation]] = Field(default=[])
 
-    @validator("phone", "fax")
+    @field_validator("phone", "fax")
     def check_numbers(cls, v):
         if not (re.match(r"^\+\d{1,3}\d{4,}$", v) or v == ""):
             raise ValueError("Invalid number format")
