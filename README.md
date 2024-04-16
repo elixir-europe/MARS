@@ -61,7 +61,7 @@ After a successful submission, BioSamples sends back a receipt containing BioSam
 
     > The source code for the ISA-JSON API for BioSamples can be found in the [repository-services repo](/repository-services/isajson-biosamples/) and can be used for testing
 
-4. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo. This will be facilitated by the `targetRepository` attribute present in the ISA-JSON assays.
+4. **Filtering the ISA-JSON**: The ISA-JSON (updated with BioSamples IDs) has to be filtered for every target repository so it only contains information relevant for that repo. This will be facilitated by the `target repository` attribute present in the ISA-JSON assays.
 
 5. **Submitting data to target repositories**: Since some repositories have the requirement that the actual data is already present in their upload space, the MARS-CLI could optionally take care of the data submission. This would guarantee the presence of the the data upon the metadata (ISA-JSON) submission and a checksum check.
 
