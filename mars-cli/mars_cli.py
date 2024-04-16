@@ -35,9 +35,16 @@ logging.basicConfig(
 )
 
 
-def print_and_log(msg):
+def print_and_log(msg, level="info"):
     click.echo(msg)
-    logging.info(msg)
+    if level == "info":
+        logging.info(msg)
+    elif level == "error":
+        logging.error(msg)
+    elif level == "warning":
+        logging.warning(msg)
+    else:
+        logging.debug(msg)
 
 
 @click.group()
