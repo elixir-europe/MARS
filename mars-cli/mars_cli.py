@@ -1,9 +1,8 @@
-from math import log
 import click
 import logging
 import pathlib
 from configparser import ConfigParser
-from mars_lib.isa_json import TargetRepository
+from mars_lib.target_repo import TargetRepository
 from logging.handlers import RotatingFileHandler
 
 # Load CLI configuration
