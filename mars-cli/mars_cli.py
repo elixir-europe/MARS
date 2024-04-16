@@ -52,10 +52,14 @@ def print_and_log(msg, level="info"):
     is_flag=True,
     help="Boolean indicating the usage of the development environment of the target repositories. If not present, the production instances will be used.",
 )
-def cli(development):
+@click.pass_context
+def cli(ctx, development):
     print_and_log(
         f"Running in {'Development environment' if development else 'Production environment'}"
     )
+
+    ctx.ensure_object(dict)
+    ctx.obj["DEVELOPMENT"] = development
 
 
 @cli.command()
@@ -87,9 +91,12 @@ def submit(credentials_file, isa_json_file, submit_to_ena, submit_to_metabolight
         f"Staring submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
     )
 
+    # TODO: Entry point for the submission logic
+
 
 @cli.command()
-def health_check():
+@click.pass_context
+def health_check(ctx):
     """Check the health of the target repositories."""
     print_and_log("Checking the health of the target repositories.")
 
