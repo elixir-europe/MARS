@@ -22,6 +22,27 @@ def create_settings_file(settings_dir):
         "log_max_files": "5",
     }
 
+    config["webin"] = {
+        "development-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth",
+        "development-token-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
+        "production-url": "https://www.ebi.ac.uk/ena/submit/webin/auth",
+        "production-token-url": "https://www.ebi.ac.uk/ena/submit/webin/auth/token",
+    }
+
+    config["ena"] = {
+        "development-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/",
+        "development-submission-url": "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+        "production-url": "https://www.ebi.ac.uk/ena/submit/webin-v2/",
+        "production-submission-url": "https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+    }
+
+    config["biosamples"] = {
+        "development-url": "https://wwwdev.ebi.ac.uk/biosamples/samples/",
+        "development-submission-url": "https://wwwdev.ebi.ac.uk/biosamples/samples/",
+        "production-url": "https://www.ebi.ac.uk/biosamples/samples/",
+        "production-submission-url": "https://www.ebi.ac.uk/biosamples/samples/",
+    }
+
     with open(settings_path, "w") as config_file:
         config.write(config_file)
 
