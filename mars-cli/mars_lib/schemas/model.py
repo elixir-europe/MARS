@@ -5,6 +5,7 @@ import re
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 
 
 class IsaBase(BaseModel):
@@ -193,7 +194,7 @@ class Assay(IsaBase):
     dataFiles: Optional[List[Data]] = Field(default=[])
     filename: Optional[str] = Field(default=None)
     materials: Optional[AssayMaterialType] = Field(default=None)
-    measurementType: Optional[OntologyAnnotation]
+    measurementType: Optional[OntologyAnnotation] = Field(default=None)
     processSequence: Optional[List[Process]] = Field(default=[])
     technologyPlatform: Optional[str] = Field(default=None)
     technologyType: Optional[OntologyAnnotation] = Field(default=None)
@@ -201,12 +202,22 @@ class Assay(IsaBase):
 
     @field_validator("comments")
     def detect_target_repo_comments(cls, v):
-        target_repo_comments = [comment.name for comment in v]
+        target_repo_comments = [
+            comment for comment in v if comment.name == TARGET_REPO_KEY
+        ]
         if len(target_repo_comments) == 0:
             raise ValueError("'target repository' comment is missing")
-        if len(target_repo_comments) > 1:
+        elif len(target_repo_comments) > 1:
             raise ValueError("Multiple 'target repository' comments found")
-        return v
+        else:
+            if target_repo_comments[0].value in [
+                item.value for item in TargetRepository
+            ]:
+                return v
+            else:
+                raise ValueError(
+                    f"Invalid 'target repository' value: '{target_repo_comments[0].value}'"
+                )
 
 
 class Person(IsaBase):
