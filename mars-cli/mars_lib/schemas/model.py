@@ -296,3 +296,7 @@ class Investigation(IsaBase):
     studies: Optional[List[Study]] = Field(default=[])
     submissionDate: Optional[str] = Field(default=None)
     title: Optional[str] = Field(default=None)
+
+
+class IsaJson(IsaBase):
+    investigation: Investigation
