@@ -64,7 +64,7 @@ class OntologyAnnotation(IsaBase):
 
 class MaterialAttributeValue(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    category: Optional[OntologyAnnotation] = Field(default=None)
+    category: Optional[MaterialAttribute] = Field(default=None)
     value: Union[
         Optional[OntologyAnnotation], Optional[str], Optional[float], Optional[int]
     ] = Field(default=None)
@@ -146,6 +146,7 @@ class Protocol(IsaBase):
 class MaterialTypeEnum(str, Enum):
     EXTRACT_NAME = "Extract Name"
     LABELED_EXTRACT_NAME = "Labeled Extract Name"
+    LIBRARY_NAME = "library name" # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-schema-json) but was found in DataHub ISA-JSON and ARC ISA-JSON.
 
 
 class Material(IsaBase):
