@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Union, List
-from mars_lib.schemas.model import Investigation, Assay, Comment
+from mars_lib.model import Investigation, Assay, Comment
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY
 
@@ -79,6 +79,5 @@ def load_isa_json(file_path: str) -> Union[Dict[str, str], ValidationError]:
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)
 
-    # TODO: Once we have an idea on what / how to validate, it should be added here
-
+    # Validation of the ISA JSON
     return Investigation.model_validate(isa_json)

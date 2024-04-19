@@ -5,7 +5,7 @@ from mars_lib.isa_json import (
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
 from pydantic import ValidationError
-from mars_lib.schemas.model import Data, Material, Assay, Person
+from mars_lib.model import Data, Material, Assay, Person
 
 
 def test_load_isa_json():
