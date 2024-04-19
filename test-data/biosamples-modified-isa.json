@@ -709,7 +709,7 @@
                 },
                 {
                   "name": "library 1",
-                  "type": "library name",
+                  "type": "Extract Name",
                   "characteristics": [
                     {
                       "category": {
