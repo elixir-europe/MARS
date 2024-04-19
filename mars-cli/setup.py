@@ -18,7 +18,8 @@ class custom_install(install):
         install.run(self)
 
         overwrite_settings = os.getenv("OVERWRITE_SETTINGS", "False").lower() == "true"
-        generate_config(overwrite_settings)
+        mars_home_dir = os.getenv("MARS_SETTINGS_DIR", "HOME")
+        generate_config(overwrite_settings, mars_home_dir)
 
 
 setup(

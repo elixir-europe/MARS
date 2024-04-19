@@ -4,9 +4,16 @@ import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
 from logging.handlers import RotatingFileHandler
+import sys
+import os
 
 # Load CLI configuration
-home_dir = pathlib.Path.home()
+home_dir = (
+    pathlib.Path(os.getenv("MARS_SETTINGS_DIR"))
+    if os.getenv("MARS_SETTINGS_DIR")
+    else pathlib.Path.home()
+)
+
 config_file = home_dir / ".mars" / "settings.ini"
 fallback_log_file = home_dir / ".mars" / "app.log"
 
