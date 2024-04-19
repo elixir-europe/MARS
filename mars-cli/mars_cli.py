@@ -4,6 +4,7 @@ import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
 from logging.handlers import RotatingFileHandler
+import requests
 import sys
 import os
 
@@ -59,11 +60,13 @@ def print_and_log(msg, level="info"):
 @click.group()
 @click.option(
     "--development",
+    "-d",
     is_flag=True,
     help="Boolean indicating the usage of the development environment of the target repositories. If not present, the production instances will be used.",
 )
 @click.pass_context
 def cli(ctx, development):
+    print_and_log("############# Welcome to the MARS CLI. #############")
     print_and_log(
         f"Running in {'Development environment' if development else 'Production environment'}"
     )
@@ -109,6 +112,47 @@ def submit(credentials_file, isa_json_file, submit_to_ena, submit_to_metabolight
 def health_check(ctx):
     """Check the health of the target repositories."""
     print_and_log("Checking the health of the target repositories.")
+
+    if ctx.obj["DEVELOPMENT"]:
+        print_and_log("Checking development instances.")
+        webin_url = config.get("webin", "development-url")
+        ena_url = config.get("ena", "development-url")
+        biosamples_url = config.get("biosamples", "development-url")
+    else:
+        print_and_log("Checking production instances.")
+        webin_url = config.get("webin", "production-url")
+        ena_url = config.get("ena", "production-url")
+        biosamples_url = config.get("biosamples", "production-url")
+
+    # Check webin service
+    webin_health = requests.get(webin_url)
+    if webin_health.status_code != 200:
+        print_and_log(
+            f"Webin ({webin_url}): Could not reach service! Status code '{webin_health.status_code}'.",
+            level="error",
+        )
+    else:
+        print_and_log(f"Webin ({webin_url}) is healthy.")
+
+    # Check ENA service
+    ena_health = requests.get(ena_url)
+    if ena_health.status_code != 200:
+        print_and_log(
+            f"ENA ({ena_url}): Could not reach service! Status code '{ena_health.status_code}'.",
+            level="error",
+        )
+    else:
+        print_and_log(f"ENA ({ena_url}) is healthy.")
+
+    # Check Biosamples service
+    biosamples_health = requests.get(biosamples_url)
+    if biosamples_health.status_code != 200:
+        print_and_log(
+            f"Biosamples ({biosamples_url}): Could not reach service! Status code '{biosamples_health.status_code}'.",
+            level="error",
+        )
+    else:
+        print_and_log(f"Biosamples ({biosamples_url}) is healthy.")
 
 
 if __name__ == "__main__":
