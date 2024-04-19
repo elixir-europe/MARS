@@ -3,10 +3,12 @@ import logging
 import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
+from mars_lib.model import Investigation, IsaJson
 from logging.handlers import RotatingFileHandler
 import requests
 import sys
 import os
+import json
 
 # Load CLI configuration
 home_dir = (
@@ -154,6 +156,31 @@ def health_check(ctx):
     else:
         print_and_log(f"Biosamples ({biosamples_url}) is healthy.")
 
+
+@cli.command()
+@click.argument(
+    "isa_json_file",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--investigation-is-root",
+    default=False,
+    type=click.BOOL,
+    help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
+)
+def validate_isa_json(isa_json_file, investigation_is_root):
+    """Validate the ISA JSON file."""
+    print_and_log(f"Validating {isa_json_file}.")
+
+    with open(isa_json_file) as f:
+        json_data = json.load(f)
+
+    if investigation_is_root:
+        investigation = Investigation.model_validate(json_data)
+    else:
+        investigation = IsaJson.model_validate(json_data).investigation
+
+    print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
 
 if __name__ == "__main__":
     cli()
