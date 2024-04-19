@@ -233,12 +233,6 @@ class Person(IsaBase):
     phone: Optional[str] = Field(default=None)
     roles: Optional[List[OntologyAnnotation]] = Field(default=[])
 
-    @field_validator("phone", "fax")
-    def check_numbers(cls, v):
-        if not (re.match(r"^\+\d{1,3}\d{4,}$", v) or v == ""):
-            raise ValueError("Invalid number format")
-        return v
-
 
 class Publication(IsaBase):
     authorList: Optional[str] = Field(default=None)
