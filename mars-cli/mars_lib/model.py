@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-import re
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
@@ -146,7 +145,7 @@ class Protocol(IsaBase):
 class MaterialTypeEnum(str, Enum):
     EXTRACT_NAME = "Extract Name"
     LABELED_EXTRACT_NAME = "Labeled Extract Name"
-    LIBRARY_NAME = "library name" # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-schema-json) but was found in DataHub ISA-JSON and ARC ISA-JSON.
+    LIBRARY_NAME = "library name"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-schema-json) but was found in DataHub ISA-JSON and ARC ISA-JSON.
 
 
 class Material(IsaBase):

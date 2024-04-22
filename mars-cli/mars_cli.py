@@ -4,6 +4,7 @@ import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
 from mars_lib.model import Investigation, IsaJson
+from mars_lib.isa_json import load_isa_json
 from logging.handlers import RotatingFileHandler
 import requests
 import sys
@@ -93,9 +94,26 @@ def cli(ctx, development):
     default=True,
     help="Submit to Metabolights.",
 )
-def submit(credentials_file, isa_json_file, submit_to_ena, submit_to_metabolights):
+@click.option(
+    "--investigation-is-root",
+    default=False,
+    type=click.BOOL,
+    help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
+)
+def submit(
+    credentials_file,
+    isa_json_file,
+    submit_to_ena,
+    submit_to_metabolights,
+    investigation_is_root,
+):
     """Start a submission to the target repositories."""
     target_repositories = ["biosamples"]
+
+    investigation = load_isa_json(isa_json_file, investigation_is_root)
+
+    print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
+
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
 
@@ -181,6 +199,7 @@ def validate_isa_json(isa_json_file, investigation_is_root):
         investigation = IsaJson.model_validate(json_data).investigation
 
     print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
+
 
 if __name__ == "__main__":
     cli()

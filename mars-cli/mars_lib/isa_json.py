@@ -1,6 +1,6 @@
 import json
-from typing import Dict, Union, List
-from mars_lib.model import Investigation, Assay, Comment
+from typing import Union, List
+from mars_lib.model import Investigation, Assay, Comment, IsaJson
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY
 
@@ -66,12 +66,15 @@ def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
         return False
 
 
-def load_isa_json(file_path: str) -> Union[Dict[str, str], ValidationError]:
+def load_isa_json(
+    file_path: str, investigation_is_root: bool
+) -> Union[Investigation, ValidationError]:
     """
     Reads the file and validates it as a valid ISA JSON.
 
     Args:
         file_path (str): Path to ISA JSON as string.
+        investigation_is_root (bool): Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.
 
     Returns:
         Union[Dict[str, str], ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
@@ -79,5 +82,7 @@ def load_isa_json(file_path: str) -> Union[Dict[str, str], ValidationError]:
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)
 
-    # Validation of the ISA JSON
-    return Investigation.model_validate(isa_json)
+    if investigation_is_root:
+        return Investigation.model_validate(isa_json)
+    else:
+        return IsaJson.model_validate(isa_json).investigation
