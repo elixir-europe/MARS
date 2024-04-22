@@ -9,17 +9,26 @@ from mars_lib.model import Data, Material, Assay, Person
 
 
 def test_load_isa_json():
-    # Should test the validation process
-    valid_isa_json = load_isa_json("../test-data/ISA-BH2023-ALL/isa-bh2023-all.json")
-    assert len(valid_isa_json.studies) == 1
-    assert valid_isa_json.studies[0].identifier == "BH2023"
+    # Should test the validation process of the ISA JSON file where root level = investigation.
+    valid_isa_json01 = load_isa_json(
+        "../test-data/ISA-BH2023-ALL/isa-bh2023-all.json", True
+    )
+    assert len(valid_isa_json01.studies) == 1
+    assert valid_isa_json01.studies[0].identifier == "BH2023"
+
+    # Should test the validation process of the ISA JSON file where root has 'investigation' as key.
+    valid_isa_json02 = load_isa_json("../test-data/biosamples-input-isa.json", False)
+    assert len(valid_isa_json02.studies) == 1
+    assert valid_isa_json02.studies[0].title == "Arabidopsis thaliana"
 
     with pytest.raises(ValidationError):
-        load_isa_json("./tests/fixtures/invalid_investigation.json")
+        load_isa_json("./tests/fixtures/invalid_investigation.json", True)
 
 
 def test_reduce_isa_json_for_target_repo():
-    good_isa_json = load_isa_json("../test-data/ISA-BH2023-ALL/isa-bh2023-all.json")
+    good_isa_json = load_isa_json(
+        "../test-data/ISA-BH2023-ALL/isa-bh2023-all.json", True
+    )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
         good_isa_json, TargetRepository.ENA
