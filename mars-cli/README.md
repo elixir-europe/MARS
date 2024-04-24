@@ -67,7 +67,7 @@ __log_max_size__: The maximum size in kB for the log file. By default the maximu
 
 __log_max_files__: The maximum number of old log files to keep. By default, this is set to 5
 
-## Target respoistory settings
+## Target repository settings
 
 Each of the target repositories have a set of settings:
 
