@@ -52,7 +52,7 @@ This command line tool (CLI) will be used by the Data broker platform and will p
 
 The main steps of MARS-CLI are:
 
-1. **Ingesting and validating the ISA-JSON**: Compared to the vanilla ISA specification, the MARS-CLI has certain fields required (for example `target repository`) in order to function properly. Upon ISA-JSON ingestion the information gets loaded in the
+1. **Ingesting and validating the ISA-JSON**: Compared to the vanilla ISA specification, the MARS-CLI has certain fields required (for example `target repository` as comment) in order to function properly. Upon ISA-JSON ingestion the information gets loaded in memory and validated at the same time using Pydantic.
 
 2. **Identifying the target repositories**: The order of submission can be depended on the target repositories specified in the ISA-JSON.
 
