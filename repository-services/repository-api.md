@@ -28,16 +28,22 @@ The repository service must accept existing BioSamples accessions in the ISA-JSO
 The response must be JSON in the following format:
 ```json
 {
-    "targetRepository": repo_id,
-    "accessions": [...],
-    "errors": [...],
-    "info": [...]
+    "targetRepository": "repo_id",
+    "accessions": [
+        // accession objects
+    ],
+    "errors": [ 
+        // error objects
+    ],
+    "info": [ 
+        // info objects
+    ]
 }
 ```
 where:
-* `targetRepository` is the identifier used to annotate the ISA-JSON, must take values from identifiers.org
-* Either `accessions` OR `errors`, but not both, must be present as a list of objects of the form described below. Presence of this field indicates whether the submission was a success or a failure.
-* (optional) `info` is a list of objects of the form described below. This allows additional repository-specific information to be returned in the response.
+* `targetRepository` is the identifier used to annotate the ISA-JSON and should take values from [identifiers.org](http://identifiers.org/)
+* Either [`accessions`](#accession-object) OR [`errors`](#error-object), but not both, must be present as a list of objects of the form described below. Presence of this field indicates whether the submission was a success or a failure.
+* (optional) [`info`](#info-object) is a list of objects of the form described below. This allows additional repository-specific information to be returned in the response.
 
 #### Accession object
 The accession object looks like the following:
@@ -45,8 +51,8 @@ The accession object looks like the following:
 {
     "path": [
         {"key": "studies", "where": {"key": "X", "value": "Y"}},
-	    {"key": "materials"},
-	    ...
+	    {"key": "materials"}
+	    // further path objects as needed
     ],
     "value": "REPO_123"
 }
@@ -57,15 +63,17 @@ where:
   * `where` (if necessary) performs a selection if the value of that field is a list
 * `value` is the accession assigned to this object
 
-See examples below. The list of accession objects being returned by the repository will be used by the broker to annotate the complete ISA-JSON.
+See [examples](#examples) below. The list of accession objects being returned by the repository will be used by the broker to annotate the complete ISA-JSON.
 
 #### Error object
 The error object looks like the following:
 ```json
 {
-    "type": error_type,
+    "type": "error_type",
     "message": "...",
-    "path": [...]
+    "path": [
+        // path objects as defined above
+    ]
 }
 ```
 where:
@@ -76,7 +84,7 @@ where:
   * More types to be added as development continues
 * (optional) `path` is a JSON query to the pertinent part of the ISA-JSON, defined as described in the accession object section. For example, this might point to an object missing a required field, or an md5 checksum that didn’t match a particular file.
 
-The error objects being returned by the repository may be used by developers to improve data producing or brokering platforms, and as a last resort will be used to provide feedback on problems with the submission to the end user. Accordingly repositories should set error messages accordingly, i.e. human-readable, informative, and actionable.
+The error objects being returned by the repository may be used by developers to improve data producing or brokering platforms, and as a last resort will be used to provide feedback on problems with the submission to the end user. Repositories should set error messages accordingly, i.e. human-readable, informative, and actionable.
 
 Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
 
