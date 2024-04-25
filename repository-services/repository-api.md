@@ -26,7 +26,7 @@ The repository service must accept existing BioSamples accessions in the ISA-JSO
 
 ### Response
 The response must be JSON in the following format:
-```json
+```jsonc
 {
     "targetRepository": "repo_id",
     "accessions": [
@@ -47,7 +47,7 @@ where:
 
 #### Accession object
 The accession object looks like the following:
-```json
+```jsonc
 {
     "path": [
         {"key": "studies", "where": {"key": "X", "value": "Y"}},
@@ -67,7 +67,7 @@ See [examples](#examples) below. The list of accession objects being returned by
 
 #### Error object
 The error object looks like the following:
-```json
+```jsonc
 {
     "type": "error_type",
     "message": "...",
@@ -90,7 +90,7 @@ Besides this error reporting, the service should employ other HTTP error codes a
 
 #### Info object
 The info object looks like the following:
-```json
+```jsonc
 {
     "name": "...",
     "message": "..."
