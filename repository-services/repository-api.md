@@ -100,12 +100,12 @@ where `name` and `message` are strings at the repository’s discretion.
 
 This can be used to provide any additional information back to the user, not relating to accessions or errors. For example, it could include the submission date and when the data will be made public. This will not be processed further by the broker but will only be presented to the user.
 
-### Examples
+## Examples
 
-#### Submission request
+### Submission request
 See [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-input-isa.json).
 
-#### Success response
+### Success response
 For illustration only.
 ```json
 {
@@ -183,7 +183,7 @@ For illustration only.
 }
 ```
 
-#### Failure response
+### Failure response
 ```json
 {
  "targetRepository": "ena",
