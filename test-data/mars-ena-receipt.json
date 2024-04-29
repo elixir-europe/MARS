@@ -1,0 +1,110 @@
+{
+    "targetRepository": "ena.embl",
+    "errors": [
+        "Cannot find an experiment with the alias #other_material/333 in the ENA receipt"
+    ],
+    "info": [],
+    "accessions": [
+        {
+            "value": "PRJEB101337",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERS27605861",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "samples",
+                    "where": {
+                        "key": "@id",
+                        "value": "#sample/331"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERX9223136",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "otherMaterials",
+                    "where": {
+                        "key": "@id",
+                        "value": "#other_material/332"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERR9669128",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "dataFiles",
+                    "where": {
+                        "key": "@id",
+                        "value": "#data/334"
+                    }
+                }
+            ]
+        }
+    ]
+}
