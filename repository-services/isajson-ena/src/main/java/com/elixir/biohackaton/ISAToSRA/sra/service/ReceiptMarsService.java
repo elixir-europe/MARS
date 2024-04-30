@@ -34,7 +34,7 @@ public class ReceiptMarsService {
   public MarsReceipt convertReceiptToMars(Receipt receipt, IsaJson isaJson) {
     Messages messages = receipt.getMessages();
     List<String> errors = Optional.ofNullable(messages.getErrorMessages()).orElse(new ArrayList<>());
-    List<String> info = Optional.ofNullable(messages.getErrorMessages()).orElse(new ArrayList<>());
+    List<String> info = Optional.ofNullable(messages.getInfoMessages()).orElse(new ArrayList<>());
     return MarsReceipt.builder()
         .targetRepository("ena.embl") // https://registry.identifiers.org/registry/ena.embl
         .accessions(getMarsAccessions(receipt, isaJson, errors))

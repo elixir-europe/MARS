@@ -3,7 +3,9 @@
     "errors": [
         "Cannot find an experiment with the alias #other_material/333 in the ENA receipt"
     ],
-    "info": [],
+    "info": [
+        "All objects in this submission are set to private status (HOLD)."
+    ],
     "accessions": [
         {
             "value": "PRJEB101337",
