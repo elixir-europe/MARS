@@ -1,9 +1,11 @@
 # Installing the mars-cli
 
+This installation procedure describes a typical Linux installation. This application can perfectly work on Windows and MacOS but some of the steps might be different. 
+
 Installing the mars-cli from source:
 
 ```sh
-cd mars-cli # Assuming you are in the root folder
+cd mars-cli # Assuming you are in the root folder of this project
 pip install .
 ```
 
@@ -11,6 +13,197 @@ If you want to install the optional testing dependencies as well, useful when co
 
 ```sh
 pip install .[test]
+```
+
+If you want to overwrite the `settings.ini` file when reinstalling, you need to set the environmental variable `OVERWRITE_SETTINGS` to `True`:
+
+```sh
+OVERWRITE_SETTINGS=True pip install .[test]
+```
+Installing the MARS-cli, will by default create a `.mars` directory in the home directory to store settings and log files.
+If you wish to create the `.mars` directory in another place, you must specify the `MARS_SETTINGS_DIR` variable and set it to the desired path:
+
+```sh
+export MARS_SETTINGS_DIR=<path/to/parent_folder/containing/.mars>
+```
+
+If you want to make it permanent, you can run to following commands in the terminal.
+Note: replace `.bashrc` by the config file of your shell.
+
+```sh
+echo '# Add MARS setting directory to PATH' >> $HOME/.bashrc
+echo 'export MARS_SETTINGS_DIR=<path/to/parent_folder/containing/.mars>' >> $HOME/.bashrc
+```
+
+Once installed, the CLI application will be available from the terminal.
+
+# Configuration
+
+Installing this application will also generate a `settings.ini` file in `$HOME/.mars/`.
+
+```
+[logging]
+log_level = ERROR
+log_file = /my/logging/directory/.mars/app.log
+log_max_size = 1024
+log_max_files = 5
+```
+
+## Logging
+
+The MARS-CLI will automatically log events to a `.log` file.
+
+__log_level__: The verbosity of logging can be set to three different levels
+- CRITICAL: Only critical messages will be logged. __Not recommended!__
+- ERROR: Errors and critical messages will be logged.
+- WARNING: Warnings, errors and critical messages will be logged.
+- INFO: All events are logged.
+- DEBUG: For debugging purpose only. __Not recommended as it might log more sensitive information!__
+The default setting is ERROR. So only errors are logged!
+
+__log_file__: The path to the log file. By default this will be in `$HOME/.mars/app.log`.
+
+__log_max_size__: The maximum size in kB for the log file. By default the maximum size is set to 1024 kB or 1 MB.
+
+__log_max_files__: The maximum number of old log files to keep. By default, this is set to 5
+
+## Target repository settings
+
+Each of the target repositories have a set of settings:
+
+- development-url: URL to the development server when performing a health-check
+- development-submission-url: URL to the development server when performing a submission
+- production-url: URL to the production server when performing a health-check
+- production-submission-url: URL to the production server when performing a submissionW
+
+# Using the MARS-CLI
+
+If you wish to use a different location for the `.mars' folder:
+
+```sh
+export MARS_SETTINGS_DIR=<path/to/parent_folder/containing/.mars>
+mars-cli [options] <command> ARGUMENT
+```
+
+## Help
+
+The mars-cli's help text can be found from the command line as such:
+
+```sh
+mars-cli --help
+```
+
+Output:
+
+```
+➜ mars-cli --help
+Usage: mars-cli [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -d, --development  Boolean indicating the usage of the development
+                     environment of the target repositories. If not present,
+                     the production instances will be used.
+  --help             Show this message and exit.
+
+Commands:
+  health-check       Check the health of the target repositories.
+  submit             Start a submission to the target repositories.
+  validate-isa-json  Validate the ISA JSON file.
+```
+
+or for a specific command:
+
+```sh
+mars-cli submit --help
+```
+
+Output:
+
+```
+➜ mars-cli submit --help
+############# Welcome to the MARS CLI. #############
+Running in Production environment
+Usage: mars-cli submit [OPTIONS] CREDENTIALS_FILE ISA_JSON_FILE
+
+  Start a submission to the target repositories.
+
+Options:
+  --submit-to-ena BOOLEAN         Submit to ENA.
+  --submit-to-metabolights BOOLEAN
+                                  Submit to Metabolights.
+  --investigation-is-root BOOLEAN
+                                  Boolean indicating if the investigation is
+                                  the root of the ISA JSON. Set this to True
+                                  if the ISA-JSON does not contain a
+                                  'investigation' field.
+  --help                          Show this message and exit.
+```
+
+## Development
+
+By default the mars-CLI will try to submit the ISA-JSON's metadata towards the repositories' production servers. Passing the development flag will run it in development mode and substitute the production servers with the development servers.
+
+## Health check repository services
+
+You can check whether the supported repositories are healthy, prior to submission, by doing a health-check.
+
+```sh
+mars-cli health-check
+```
+
+Output:
+
+```
+➜ mars-cli health-check
+############# Welcome to the MARS CLI. #############
+Running in Production environment
+Checking the health of the target repositories.
+Checking production instances.
+Webin (https://www.ebi.ac.uk/ena/submit/webin/auth) is healthy.
+ENA (https://www.ebi.ac.uk/ena/submit/webin-v2/) is healthy.
+Biosamples (https://www.ebi.ac.uk/biosamples/samples/) is healthy.
+```
+
+## Submitting to repository services
+
+TODO
+
+### Options
+
+- `--submit-to-ena`: By default set to `True`. Will try submit ISA-JSON metadata towards ENA. Setting it to `False` will skip sending the ISA-JSON's metadata to ENA.
+
+```sh
+mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
+```
+
+- `--submit-to-metabolights`: By default set to `True`. Will try submit ISA-JSON metadata towards Metabolights. Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
+
+```sh
+mars-cli submit --submit-to-metabolights False my-credentials my-isa-json.json
+```
+
+`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+
+```sh
+mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
+```
+
+## Validation of the ISA JSON
+
+You can perform a syntactic validation of the ISA-JSON, without submitting to the target repositories.
+
+__Note:__ This does not take validation into account from the repository's side. This does not guarantee successful submission.
+
+```sh
+mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-input-isa.json
+```
+
+### Options
+
+`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+
+```sh
+mars-cli validate-isa-json my-isa-investigation.json
 ```
 
 # Extending BioSamples' records
