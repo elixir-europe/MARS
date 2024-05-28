@@ -3,7 +3,7 @@ import logging
 import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
-from mars_lib.model import Investigation, IsaJson
+from mars_lib.models.isa_json import Investigation, IsaJson
 from mars_lib.isa_json import load_isa_json
 from logging.handlers import RotatingFileHandler
 import requests

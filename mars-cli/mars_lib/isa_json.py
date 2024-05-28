@@ -1,6 +1,6 @@
 import json
 from typing import Union, List
-from mars_lib.model import Investigation, Assay, Comment, IsaJson
+from mars_lib.models.isa_json import Investigation, Assay, Comment, IsaJson
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY
 
