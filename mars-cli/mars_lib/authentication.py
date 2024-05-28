@@ -15,7 +15,7 @@ def get_webin_auth_token(
     credentials_dict (dict): The password dictionary for authentication.
     header (dict): The header information.
     auth_base_url (str): The base URL for authentication.
-    token_expiration_time(int): Toke expiration time in hours.
+    token_expiration_time(int): Token expiration time in hours.
 
     Returns:
     str: The obtained token.
