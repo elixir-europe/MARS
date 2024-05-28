@@ -42,6 +42,18 @@ def test_reduce_isa_json_for_target_repo():
     assert len(filtered_isa_json_study.assays) == 1
 
 
+def test_reduce_isa_json_for_biosamples():
+    good_isa_json = load_isa_json(
+        "../test-data/ISA-BH2023-ALL/isa-bh2023-all.json", True
+    )
+
+    filtered_isa_json = reduce_isa_json_for_target_repo(
+        good_isa_json, TargetRepository.BIOSAMPLES
+    )
+
+    assert len(filtered_isa_json.studies[0].assays) == 0
+
+
 def test_data_type_validator():
     valid_data_json = {"@id": "data_001", "name": "data 1", "type": "Image File"}
 
