@@ -51,7 +51,7 @@ class Data(IsaBase):
 class OntologyAnnotation(IsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     annotationValue: Union[Optional[str], Optional[float], Optional[int]] = Field(
-        default=[]
+        default=None
     )
     comments: Optional[List[Comment]] = Field(default=[])
     termAccession: Optional[str] = Field(default=None)
