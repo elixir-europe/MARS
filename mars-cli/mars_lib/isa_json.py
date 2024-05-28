@@ -2,7 +2,7 @@ import json
 from typing import Union, List
 from mars_lib.models.isa_json import Investigation, Assay, Comment, IsaJson
 from pydantic import ValidationError
-from mars_lib.target_repo import TARGET_REPO_KEY
+from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
 
 
 def reduce_isa_json_for_target_repo(
@@ -22,13 +22,18 @@ def reduce_isa_json_for_target_repo(
     new_studies = []
     studies = filtered_isa_json.studies
     for study in studies:
-        assays = study.assays
-        filtered_assays = [
-            assay for assay in assays if is_assay_for_target_repo(assay, target_repo)
-        ]
-        if len(filtered_assays) > 0:
-            study.assays = filtered_assays
-            new_studies.append(study)
+        if target_repo == TargetRepository.BIOSAMPLES:
+            filtered_assays = []
+        else:
+            assays = study.assays
+            filtered_assays = [
+                assay
+                for assay in assays
+                if is_assay_for_target_repo(assay, target_repo)
+            ]
+
+        study.assays = filtered_assays
+        new_studies.append(study)
 
     filtered_isa_json.studies = new_studies
     return filtered_isa_json
