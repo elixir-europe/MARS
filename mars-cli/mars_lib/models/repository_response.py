@@ -13,18 +13,18 @@ class Filter(BaseModel):
 
 class Path(BaseModel):
     key: str
-    where: Optional[Filter] = Field(default_value=None)
+    where: Optional[Filter] = None
 
 
 class Accession(BaseModel):
-    path: List[Path] = Field(default_value=[])
+    path: List[Path] = []
     value: str
 
 
 class Error(BaseModel):
     type: str
     message: str
-    path: List[Path] = Field(default_value=[])
+    path: List[Path] = []
 
 
 class Info(BaseModel):
@@ -37,9 +37,9 @@ class RepositoryResponse(BaseModel):
     model_config = ConfigDict(alias_generator=pydantic.alias_generators.to_camel)
 
     target_repository: str
-    accessions: List[Accession] = Field(default_value=[])
-    errors: List[Error] = Field(default_value=[])
-    info: List[Info] = Field(default_value=[])
+    accessions: List[Accession] = []
+    errors: List[Error] = []
+    info: List[Info] = []
 
     @field_validator("target_repository")
     def validate_target_repository(cls, v):
