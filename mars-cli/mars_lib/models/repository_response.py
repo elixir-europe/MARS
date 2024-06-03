@@ -20,6 +20,13 @@ class Accession(BaseModel):
     path: List[Path] = []
     value: str
 
+    @field_validator("path")
+    def validate_path(cls, path):
+        keys = [p.key for p in path]
+        if len(keys) != len(set(keys)):
+            raise ValueError("Duplicate keys found in path list")
+        return path
+
 
 class Error(BaseModel):
     type: str
