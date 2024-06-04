@@ -1,8 +1,24 @@
 import json
-from typing import Union, List
-from mars_lib.models.isa_json import Investigation, Assay, Comment, IsaJson
+from typing import Union, List, Any, Tuple
+from mars_lib.models.isa_json import (
+    Investigation,
+    Assay,
+    Comment,
+    IsaJson,
+    MaterialAttribute,
+    MaterialAttributeValue,
+    Study,
+    OntologyAnnotation,
+)
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
+import uuid
+from mars_lib.models.repository_response import (
+    RepositoryResponse,
+    Filter,
+    Accession,
+    Path,
+)
 
 
 def reduce_isa_json_for_target_repo(
@@ -91,3 +107,231 @@ def load_isa_json(
         return Investigation.model_validate(isa_json)
     else:
         return IsaJson.model_validate(isa_json).investigation
+
+
+def get_filter_for_accession_key(accession: Accession, key: str) -> Filter:
+    """
+    Returns the studies node from the accession.
+
+    Args:
+        accession (Accession): The accession to be searched.
+        key (str): The key to be searched.
+
+    Returns:
+        Path: The studies node.
+    """
+    return next((p.where for p in accession.path if p.key == key), None)
+
+
+def apply_filter(
+    filter: Filter, nodes: Union[List[Study], List[Assay]]
+) -> Union[Study, Assay]:
+    """
+    Filters the studies based on the filter.
+
+    Args:
+        filter (Filter): The filter to be applied.
+        studies (List[Study]): The studies to be filtered.
+
+    Returns:
+       Study: The filtered study.
+    """
+    filter_key = "id" if filter.key == "@id" else filter.key
+    return next(
+        (node for node in nodes if getattr(node, filter_key) == filter.value), None
+    )
+
+
+def accession_characteristic_category_present(node: Union[Study, Assay]) -> bool:
+    """
+    Checks if the node has an accession characteristic category.
+
+    Args:
+        node (Union[Study, Assay]): The study or assay to be checked.
+
+    Returns:
+        bool: Boolean indicating whether the node has an accession characteristic category.
+    """
+    accession_characteristics_categories = [
+        char_cat
+        for char_cat in node.characteristicCategories
+        if char_cat.characteristicType.annotationValue == "accession"
+    ]
+
+    if len(accession_characteristics_categories) > 1:
+        raise AttributeError(
+            "There should be not more than one accession characteristic category."
+        )
+    elif len(accession_characteristics_categories) > 0:
+        return True
+    else:
+        return False
+
+
+def accession_characteristic_present(
+    node: Union[Study, Assay], material_type_path: Path
+) -> bool:
+    """
+    Checks if the node has an accession characteristic.
+
+    Args:
+        node (Union[Study, Assay]): The study or assay to be checked.
+        material_type_path (Path): The path to the material type.
+
+    Returns:
+        bool: Boolean indicating whether the node has an accession characteristic.
+    """
+    material = apply_filter(
+        material_type_path.where, getattr(node.materials, material_type_path.key)
+    )
+
+    accession_characteristics = [
+        char
+        for char in material.characteristics
+        if char.category
+        and char.category.characteristicType
+        and char.category.characteristicType.annotationValue == "accession"
+    ]
+
+    if len(accession_characteristics) > 1:
+        raise AttributeError(
+            "There should be not more than one accession characteristic."
+        )
+    elif len(accession_characteristics) > 0:
+        return True
+    else:
+        return False
+
+
+def add_accession_to_node(
+    node: Any, accession_number: str, material_type_path: Path
+) -> None:
+    """
+    Adds the accession number to the node.
+
+    Args:
+        node (Any): The node to be updated.
+        accession_number (str): The accession number to be added.
+        material_type_path (Path): The path to the material type.
+    """
+    if type(node) not in [Study, Assay]:
+        raise ValueError("Node must be either 'Study' or 'Assay'.")
+
+    node_materials = getattr(node.materials, material_type_path.key)
+    updated_material = apply_filter(material_type_path.where, node_materials)
+
+    accession_characteristics_category = next(
+        (
+            char_cat
+            for char_cat in node.characteristicCategories
+            if char_cat.characteristicType
+            and char_cat.characteristicType.annotationValue == "accession"
+        ),
+        None,
+    )
+
+    updated_material_accession_characteristic = next(
+        (
+            char
+            for char in updated_material.characteristics
+            if char.category.id == accession_characteristics_category.id
+        ),
+        None,
+    )
+    updated_material_accession_characteristic.value = accession_number
+
+
+def create_accession_characteristic_category(
+    node: Union[Study, Assay]
+) -> Tuple[str, MaterialAttribute]:
+    """
+    creates a new characteristic category for the accession number.
+
+    Args:
+        node (Union[Study, Assay]): node to be updated
+
+    Returns:
+        MaterialAttribute: The newly created characteristic category.
+    """
+    if type(node) not in [Study, Assay]:
+        raise ValueError("Node must be either 'Study' or 'Assay'.")
+
+    category = MaterialAttribute()
+    accession_uuid = str(uuid.uuid4())
+    category.id = f"#characteristic_category/accession_{accession_uuid}"
+    category.characteristicType = OntologyAnnotation(annotationValue="accession")
+    node.characteristicCategories.append(category)
+
+    return (accession_uuid, category)
+
+
+def create_accession_characteristic(
+    node: Union[Study, Assay],
+    material_type_path: Path,
+    category: MaterialAttribute,
+    accession_uuid: str,
+) -> None:
+    """
+    Creates a new characteristic for the accession number.
+
+    Args:
+        node (Union[Study, Assay]): node to be updated
+        material_type_path (Path): path to the material type,
+        category (MaterialAttribute): characteristic category for the accession number.
+        accession_uuid (str): UUID for the accession.
+    """
+    current_materials = getattr(node.materials, material_type_path.key)
+    updated_material = apply_filter(material_type_path.where, current_materials)
+
+    new_material_attribute_value = MaterialAttributeValue()
+    new_material_attribute_value.id = (
+        f"#material_attribute_value/accession_{accession_uuid}"
+    )
+    new_material_attribute_value.category = category
+    updated_material.characteristics.append(new_material_attribute_value)
+
+
+def update_investigation(
+    investigation: Investigation, repo_response: RepositoryResponse
+) -> Investigation:
+    """
+    Adds the accession to the ISA JSON.
+
+    Args:
+        isa_json (Investigation): The ISA JSON to be updated.
+        repo_response (RepositoryResponse): The response from the repository.
+
+    Returns:
+        Investigation: The updated ISA JSON.
+    """
+    updated_investigation = investigation.model_copy(deep=True)
+    for accession in repo_response.accessions:
+
+        has_assay_in_path = [p for p in accession.path if p.key == "assays"]
+        target_level = "assay" if len(has_assay_in_path) > 0 else "study"
+        material_type_path = next(
+            p
+            for p in accession.path
+            if p.key in ["sources", "samples", "otherMaterials"]
+        )
+
+        study_filter = get_filter_for_accession_key(accession, "studies")
+        updated_node = apply_filter(study_filter, updated_investigation.studies)
+
+        if target_level == "assay":
+            assay_filter = get_filter_for_accession_key(accession, "assays")
+            updated_node = apply_filter(assay_filter, updated_node.assays)
+
+        if not accession_characteristic_category_present(updated_node):
+            (accession_uuid, category) = create_accession_characteristic_category(
+                updated_node
+            )
+
+        if not accession_characteristic_present(updated_node, material_type_path):
+            create_accession_characteristic(
+                updated_node, material_type_path, category, accession_uuid
+            )
+
+        add_accession_to_node(updated_node, accession.value, material_type_path)
+
+    return updated_investigation
