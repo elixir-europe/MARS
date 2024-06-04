@@ -1,2 +1,2 @@
 [run]
-omit = mars_lib/__init__.py, mars_lib/submit.py, mars_lib/credential.py
+omit = mars_lib/__init__.py, mars_lib/submit.py, mars_lib/credential.py, mars_lib/models/__init__.py
