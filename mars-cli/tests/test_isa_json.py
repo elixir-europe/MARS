@@ -1,11 +1,14 @@
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
+    update_investigation,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
 from pydantic import ValidationError
-from mars_lib.models.isa_json import Data, Material, Assay, Person
+from mars_lib.models.isa_json import Data, Material, Assay, Person, IsaJson
+from mars_lib.models.repository_response import RepositoryResponse
+import json
 
 
 def test_load_isa_json():
@@ -158,3 +161,32 @@ def test_target_repo_comment_validator():
 
         with pytest.raises(ValidationError, match="Invalid number format"):
             Person.model_validate(invalid_person_json)
+
+
+def test_update_study_materials_no_accession_categories():
+    # This file has no characteristics for accessions
+    json_path = "../test-data/biosamples-original-isa-no-accesion-char.json"
+    with open(json_path) as json_file:
+        json_data = json.load(json_file)
+
+    validated_isa_json = IsaJson.model_validate(json_data)
+
+    respose_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
+    repo_response = RepositoryResponse.from_json_file(respose_file_path)
+
+    updated_investigation = update_investigation(
+        validated_isa_json.investigation, repo_response
+    )
+
+    # Check the accession number of the source
+    assert (
+        updated_investigation.studies[0].materials.sources[0].characteristics[-1].value
+        == repo_response.accessions[0].value
+    )
+
+    # Check the accession number of the sample
+    assert (
+        updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
+        == repo_response.accessions[1].value
+    )
+
