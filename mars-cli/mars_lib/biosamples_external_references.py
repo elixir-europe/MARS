@@ -6,7 +6,7 @@ import re
 import os
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError, SchemaError
-from typing import Union, Optional
+from typing import Union
 
 # -- #
 # Hardcoded values

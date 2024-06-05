@@ -1,5 +1,4 @@
 from mars_lib.models.isa_json import Investigation
-from mars_lib.models.repository_response import RepositoryResponse
 from mars_lib.authentication import get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -10,7 +9,6 @@ from mars_lib.biosamples_external_references import (
 )
 from mars_lib.isa_json import reduce_isa_json_for_target_repo
 from mars_lib.target_repo import TargetRepository
-from mars_lib.authentication import get_webin_auth_token
 import requests
 
 

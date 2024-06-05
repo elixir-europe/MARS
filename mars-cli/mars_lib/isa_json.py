@@ -9,9 +9,6 @@ from mars_lib.models.isa_json import (
     MaterialAttributeValue,
     Study,
     OntologyAnnotation,
-    Sample,
-    Source,
-    Material,
 )
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
@@ -311,7 +308,7 @@ def fetch_existing_characteristic_category(
         for char_cat in node.characteristicCategories
         if char_cat.characteristicType
         and char_cat.characteristicType.annotationValue
-        and type(char_cat.characteristicType.annotationValue) == str
+        and isinstance(char_cat.characteristicType.annotationValue, str)
         and char_cat.characteristicType.annotationValue.lower() == "accession"
     )
     if not accession_cat:
