@@ -42,3 +42,7 @@ jobs:
       - name: Linting
         run: ruff check mars_lib/
         working-directory: ${{ env.working-directory }}
+
+      - name: Type checking
+        run: mypy mars_lib/
+        working-directory: ${{ env.working-directory }}
