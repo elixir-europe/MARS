@@ -44,5 +44,5 @@ jobs:
         working-directory: ${{ env.working-directory }}
 
       - name: Type checking
-        run: mypy --install-types mars_lib/
+        run: mypy --install-types --non-interactive mars_lib/
         working-directory: ${{ env.working-directory }}
