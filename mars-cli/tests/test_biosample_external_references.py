@@ -88,14 +88,12 @@ def test_fetch_bs_json():
 
 def test_load_bs_json():
     bs_record_from_json = BiosamplesRecord("SAMEA112654119")
-    bs_record_from_json.load_bs_json(
-        bs_json_file="./tests/fixtures/SAMEA112654119.json"
-    )
+    bs_record_from_json.load_bs_json("./tests/fixtures/SAMEA112654119.json")
     assert bs_record_from_json.bs_json["accession"] == "SAMEA112654119"
 
     bs_dict = load_json_file("./tests/fixtures/SAMEA112654119.json")
     bs_record_from_dict = BiosamplesRecord("SAMEA112654119")
-    bs_record_from_dict.load_bs_json(bs_json=bs_dict)
+    bs_record_from_dict.load_bs_json(bs_dict)
     assert bs_record_from_dict.bs_json["accession"] == "SAMEA112654119"
 
     bs_record_from_bad_json = BiosamplesRecord("SAMEA112654119")
@@ -103,21 +101,19 @@ def test_load_bs_json():
         ValueError,
         match="The file content of the given file './tests/fixtures/bad_json.json' is not valid JSON.",
     ):
-        bs_record_from_bad_json.load_bs_json(
-            bs_json_file="./tests/fixtures/bad_json.json"
-        )
+        bs_record_from_bad_json.load_bs_json("./tests/fixtures/bad_json.json")
 
     bs_record_from_bad_dict = BiosamplesRecord("SAMEA112654119")
     with pytest.raises(
-        TypeError,
-        match="Given 'bs_json' is of type '<class 'str'>' instead of type 'dict'.",
+        FileNotFoundError,
+        match="The file 'This is not even a dict!' does not exist.",
     ):
-        bs_record_from_bad_dict.load_bs_json(bs_json="This is not even a dict!")
+        bs_record_from_bad_dict.load_bs_json("This is not even a dict!")
 
 
 def test_extend_externalReferences():
     bs_record = BiosamplesRecord("SAMEA112654119")
-    bs_record.load_bs_json(bs_json_file="./tests/fixtures/SAMEA112654119.json")
+    bs_record.load_bs_json("./tests/fixtures/SAMEA112654119.json")
 
     new_ext_refs_list = []
     bs_record.extend_externalReferences(new_ext_refs_list)

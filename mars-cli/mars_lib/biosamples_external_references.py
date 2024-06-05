@@ -6,7 +6,7 @@ import re
 import os
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError, SchemaError
-from typing import Union
+from typing import Union, Optional
 
 # -- #
 # Hardcoded values
@@ -206,26 +206,20 @@ class BiosamplesRecord:
         self.bs_json = response_json
         return self.bs_json
 
-    def load_bs_json(self, bs_json_file: str = None, bs_json: dict = None):
+    def load_bs_json(self, bs_json: Union[str, dict]):
         """
         Loads a given JSON, or the file containing it, as the BioSample's record (JSON) for this instance.
             It is an alternative to fetching it directly from BioSample.
 
         Args:
-            bs_json_file (str): The file containing the Biosamples JSON metadata of the accession
-            bs_json (dict): The already loaded Biosamples JSON metadata of the accession
+            bs_json Union[str, dict]: The already Biosamples JSON metadata of the accession either path to file or dictionary.
         """
-        if bs_json:
-            if isinstance(bs_json, dict):
-                self.bs_json = bs_json
-                return self.bs_json
-            else:
-                raise TypeError(
-                    f"Given 'bs_json' is of type '{type(bs_json)}' instead of type 'dict'."
-                )
-        elif bs_json_file:
-            bs_json = load_json_file(bs_json_file)
+        if isinstance(bs_json, dict):
             self.bs_json = bs_json
+            return self.bs_json
+        elif isinstance(bs_json, str):
+            bs_json_data = load_json_file(bs_json)
+            self.bs_json = bs_json_data
             return self.bs_json
         else:
             raise ValueError(

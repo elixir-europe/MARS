@@ -43,7 +43,7 @@ class RepositoryResponse(BaseModel):
     # This is a Pydantic configuration that will convert the field names to camel case and be accessible as alias.
     model_config = ConfigDict(alias_generator=pydantic.alias_generators.to_camel)
 
-    target_repository: str
+    target_repository: str = Field(alias="targetRepository")
     accessions: List[Accession] = []
     errors: List[Error] = []
     info: List[Info] = []
@@ -59,30 +59,10 @@ class RepositoryResponse(BaseModel):
         with open(json_file, "r") as file:
             data = json.load(file)
 
-        target_repository = data.get("targetRepository")
-        accessions = [Accession(**acc) for acc in data.get("accessions", [])]
-        errors = [Error(**err) for err in data.get("errors", [])]
-        info = [Info(**inf) for inf in data.get("info", [])]
-
-        return cls(
-            targetRepository=target_repository,
-            accessions=accessions,
-            errors=errors,
-            info=info,
-        )
+        return cls.model_validate(data)
 
     @classmethod
     def from_json(cls, json_string: str):
         data = json.loads(json_string)
 
-        target_repository = data.get("targetRepository")
-        accessions = [Accession(**acc) for acc in data.get("accessions", [])]
-        errors = [Error(**err) for err in data.get("errors", [])]
-        info = [Info(**inf) for inf in data.get("info", [])]
-
-        return cls(
-            targetRepository=target_repository,
-            accessions=accessions,
-            errors=errors,
-            info=info,
-        )
+        return cls.model_validate(data)

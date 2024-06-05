@@ -1,5 +1,5 @@
 import json
-from typing import Union, List, Any, Tuple
+from typing import Union, List, Any, Tuple, Optional
 from mars_lib.models.isa_json import (
     Investigation,
     Assay,
@@ -9,6 +9,9 @@ from mars_lib.models.isa_json import (
     MaterialAttributeValue,
     Study,
     OntologyAnnotation,
+    Sample,
+    Source,
+    Material,
 )
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
@@ -64,9 +67,7 @@ def detect_target_repo_comment(comments: List[Comment]) -> Comment:
     Returns:
         Comment: The comment where the name corresponds with the name of the provided target repo.
     """
-    for comment in comments:
-        if comment.name == TARGET_REPO_KEY:
-            return comment
+    return next(comment for comment in comments if comment.name == TARGET_REPO_KEY)
 
 
 def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
@@ -109,7 +110,7 @@ def load_isa_json(
         return IsaJson.model_validate(isa_json).investigation
 
 
-def get_filter_for_accession_key(accession: Accession, key: str) -> Filter:
+def get_filter_for_accession_key(accession: Accession, key: str) -> Optional[Filter]:
     """
     Returns the studies node from the accession.
 
@@ -123,9 +124,7 @@ def get_filter_for_accession_key(accession: Accession, key: str) -> Filter:
     return next((p.where for p in accession.path if p.key == key), None)
 
 
-def apply_filter(
-    filter: Filter, nodes: Union[List[Study], List[Assay]]
-) -> Union[Study, Assay]:
+def apply_filter(filter: Filter, nodes: Union[List[Study], List[Assay]]) -> Any:
     """
     Filters the studies based on the filter.
 
@@ -155,7 +154,8 @@ def accession_characteristic_category_present(node: Union[Study, Assay]) -> bool
     accession_characteristics_categories = [
         char_cat
         for char_cat in node.characteristicCategories
-        if char_cat.characteristicType.annotationValue == "accession"
+        if char_cat.characteristicType
+        and char_cat.characteristicType.annotationValue == "accession"
     ]
 
     if len(accession_characteristics_categories) > 1:
@@ -181,9 +181,14 @@ def accession_characteristic_present(
     Returns:
         bool: Boolean indicating whether the node has an accession characteristic.
     """
-    material = apply_filter(
-        material_type_path.where, getattr(node.materials, material_type_path.key)
-    )
+    if material_type_path.where:
+        material = apply_filter(
+            material_type_path.where, getattr(node.materials, material_type_path.key)
+        )
+    else:
+        raise ValueError(
+            f"'where' atribute is missing in path {material_type_path.key}."
+        )
 
     accession_characteristics = [
         char
@@ -218,7 +223,12 @@ def add_accession_to_node(
         raise ValueError("Node must be either 'Study' or 'Assay'.")
 
     node_materials = getattr(node.materials, material_type_path.key)
-    updated_material = apply_filter(material_type_path.where, node_materials)
+    if material_type_path.where:
+        updated_material = apply_filter(material_type_path.where, node_materials)
+    else:
+        raise ValueError(
+            f"'where' atribute is missing in path {material_type_path.key}."
+        )
 
     accession_characteristics_category = next(
         (
@@ -230,15 +240,22 @@ def add_accession_to_node(
         None,
     )
 
+    if not accession_characteristics_category:
+        raise ValueError("Accession characteristic category is not present.")
+
     updated_material_accession_characteristic = next(
         (
             char
             for char in updated_material.characteristics
-            if char.category.id == accession_characteristics_category.id
+            if char.category
+            and char.category.id == accession_characteristics_category.id
         ),
         None,
     )
     updated_material.characteristics.remove(updated_material_accession_characteristic)
+
+    if not updated_material_accession_characteristic:
+        raise ValueError("Accession characteristic is not present.")
 
     if updated_material_accession_characteristic.value and hasattr(
         updated_material_accession_characteristic.value, "annotationValue"
@@ -253,6 +270,7 @@ def add_accession_to_node(
         updated_material_accession_characteristic.value = accession_number
 
     updated_material.characteristics.append(updated_material_accession_characteristic)
+    print(f"{updated_material.id}: {updated_material_accession_characteristic.value}.")
 
 
 def create_accession_characteristic_category(
@@ -293,9 +311,15 @@ def fetch_existing_characteristic_category(
         for char_cat in node.characteristicCategories
         if char_cat.characteristicType
         and char_cat.characteristicType.annotationValue
+        and type(char_cat.characteristicType.annotationValue) == str
         and char_cat.characteristicType.annotationValue.lower() == "accession"
     )
-    accession_id = accession_cat.id.split("_")[-1]
+    if not accession_cat:
+        raise ValueError(f"Accession characteristic category not found in{node.id}.")
+
+    accession_id = (
+        accession_cat.id.split("_")[-1] if accession_cat.id else str(uuid.uuid4())
+    )
     return (accession_id, accession_cat)
 
 
@@ -315,6 +339,11 @@ def create_accession_characteristic(
         accession_id (str): UUID for the accession.
     """
     current_materials = getattr(node.materials, material_type_path.key)
+    if not material_type_path.where:
+        raise ValueError(
+            f"'where' atribute is missing in path {material_type_path.key}."
+        )
+
     updated_material = apply_filter(material_type_path.where, current_materials)
 
     new_material_attribute_value = MaterialAttributeValue()
@@ -350,12 +379,20 @@ def update_investigation(
         )
 
         study_filter = get_filter_for_accession_key(accession, "studies")
+        if not study_filter:
+            raise ValueError(f"Study filter is not present in {accession.path}.")
+
         updated_node = apply_filter(study_filter, updated_investigation.studies)
 
         if target_level == "assay":
             assay_filter = get_filter_for_accession_key(accession, "assays")
+            if not assay_filter:
+                raise ValueError(f"Assay filter is not present in {accession.path}.")
+
             updated_node = apply_filter(assay_filter, updated_node.assays)
 
+        if not updated_node:
+            raise ValueError(f"Node not found for {accession.value}.")
         if not accession_characteristic_category_present(updated_node):
             (accession_id, category) = create_accession_characteristic_category(
                 updated_node
