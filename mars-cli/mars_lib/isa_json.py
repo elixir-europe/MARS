@@ -238,7 +238,18 @@ def add_accession_to_node(
         ),
         None,
     )
-    updated_material_accession_characteristic.value = accession_number
+
+    if updated_material_accession_characteristic.value and hasattr(
+        updated_material_accession_characteristic.value, "annotationValue"
+    ):
+        accession_ontology_annotation = OntologyAnnotation()
+        accession_ontology_annotation.id = (
+            f"#ontology_annotation/accession_{updated_material.id}"
+        )
+        accession_ontology_annotation.annotationValue = accession_number
+        updated_material_accession_characteristic.value = accession_ontology_annotation
+    else:
+        updated_material_accession_characteristic.value = accession_number
 
 
 def create_accession_characteristic_category(
@@ -257,19 +268,39 @@ def create_accession_characteristic_category(
         raise ValueError("Node must be either 'Study' or 'Assay'.")
 
     category = MaterialAttribute()
-    accession_uuid = str(uuid.uuid4())
-    category.id = f"#characteristic_category/accession_{accession_uuid}"
+    accession_id = str(uuid.uuid4())
+    category.id = f"#characteristic_category/accession_{accession_id}"
     category.characteristicType = OntologyAnnotation(annotationValue="accession")
     node.characteristicCategories.append(category)
 
-    return (accession_uuid, category)
+    return (accession_id, category)
+
+
+def fetch_existing_characteristic_category(
+    node: Union[Study, Assay]
+) -> Tuple[str, MaterialAttribute]:
+    """
+    Fetches the existing characteristic category for the accession number.
+
+    Args:
+        node (Union[Study, Assay]): study or assay to search
+    """
+    accession_cat = next(
+        char_cat
+        for char_cat in node.characteristicCategories
+        if char_cat.characteristicType
+        and char_cat.characteristicType.annotationValue
+        and char_cat.characteristicType.annotationValue.lower() == "accession"
+    )
+    accession_id = accession_cat.id.split("_")[-1]
+    return (accession_id, accession_cat)
 
 
 def create_accession_characteristic(
     node: Union[Study, Assay],
     material_type_path: Path,
     category: MaterialAttribute,
-    accession_uuid: str,
+    accession_id: str,
 ) -> None:
     """
     Creates a new characteristic for the accession number.
@@ -278,14 +309,14 @@ def create_accession_characteristic(
         node (Union[Study, Assay]): node to be updated
         material_type_path (Path): path to the material type,
         category (MaterialAttribute): characteristic category for the accession number.
-        accession_uuid (str): UUID for the accession.
+        accession_id (str): UUID for the accession.
     """
     current_materials = getattr(node.materials, material_type_path.key)
     updated_material = apply_filter(material_type_path.where, current_materials)
 
     new_material_attribute_value = MaterialAttributeValue()
     new_material_attribute_value.id = (
-        f"#material_attribute_value/accession_{accession_uuid}"
+        f"#material_attribute_value/accession_{accession_id}"
     )
     new_material_attribute_value.category = category
     updated_material.characteristics.append(new_material_attribute_value)
@@ -323,13 +354,17 @@ def update_investigation(
             updated_node = apply_filter(assay_filter, updated_node.assays)
 
         if not accession_characteristic_category_present(updated_node):
-            (accession_uuid, category) = create_accession_characteristic_category(
+            (accession_id, category) = create_accession_characteristic_category(
+                updated_node
+            )
+        else:
+            (accession_id, category) = fetch_existing_characteristic_category(
                 updated_node
             )
 
         if not accession_characteristic_present(updated_node, material_type_path):
             create_accession_characteristic(
-                updated_node, material_type_path, category, accession_uuid
+                updated_node, material_type_path, category, accession_id
             )
 
         add_accession_to_node(updated_node, accession.value, material_type_path)
