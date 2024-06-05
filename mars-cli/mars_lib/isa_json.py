@@ -238,6 +238,7 @@ def add_accession_to_node(
         ),
         None,
     )
+    updated_material.characteristics.remove(updated_material_accession_characteristic)
 
     if updated_material_accession_characteristic.value and hasattr(
         updated_material_accession_characteristic.value, "annotationValue"
@@ -250,6 +251,8 @@ def add_accession_to_node(
         updated_material_accession_characteristic.value = accession_ontology_annotation
     else:
         updated_material_accession_characteristic.value = accession_number
+
+    updated_material.characteristics.append(updated_material_accession_characteristic)
 
 
 def create_accession_characteristic_category(

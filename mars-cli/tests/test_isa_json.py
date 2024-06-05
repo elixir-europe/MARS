@@ -179,12 +179,14 @@ def test_update_study_materials_no_accession_categories():
     )
 
     # Check the accession number of the source
+    # Accession characteristic is of type String
     assert (
         updated_investigation.studies[0].materials.sources[0].characteristics[-1].value
         == repo_response.accessions[0].value
     )
 
     # Check the accession number of the sample
+    # Accession characteristic is of type String
     assert (
         updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
         == repo_response.accessions[1].value
@@ -205,8 +207,8 @@ def test_update_study_materials_with_accession_categories():
     updated_investigation = update_investigation(
         validated_isa_json.investigation, repo_response
     )
-
     # Check the accession number of the source
+    # Accession characteristic is of type OntologyAnnotation
     assert (
         updated_investigation.studies[0]
         .materials.sources[0]
@@ -216,6 +218,7 @@ def test_update_study_materials_with_accession_categories():
     )
 
     # Check the accession number of the sample
+    # Accession characteristic is of type String
     assert (
         updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
         == repo_response.accessions[1].value
