@@ -42,7 +42,7 @@ class Data(IsaBase):
     type: Optional[DataTypeEnum] = None
 
     @field_validator("type")
-    def apply_enum(cls, v):
+    def apply_enum(cls, v: str) -> str:
         if v not in [item.value for item in DataTypeEnum]:
             raise ValueError("Invalid material type")
         return v
@@ -151,7 +151,7 @@ class Material(IsaBase):
     derivesFrom: List[Material] = []
 
     @field_validator("type")
-    def apply_enum(cls, v):
+    def apply_enum(cls, v: str) -> str:
         if v not in [item.value for item in MaterialTypeEnum]:
             raise ValueError("Invalid material type")
         return v
@@ -193,7 +193,7 @@ class Assay(IsaBase):
     unitCategories: List[OntologyAnnotation] = []
 
     @field_validator("comments")
-    def detect_target_repo_comments(cls, v):
+    def detect_target_repo_comments(cls, v: List[Comment]) -> Optional[List[Comment]]:
         target_repo_comments = [
             comment for comment in v if comment.name == TARGET_REPO_KEY
         ]

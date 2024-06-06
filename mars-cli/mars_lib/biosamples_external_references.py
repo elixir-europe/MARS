@@ -6,7 +6,7 @@ import re
 import os
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError, SchemaError
-from typing import Union
+from typing import Union, Any, Optional, List
 
 # -- #
 # Hardcoded values
@@ -21,7 +21,7 @@ input_json_schema_filepath = "./mars_lib/input-schema.json"
 # -- #
 # Code blocks
 # -- #
-def load_json_file(file):
+def load_json_file(file: str) -> Any:
     """
     Function to load a JSON file as a dictionary.
     Args:
@@ -46,7 +46,7 @@ def load_json_file(file):
         )
 
 
-def handle_input_dict(input):
+def handle_input_dict(input: dict[str, str]) -> Optional[dict[str, str]]:
     """
     Function to handle the input: assert that it's either a dictionary or
         the filepath to an existing file containing the dictionary
@@ -73,7 +73,7 @@ def handle_input_dict(input):
             raise ValueError(f"The file '{input}' is not a valid JSON file.")
 
 
-def get_header(token):
+def get_header(token: str) -> dict[str, str]:
     """
     Obtain the header using a token.
 
@@ -90,7 +90,7 @@ def get_header(token):
     }
 
 
-def validate_bs_accession(accession_str):
+def validate_bs_accession(accession_str: str) -> None:
     """
     Validates that the given accession string conforms to the specified regex format.
         See: https://registry.identifiers.org/registry/biosample
@@ -108,8 +108,8 @@ def validate_bs_accession(accession_str):
 
 
 def validate_json_against_schema(
-    json_doc: Union[dict, str], json_schema: Union[dict, str]
-):
+    json_doc: Union[dict[str, List[str]], str], json_schema: Union[dict[str, str], str]
+) -> Optional[bool]:
     """
     Validates a JSON document against a given JSON Schema.
 
@@ -150,7 +150,7 @@ class BiosamplesRecord:
     production: boolean indicating environment mode
     """
 
-    def __init__(self, bs_accession):
+    def __init__(self, bs_accession: str) -> None:
         """
         Initialize the BiosamplesRecord with provided arguments.
 
@@ -159,8 +159,11 @@ class BiosamplesRecord:
         """
         validate_bs_accession(bs_accession)
         self.bs_accession = bs_accession
+        self.biosamples_credentials: Optional[dict[str, str]] = None
+        self.biosamples_externalReferences: List[str] = []
+        self.production: bool = False
 
-    def display(self):
+    def display(self) -> None:
         """
         Display the attributes for demonstration purposes.
         """
@@ -168,7 +171,7 @@ class BiosamplesRecord:
         print("Biosamples External References:", self.biosamples_externalReferences)
         print("Production Mode:", self.production)
 
-    def fetch_bs_json(self, biosamples_endpoint):
+    def fetch_bs_json(self, biosamples_endpoint: str) -> Optional[dict[str, str]]:
         """
         Fetches the BioSample's record (JSON) of the accession.
 
@@ -206,7 +209,9 @@ class BiosamplesRecord:
         self.bs_json = response_json
         return self.bs_json
 
-    def load_bs_json(self, bs_json: Union[str, dict]):
+    def load_bs_json(
+        self, bs_json: Union[str, dict[str, str]]
+    ) -> Optional[dict[str, str]]:
         """
         Loads a given JSON, or the file containing it, as the BioSample's record (JSON) for this instance.
             It is an alternative to fetching it directly from BioSample.
@@ -226,21 +231,27 @@ class BiosamplesRecord:
                 "Neither the file containing the Biosamples JSON nor the Biosamples JSON itself were given to load it into the instance."
             )
 
-    def pop_links(self):
+    def pop_links(self) -> dict[str, str]:
         """
         Removes "_links" array (which is added automatically after updating the biosamples on the BioSample's side).
         """
 
-        if "_links" not in self.bs_json:
-            return self.bs_json
+        if "_links" in self.bs_json:
+            self.bs_json.pop("_links")
 
-        self.bs_json.pop("_links")
         return self.bs_json
 
-    def extend_externalReferences(self, new_ext_refs_list):
+    def extend_externalReferences(
+        self, new_ext_refs_list: List[dict[str, str]]
+    ) -> dict[str, str]:
         """Extends the JSON of the BioSample's record with new externalReferences"""
         if not self.bs_json:
-            self.fetch_bs_json()
+            endpoint = (
+                biosamples_endpoints["prod"]
+                if self.production
+                else biosamples_endpoints["dev"]
+            )
+            self.fetch_bs_json(endpoint)
         self.pop_links()
 
         if "externalReferences" not in self.bs_json:
@@ -259,7 +270,9 @@ class BiosamplesRecord:
         self.bs_json["externalReferences"] = ext_refs_list
         return self.bs_json
 
-    def update_remote_record(self, header, webin_auth="?authProvider=WEBIN"):
+    def update_remote_record(
+        self, header: dict[str, str], webin_auth: str = "?authProvider=WEBIN"
+    ) -> Optional[str]:
         """
         Updates the remote record of the BioSample's accession with the current sample JSON.
 

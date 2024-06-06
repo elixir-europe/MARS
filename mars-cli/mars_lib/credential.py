@@ -52,19 +52,23 @@ print(keyring.get_keyring())
 
 
 class CredentialManager:
-    def __init__(self, service_name):
+    def __init__(self, service_name: str) -> None:
         self.service_name = service_name
 
-    def get_credential_env(self, username):
+    def get_credential_env(self, username: str) -> str:
         """
         Retrieves a credential from environment variables.
 
         :param username: The environment variable username.
         :return: The value of the environment variable or None if not found.
         """
-        return os.getenv(username)
+        result = os.getenv(username)
+        if result is None:
+            raise ValueError(f"Environment variable '{username}' not found.")
 
-    def prompt_for_password(self):
+        return result
+
+    def prompt_for_password(self) -> str:
         """
         Securely prompts the user to enter a password in the console.
 
@@ -72,7 +76,7 @@ class CredentialManager:
         """
         return getpass.getpass(prompt="Enter your password: ")
 
-    def set_password_keyring(self, username, password):
+    def set_password_keyring(self, username: str, password: str) -> None:
         """
         Stores a password in the keyring under the given username.
 
@@ -81,16 +85,19 @@ class CredentialManager:
         """
         keyring.set_password(self.service_name, username, password)
 
-    def get_password_keyring(self, username):
+    def get_password_keyring(self, username: str) -> str:
         """
         Retrieves a password from the keyring for the given username.
 
         :param username: The username whose password to retrieve.
         :return: The password or None if not found.
         """
-        return keyring.get_password(self.service_name, username)
+        pwd = keyring.get_password(self.service_name, username)
+        if pwd is None:
+            raise ValueError(f"Password not found for username '{username}'.")
+        return pwd
 
-    def delete_password_keyring(self, username):
+    def delete_password_keyring(self, username: str) -> None:
         """
         Deletes a password from the keyring for the given username.
 

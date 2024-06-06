@@ -21,7 +21,7 @@ class Accession(BaseModel):
     value: str
 
     @field_validator("path")
-    def validate_path(cls, path):
+    def validate_path(cls, path: List[Path]) -> List[Path]:
         keys = [p.key for p in path]
         if len(keys) != len(set(keys)):
             raise ValueError("Duplicate keys found in path list")
@@ -49,20 +49,20 @@ class RepositoryResponse(BaseModel):
     info: List[Info] = []
 
     @field_validator("target_repository")
-    def validate_target_repository(cls, v):
+    def validate_target_repository(cls, v: str) -> str:
         if v not in [item.value for item in TargetRepository]:
             raise ValueError(f"Invalid 'target repository' value: '{v}'")
         return v
 
     @classmethod
-    def from_json_file(cls, json_file):
-        with open(json_file, "r") as file:
+    def from_json_file(cls, json_file_path: str) -> "RepositoryResponse":
+        with open(json_file_path, "r") as file:
             data = json.load(file)
 
         return cls.model_validate(data)
 
     @classmethod
-    def from_json(cls, json_string: str):
+    def from_json(cls, json_string: str) -> "RepositoryResponse":
         data = json.loads(json_string)
 
         return cls.model_validate(data)
