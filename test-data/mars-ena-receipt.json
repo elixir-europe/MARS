@@ -1,10 +1,44 @@
 {
     "targetRepository": "ena.embl",
     "errors": [
-        "Cannot find an experiment with the alias #other_material/333 in the ENA receipt"
+        {
+            "type": "INVALID_METADATA",
+            "message": "Cannot find an Experiment with the alias #other_material/333 in the ENA receipt",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "otherMaterials",
+                    "where": {
+                        "key": "@id",
+                        "value": "#other_material/333"
+                    }
+                }
+            ]
+        }
     ],
     "info": [
-        "All objects in this submission are set to private status (HOLD)."
+        {
+            "message": "All objects in this submission are set to private status (HOLD)."
+        }
     ],
     "accessions": [
         {

@@ -8,9 +8,9 @@ import lombok.Data;
 public class MarsReceipt {
     private String targetRepository;
 
-    private String[] errors;
+    private MarsReceiptError[] errors;
 
-    private String[] info;
+    private MarsReceiptInfo[] info;
 
     private MarsReceiptAccession[] accessions;
 }

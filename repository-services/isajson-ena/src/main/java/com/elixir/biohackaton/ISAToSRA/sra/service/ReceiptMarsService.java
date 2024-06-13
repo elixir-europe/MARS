@@ -14,6 +14,10 @@ import com.elixir.biohackaton.ISAToSRA.model.Sample;
 import com.elixir.biohackaton.ISAToSRA.model.Study;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptAccession;
+import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptError;
+import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptErrorType;
+import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptInfo;
+import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptMessage;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptPath;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptWhere;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Messages;
@@ -37,7 +41,7 @@ public class ReceiptMarsService {
     setupJsonMapper();
   }
 
-  public String convertMarsReceiptToJson(MarsReceipt marsReceipt) {
+  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
     try {
       return jsonMapper.writeValueAsString(marsReceipt);
     } catch (Exception ex) {
@@ -49,36 +53,57 @@ public class ReceiptMarsService {
    * Converting ENA receipt to Mars data format
    * 
    * @see https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
-   * @param receipt Receipt from ENA
-   * @param isaJson Requested ISA-Json
+   * @param receipt {@link Receipt} Receipt from ENA
+   * @param isaJson {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
    */
-  public MarsReceipt convertReceiptToMars(Receipt receipt, IsaJson isaJson) {
-    Messages messages = receipt.getMessages();
-    List<String> errors = Optional.ofNullable(messages.getErrorMessages()).orElse(new ArrayList<>());
-    List<String> info = Optional.ofNullable(messages.getInfoMessages()).orElse(new ArrayList<>());
+  public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    final MarsReceiptMessage marsMessage = MarsReceiptMessage.builder().build();
+    final Messages messages = receipt.getMessages();
+    setMarsReceiptErrors(messages, marsMessage);
+    setMarsReceiptInfo(messages, marsMessage);
     return MarsReceipt.builder()
         .targetRepository("ena.embl") // https://registry.identifiers.org/registry/ena.embl
-        .accessions(getMarsAccessions(receipt, isaJson, errors))
-        .errors(errors.toArray(String[]::new))
-        .info(info.toArray(String[]::new))
+        .accessions(getMarsAccessions(receipt, isaJson, marsMessage))
+        .errors(marsMessage.getErrors().toArray(MarsReceiptError[]::new))
+        .info(marsMessage.getInfo().toArray(MarsReceiptInfo[]::new))
         .build();
   }
 
-  private MarsReceiptAccession[] getMarsAccessions(Receipt receipt, IsaJson isaJson, List<String> errors) {
-    List<MarsReceiptAccession> accessions = new ArrayList<>();
+  private void setMarsReceiptErrors(final Messages messages, final MarsReceiptMessage marsMessage) {
+    Optional.ofNullable(messages.getErrorMessages()).orElse(new ArrayList<>()).forEach(error -> {
+      marsMessage.getErrors().add(MarsReceiptError.builder()
+          .message(error)
+          .type(MarsReceiptErrorType.INVALID_METADATA)
+          .build());
+    });
+  }
+
+  private void setMarsReceiptInfo(final Messages messages, final MarsReceiptMessage marsMessage) {
+    Optional.ofNullable(messages.getInfoMessages()).orElse(new ArrayList<>()).forEach(info -> {
+      marsMessage.getInfo().add(MarsReceiptInfo.builder()
+          .message(info)
+          .build());
+    });
+  }
+
+  private MarsReceiptAccession[] getMarsAccessions(
+      final Receipt receipt,
+      final IsaJson isaJson,
+      final MarsReceiptMessage marsMessage) {
+    final List<MarsReceiptAccession> accessions = new ArrayList<>();
     if (receipt.isSuccess()) {
       Optional.ofNullable(isaJson.investigation.studies).orElse(new ArrayList<>()).forEach(study -> {
-        setStudyMarsAccession(accessions, errors, receipt, study);
+        setStudyMarsAccession(accessions, receipt, study, marsMessage);
         Optional.ofNullable(study.materials.samples).orElse(new ArrayList<>()).forEach(sample -> {
-          setSampleMarsAccession(accessions, errors, receipt, study.title, sample);
+          setSampleMarsAccession(accessions, receipt, study.title, sample, marsMessage);
         });
         Optional.ofNullable(study.assays).orElse(new ArrayList<>()).forEach(assay -> {
           Optional.ofNullable(assay.materials.otherMaterials).orElse(new ArrayList<>()).forEach(otherMaterial -> {
-            setExperimentMarsAccession(accessions, errors, receipt, study.title, assay.id, otherMaterial);
+            setExperimentMarsAccession(accessions, receipt, study.title, assay.id, otherMaterial, marsMessage);
           });
           Optional.ofNullable(assay.dataFiles).orElse(new ArrayList<>()).forEach(dataFile -> {
-            setRunMarsAccession(accessions, errors, receipt, study.title, assay.id, dataFile);
+            setRunMarsAccession(accessions, receipt, study.title, assay.id, dataFile, marsMessage);
           });
         });
       });
@@ -93,92 +118,123 @@ public class ReceiptMarsService {
   // ---------------------------------
 
   private void setStudyMarsAccession(
-      List<MarsReceiptAccession> accessions,
-      List<String> errors,
-      Receipt receipt,
-      Study study) {
-    List<ReceiptObject> studies = Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects());
-    Optional<ReceiptObject> studyReceipt = Optional.ofNullable(studies)
+      final List<MarsReceiptAccession> accessions,
+      final Receipt receipt,
+      final Study study,
+      final MarsReceiptMessage marsMessage) {
+    final List<ReceiptObject> studies = Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects());
+    final Optional<ReceiptObject> studyReceipt = Optional.ofNullable(studies)
         .orElse(new ArrayList<>())
         .stream()
         .filter(s -> s.getAlias().equals(study.title))
         .findAny();
+    final MarsReceiptAccession marsStudyReceipt = getStudyMarsAccession(study.title, studyReceipt);
     if (studyReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find a study with the alias %s in the ENA receipt", study.title));
+      marsMessage.getErrors().add(MarsReceiptError.builder()
+          .message(String.format("Cannot find a Study with the alias %s in the ENA receipt", study.title))
+          .type(MarsReceiptErrorType.INVALID_METADATA)
+          .path(marsStudyReceipt.getPath())
+          .build());
       return;
     }
-    accessions.add(getStudyMarsAccession(study.title, studyReceipt.get()));
+    accessions.add(marsStudyReceipt);
   }
 
-  private void setSampleMarsAccession(List<MarsReceiptAccession> accessions,
-      List<String> errors,
-      Receipt receipt,
-      String studyTitle,
-      Sample sample) {
-    Optional<ReceiptObject> sampleReceipt = Optional.ofNullable(receipt.getSamples())
+  private void setSampleMarsAccession(
+      final List<MarsReceiptAccession> accessions,
+      final Receipt receipt,
+      final String studyTitle,
+      final Sample sample,
+      final MarsReceiptMessage marsMessage) {
+    final Optional<ReceiptObject> sampleReceipt = Optional.ofNullable(receipt.getSamples())
         .orElse(new ArrayList<>())
         .stream()
         .filter(s -> s.getAlias().equals(sample.id))
         .findAny();
+    final MarsReceiptAccession marsSampleReceipt = getSampleMarsAccession(studyTitle, sample.id, sampleReceipt);
     if (sampleReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find a Sample with the alias %s in the ENA receipt", sample.id));
+      marsMessage.getErrors().add(MarsReceiptError.builder()
+          .message(String.format("Cannot find a Sample with the alias %s in the ENA receipt", sample.id))
+          .type(MarsReceiptErrorType.INVALID_METADATA)
+          .path(marsSampleReceipt.getPath())
+          .build());
       return;
     }
-    accessions.add(getSampleMarsAccession(studyTitle, sample.id, sampleReceipt.get()));
+    accessions.add(marsSampleReceipt);
   }
 
-  private void setExperimentMarsAccession(List<MarsReceiptAccession> accessions,
-      List<String> errors,
-      Receipt receipt,
-      String studyTitle,
-      String assayId,
-      OtherMaterial otherMaterial) {
-    Optional<ReceiptObject> experimentReceipt = Optional.ofNullable(receipt.getExperiments())
+  private void setExperimentMarsAccession(
+      final List<MarsReceiptAccession> accessions,
+      final Receipt receipt,
+      final String studyTitle,
+      final String assayId,
+      final OtherMaterial otherMaterial,
+      final MarsReceiptMessage marsMessage) {
+    final Optional<ReceiptObject> experimentReceipt = Optional.ofNullable(receipt.getExperiments())
         .orElse(new ArrayList<>())
         .stream()
         .filter(s -> s.getAlias().equals(otherMaterial.id))
         .findAny();
+    final MarsReceiptAccession marsExperimentReceipt = getExperimentMarsAccession(studyTitle, assayId, otherMaterial.id,
+        experimentReceipt);
     if (experimentReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find an Experiment with the alias %s in the ENA receipt", otherMaterial.id));
+      marsMessage.getErrors().add(MarsReceiptError.builder()
+          .message(
+              String.format("Cannot find an Experiment with the alias %s in the ENA receipt", otherMaterial.id))
+          .type(MarsReceiptErrorType.INVALID_METADATA)
+          .path(marsExperimentReceipt.getPath())
+          .build());
       return;
     }
-    accessions.add(getExperimentMarsAccession(studyTitle, assayId, otherMaterial.id, experimentReceipt.get()));
+    accessions.add(marsExperimentReceipt);
   }
 
-  private void setRunMarsAccession(List<MarsReceiptAccession> accessions,
-      List<String> errors,
-      Receipt receipt,
-      String studyTitle,
-      String assayId,
-      DataFile dataFile) {
-    Optional<ReceiptObject> runReceipt = Optional.ofNullable(receipt.getRuns())
+  private void setRunMarsAccession(
+      final List<MarsReceiptAccession> accessions,
+      final Receipt receipt,
+      final String studyTitle,
+      final String assayId,
+      final DataFile dataFile,
+      final MarsReceiptMessage marsMessage) {
+    final Optional<ReceiptObject> runReceipt = Optional.ofNullable(receipt.getRuns())
         .orElse(new ArrayList<>())
         .stream()
         .filter(s -> s.getAlias().equals(dataFile.id))
         .findAny();
+    final MarsReceiptAccession marsRunReceipt = getRunMarsAccession(studyTitle, assayId, dataFile.id, runReceipt);
     if (runReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find a Run with the alias %s in the ENA receipt", dataFile.id));
+      marsMessage.getErrors().add(MarsReceiptError.builder()
+          .message(String.format("Cannot find a Run with the alias %s in the ENA receipt", dataFile.id))
+          .type(MarsReceiptErrorType.INVALID_METADATA)
+          .path(marsRunReceipt.getPath())
+          .build());
       return;
     }
-    accessions.add(getRunMarsAccession(studyTitle, assayId, dataFile.id, runReceipt.get()));
+    accessions.add(marsRunReceipt);
   }
+
   //
   // ---------------------------------
   // | Making Mars accession objects |
   // ---------------------------------
 
-  private MarsReceiptAccession getStudyMarsAccession(String title, ReceiptObject studyReceipt) {
+  private MarsReceiptAccession getStudyMarsAccession(
+      final String title,
+      final Optional<ReceiptObject> studyReceipt) {
     return MarsReceiptAccession.builder()
         .path(new MarsReceiptPath[] {
             MarsReceiptPath.builder().key("investigation").build(),
             MarsReceiptPath.builder().key("studies")
                 .where(MarsReceiptWhere.builder().key("title").value(title).build()).build()
         })
-        .value(studyReceipt.getAccession())
+        .value(studyReceipt.isPresent() ? studyReceipt.get().getAccession() : null)
         .build();
   }
 
-  private MarsReceiptAccession getSampleMarsAccession(String studyTitle, String sampleId, ReceiptObject sampleReceipt) {
+  private MarsReceiptAccession getSampleMarsAccession(
+      final String studyTitle,
+      final String sampleId,
+      final Optional<ReceiptObject> sampleReceipt) {
     return MarsReceiptAccession.builder()
         .path(new MarsReceiptPath[] {
             MarsReceiptPath.builder().key("investigation").build(),
@@ -188,15 +244,15 @@ public class ReceiptMarsService {
             MarsReceiptPath.builder().key("samples")
                 .where(MarsReceiptWhere.builder().key("@id").value(sampleId).build()).build()
         })
-        .value(sampleReceipt.getAccession())
+        .value(sampleReceipt.isPresent() ? sampleReceipt.get().getAccession() : null)
         .build();
   }
 
   private MarsReceiptAccession getExperimentMarsAccession(
-      String studyTitle,
-      String assayId,
-      String otherMaterialId,
-      ReceiptObject experimentReceipt) {
+      final String studyTitle,
+      final String assayId,
+      final String otherMaterialId,
+      final Optional<ReceiptObject> experimentReceipt) {
     return MarsReceiptAccession.builder()
         .path(new MarsReceiptPath[] {
             MarsReceiptPath.builder().key("investigation").build(),
@@ -209,15 +265,15 @@ public class ReceiptMarsService {
                 .where(MarsReceiptWhere.builder().key("@id").value(otherMaterialId).build()).build(),
 
         })
-        .value(experimentReceipt.getAccession())
+        .value(experimentReceipt.isPresent() ? experimentReceipt.get().getAccession() : null)
         .build();
   }
 
   private MarsReceiptAccession getRunMarsAccession(
-      String studyTitle,
-      String assayId,
-      String dataFileId,
-      ReceiptObject runReceipt) {
+      final String studyTitle,
+      final String assayId,
+      final String dataFileId,
+      final Optional<ReceiptObject> runReceipt) {
     return MarsReceiptAccession.builder()
         .path(new MarsReceiptPath[] {
             MarsReceiptPath.builder().key("investigation").build(),
@@ -229,7 +285,7 @@ public class ReceiptMarsService {
                 .where(MarsReceiptWhere.builder().key("@id").value(dataFileId).build()).build(),
 
         })
-        .value(runReceipt.getAccession())
+        .value(runReceipt.isPresent() ? runReceipt.get().getAccession() : null)
         .build();
   }
 }
