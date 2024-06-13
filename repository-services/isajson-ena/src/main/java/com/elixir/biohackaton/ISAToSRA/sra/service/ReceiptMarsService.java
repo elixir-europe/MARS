@@ -19,9 +19,31 @@ import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceiptWhere;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Messages;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Service
 public class ReceiptMarsService {
+  private final ObjectMapper jsonMapper = new ObjectMapper();
+
+  private void setupJsonMapper() {
+    jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    jsonMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+    jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+  }
+
+  public ReceiptMarsService() {
+    setupJsonMapper();
+  }
+
+  public String convertMarsReceiptToJson(MarsReceipt marsReceipt) {
+    try {
+      return jsonMapper.writeValueAsString(marsReceipt);
+    } catch (Exception ex) {
+      throw new RuntimeException("receipt", ex);
+    }
+  }
 
   /**
    * Converting ENA receipt to Mars data format
@@ -29,7 +51,7 @@ public class ReceiptMarsService {
    * @see https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param receipt Receipt from ENA
    * @param isaJson Requested ISA-Json
-   * @return
+   * @return {@link MarsReceipt} Mars response data
    */
   public MarsReceipt convertReceiptToMars(Receipt receipt, IsaJson isaJson) {
     Messages messages = receipt.getMessages();
@@ -99,7 +121,7 @@ public class ReceiptMarsService {
         .filter(s -> s.getAlias().equals(sample.id))
         .findAny();
     if (sampleReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find a sample with the alias %s in the ENA receipt", sample.id));
+      errors.add(String.format("Cannot find a Sample with the alias %s in the ENA receipt", sample.id));
       return;
     }
     accessions.add(getSampleMarsAccession(studyTitle, sample.id, sampleReceipt.get()));
@@ -117,7 +139,7 @@ public class ReceiptMarsService {
         .filter(s -> s.getAlias().equals(otherMaterial.id))
         .findAny();
     if (experimentReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find an experiment with the alias %s in the ENA receipt", otherMaterial.id));
+      errors.add(String.format("Cannot find an Experiment with the alias %s in the ENA receipt", otherMaterial.id));
       return;
     }
     accessions.add(getExperimentMarsAccession(studyTitle, assayId, otherMaterial.id, experimentReceipt.get()));
@@ -135,7 +157,7 @@ public class ReceiptMarsService {
         .filter(s -> s.getAlias().equals(dataFile.id))
         .findAny();
     if (runReceipt.isEmpty()) {
-      errors.add(String.format("Cannot find a run with the alias %s in the ENA receipt", dataFile.id));
+      errors.add(String.format("Cannot find a Run with the alias %s in the ENA receipt", dataFile.id));
       return;
     }
     accessions.add(getRunMarsAccession(studyTitle, assayId, dataFile.id, runReceipt.get()));
