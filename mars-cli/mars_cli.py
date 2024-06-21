@@ -13,7 +13,7 @@ import json
 
 # Load CLI configuration
 home_dir = (
-    pathlib.Path(os.getenv("MARS_SETTINGS_DIR"))
+    pathlib.Path(str(os.getenv("MARS_SETTINGS_DIR")))
     if os.getenv("MARS_SETTINGS_DIR")
     else pathlib.Path.home()
 )
