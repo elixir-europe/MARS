@@ -1,3 +1,4 @@
+from mars_lib.models.isa_json import Investigation
 from mars_lib.authentication import get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -6,11 +7,36 @@ from mars_lib.biosamples_external_references import (
     validate_json_against_schema,
     input_json_schema_filepath,
 )
+from mars_lib.isa_json import reduce_isa_json_for_target_repo
+from mars_lib.target_repo import TargetRepository
+import requests
+from typing import Any
+
+
+def submit_to_biosamples(
+    investiagation: Investigation,
+    biosamples_credentials: dict[str, str],
+    url: str,
+) -> requests.Response:
+    bs_input_investiagation = reduce_isa_json_for_target_repo(
+        investiagation, TargetRepository.BIOSAMPLES
+    )
+
+    webin_token = get_webin_auth_token(biosamples_credentials)
+    s = requests.Session()
+    s.headers.update({"accept": "application/json", "Content-Type": "application/json"})
+    return s.post(
+        url,
+        params={"webinjwt": webin_token},
+        data=bs_input_investiagation.model_dump_json(),
+    )
 
 
 def create_external_references(
-    biosamples_credentials, biosamples_externalReferences, production
-):
+    biosamples_credentials: dict[str, str],
+    biosamples_externalReferences: dict[str, Any],
+    production: bool,
+) -> None:
     """
     Main function to be executed when script is run.
 
@@ -28,6 +54,8 @@ def create_external_references(
         json_doc=biosamples_externalReferences, json_schema=input_json_schema_filepath
     )
     token = get_webin_auth_token(biosamples_credentials)
+    if not token:
+        raise ValueError("The token could not be generated.")
     header = get_header(token)
 
     for biosample_r in biosamples_externalReferences["biosampleExternalReferences"]:

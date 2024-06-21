@@ -42,6 +42,7 @@ setup(
             "ruff",
             "pytest",
             "pytest-cov",
+            "mypy",
         ]
     },
     project_urls={

@@ -3,7 +3,7 @@ import logging
 import pathlib
 from configparser import ConfigParser
 from mars_lib.target_repo import TargetRepository
-from mars_lib.model import Investigation, IsaJson
+from mars_lib.models.isa_json import Investigation, IsaJson
 from mars_lib.isa_json import load_isa_json
 from logging.handlers import RotatingFileHandler
 import requests
@@ -13,7 +13,7 @@ import json
 
 # Load CLI configuration
 home_dir = (
-    pathlib.Path(os.getenv("MARS_SETTINGS_DIR"))
+    pathlib.Path(str(os.getenv("MARS_SETTINGS_DIR")))
     if os.getenv("MARS_SETTINGS_DIR")
     else pathlib.Path.home()
 )
