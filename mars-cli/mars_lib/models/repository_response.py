@@ -35,7 +35,7 @@ class Error(BaseModel):
 
 
 class Info(BaseModel):
-    name: str
+    name: Optional[str] = None
     message: str
 
 
