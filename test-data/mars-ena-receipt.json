@@ -1,0 +1,146 @@
+{
+    "targetRepository": "ena.embl",
+    "errors": [
+        {
+            "type": "INVALID_METADATA",
+            "message": "Cannot find an Experiment with the alias #other_material/333 in the ENA receipt",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "otherMaterials",
+                    "where": {
+                        "key": "@id",
+                        "value": "#other_material/333"
+                    }
+                }
+            ]
+        }
+    ],
+    "info": [
+        {
+            "message": "All objects in this submission are set to private status (HOLD)."
+        }
+    ],
+    "accessions": [
+        {
+            "value": "PRJEB101337",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERS27605861",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "samples",
+                    "where": {
+                        "key": "@id",
+                        "value": "#sample/331"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERX9223136",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "otherMaterials",
+                    "where": {
+                        "key": "@id",
+                        "value": "#other_material/332"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERR9669128",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "dataFiles",
+                    "where": {
+                        "key": "@id",
+                        "value": "#data/334"
+                    }
+                }
+            ]
+        }
+    ]
+}
