@@ -1,17 +1,15 @@
-/** Elixir BioHackathon 2023 */
+/** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
-
-import java.io.File;
-import java.nio.file.Files;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.elixir.biohackaton.ISAToSRA.model.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptMarsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.nio.file.Files;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class EnaReceiptToMarsTest {
