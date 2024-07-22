@@ -8,9 +8,9 @@ import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesAccessionsPa
 import com.elixir.biohackaton.ISAToSRA.model.Investigation;
 import com.elixir.biohackaton.ISAToSRA.model.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.model.Study;
-import com.elixir.biohackaton.ISAToSRA.sra.service.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
+import com.elixir.biohackaton.ISAToSRA.sra.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,42 +32,36 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class WebinIsaToXmlSubmissionController {
-  @Autowired
-  private BioSamplesAccessionsParser bioSamplesAccessionsParser;
+  @Autowired private BioSamplesAccessionsParser bioSamplesAccessionsParser;
 
-  @Autowired
-  private WebinStudyXmlCreator webinStudyXmlCreator;
+  @Autowired private WebinStudyXmlCreator webinStudyXmlCreator;
 
-  @Autowired
-  private WebinExperimentXmlCreator webinExperimentXmlCreator;
+  @Autowired private WebinExperimentXmlCreator webinExperimentXmlCreator;
 
-  @Autowired
-  private WebinProjectXmlCreator webinProjectXmlCreator;
+  @Autowired private WebinProjectXmlCreator webinProjectXmlCreator;
 
-  @Autowired
-  private WebinRunXmlCreator webinRunXmlCreator;
+  @Autowired private WebinRunXmlCreator webinRunXmlCreator;
 
-  @Autowired
-  private WebinHttpSubmissionService webinHttpSubmissionService;
+  @Autowired private WebinHttpSubmissionService webinHttpSubmissionService;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  private ReceiptConversionService receiptConversionService;
+  @Autowired private ReceiptConversionService receiptConversionService;
 
-  @Autowired
-  private ReceiptMarsService receiptMarsService;
+  @Autowired private ReceiptMarsService receiptMarsService;
 
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Ok"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized"),
-      @ApiResponse(responseCode = "403", description = "Forbidden"),
-      @ApiResponse(responseCode = "400", description = "Bad request"),
-      @ApiResponse(responseCode = "408", description = "Request Timeout"),
-      @ApiResponse(responseCode = "415", description = "Unsupported media type")
-  })
-  @PostMapping(value = "/submit", consumes = { APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE })
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Ok"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "408", description = "Request Timeout"),
+        @ApiResponse(responseCode = "415", description = "Unsupported media type")
+      })
+  @PostMapping(
+      value = "/submit",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE})
   public String performSubmissionToEna(
       @RequestBody final String submissionPayload,
       @RequestParam(value = "webinUserName") String webinUserName,
@@ -83,8 +77,9 @@ public class WebinIsaToXmlSubmissionController {
 
     final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
     final List<Study> studies = getStudies(isaJson);
-    final Map<String, String> typeToBioSamplesAccessionMap = this.bioSamplesAccessionsParser
-        .parseIsaFileAndGetBioSampleAccessions(studies, new HashMap<>());
+    final Map<String, String> typeToBioSamplesAccessionMap =
+        this.bioSamplesAccessionsParser.parseIsaFileAndGetBioSampleAccessions(
+            studies, new HashMap<>());
 
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = startPreparingWebinV2SubmissionXml(document);
@@ -93,8 +88,9 @@ public class WebinIsaToXmlSubmissionController {
     this.webinStudyXmlCreator.createENAStudySetElement(
         webinElement, studies, randomSubmissionIdentifier);
 
-    final Map<Integer, String> experimentSequenceMap = this.webinExperimentXmlCreator.createENAExperimentSetElement(
-        typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
+    final Map<Integer, String> experimentSequenceMap =
+        this.webinExperimentXmlCreator.createENAExperimentSetElement(
+            typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
 
     this.webinRunXmlCreator.createENARunSetElement(
         webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
@@ -106,8 +102,9 @@ public class WebinIsaToXmlSubmissionController {
 
     writer.write(document);
 
-    final String receiptXml = webinHttpSubmissionService.performWebinSubmission(
-        webinUserName, document.asXML(), webinPassword);
+    final String receiptXml =
+        webinHttpSubmissionService.performWebinSubmission(
+            webinUserName, document.asXML(), webinPassword);
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
     final MarsReceipt marsReceipt = receiptMarsService.convertReceiptToMars(receiptJson, isaJson);
 
