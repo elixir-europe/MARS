@@ -146,7 +146,9 @@ public class WebinExperimentXmlCreator {
                                       .addText(otherMaterial.getName());
                                   experimentElement
                                       .addElement("STUDY_REF")
-                                      .addAttribute("refname", study.getTitle() + "-" + randomSubmissionIdentifier);
+                                      .addAttribute(
+                                          "refname",
+                                          study.getTitle() + "-" + randomSubmissionIdentifier);
 
                                   final Element designElement =
                                       experimentElement.addElement("DESIGN");
