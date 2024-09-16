@@ -66,10 +66,16 @@
                     ],
                     "dataFiles": [
                         {
+                            "@id": "#data_file/4dd85c35-6e70-4541-99ac-324328f817eb",
+                            "comments": [],
+                            "name": "m_BH2023___metabolite_profiling_v2_maf.tsv",
+                            "type": "Metabolite Assignment File"
+                        },
+                        {
                             "@id": "#data_file/b3530ec1-6bc5-4757-a526-81c1773530a6",
                             "comments": [],
                             "name": "isotopologue-distribution-analysis.txt",
-                            "type": "Derived Data File"
+                            "type": "Derived Spectral Data File"
                         },
                         {
                             "@id": "#data_file/2647db5f-0ed8-4536-aec7-8d5d4cfc65d3",
@@ -819,6 +825,9 @@
                             "outputs": [
                                 {
                                     "@id": "#data_file/b3530ec1-6bc5-4757-a526-81c1773530a6"
+                                },
+                                {
+                                    "@id": "#data_file/4dd85c35-6e70-4541-99ac-324328f817eb"
                                 }
                             ],
                             "parameterValues": [

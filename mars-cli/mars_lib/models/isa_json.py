@@ -39,6 +39,7 @@ class DataTypeEnum(str, Enum):
     DERIVED_SPECTRAL_DATA_FILE = "Derived Spectral Data File"
     FREE_INDUCTION_DECAY_DATA_FILE = "Free Induction Decay Data File"
     ACQUSITION_PARAMETER_DATA_FILE = "Acquisition Parameter Data File"
+    METABOLITE_ASSIGNMENT_FILE = "Metabolite Assignment File"  # Used in MetaboLights to report metabolite assignments
 
 
 DATA_TYPE_VALUES = {item.value for item in DataTypeEnum}
