@@ -1,0 +1,9 @@
+package com.elixir.biohackaton.ISAToSRA.receipt.isamodel;
+
+import lombok.Data;
+
+@Data
+public class Component {
+  public String componentName;
+  public ComponentType componentType;
+}
