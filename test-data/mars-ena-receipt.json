@@ -3,7 +3,7 @@
     "errors": [
         {
             "type": "INVALID_METADATA",
-            "message": "Cannot find an Experiment with the alias #other_material/333 in the ENA receipt",
+            "message": "Cannot find an Experiment with the key #other_material/333 in the receipt",
             "path": [
                 {
                     "key": "investigation"
