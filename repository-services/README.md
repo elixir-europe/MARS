@@ -10,7 +10,7 @@ Change to the correct directory:
 cd repository-test-services
 ```
 
-Use docker compose to deploy both services simultaniously:
+Use docker compose to deploy both services simultaneously:
  
  ```sh
  docker compose up
