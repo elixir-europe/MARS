@@ -1,7 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.biosamples.service;
 
-import com.elixir.biohackaton.ISAToSRA.model.*;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;

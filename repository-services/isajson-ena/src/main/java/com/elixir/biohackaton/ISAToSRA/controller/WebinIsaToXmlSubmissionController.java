@@ -5,12 +5,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesAccessionsParser;
-import com.elixir.biohackaton.ISAToSRA.model.Investigation;
-import com.elixir.biohackaton.ISAToSRA.model.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.model.Study;
-import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceipt;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
-import com.elixir.biohackaton.ISAToSRA.sra.service.*;
+import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
+import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptConversionService;
+import com.elixir.biohackaton.ISAToSRA.sra.service.WebinExperimentXmlCreator;
+import com.elixir.biohackaton.ISAToSRA.sra.service.WebinHttpSubmissionService;
+import com.elixir.biohackaton.ISAToSRA.sra.service.WebinProjectXmlCreator;
+import com.elixir.biohackaton.ISAToSRA.sra.service.WebinRunXmlCreator;
+import com.elixir.biohackaton.ISAToSRA.sra.service.WebinStudyXmlCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -48,7 +52,7 @@ public class WebinIsaToXmlSubmissionController {
 
   @Autowired private ReceiptConversionService receiptConversionService;
 
-  @Autowired private ReceiptMarsService receiptMarsService;
+  @Autowired private MarsReceiptService marsReceiptService;
 
   @ApiResponses(
       value = {
@@ -106,9 +110,9 @@ public class WebinIsaToXmlSubmissionController {
         webinHttpSubmissionService.performWebinSubmission(
             webinUserName, document.asXML(), webinPassword);
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
-    final MarsReceipt marsReceipt = receiptMarsService.convertReceiptToMars(receiptJson, isaJson);
+    final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 
-    return receiptMarsService.convertMarsReceiptToJson(marsReceipt);
+    return marsReceiptService.convertMarsReceiptToJson(marsReceipt);
   }
 
   public List<Study> getStudies(final IsaJson isaJson) {

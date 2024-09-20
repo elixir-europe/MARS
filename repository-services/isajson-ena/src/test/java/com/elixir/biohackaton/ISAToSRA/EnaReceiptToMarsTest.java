@@ -1,10 +1,10 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
 
-import com.elixir.biohackaton.ISAToSRA.model.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.sra.model.MarsReceipt;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
-import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptMarsService;
+import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
@@ -30,8 +30,8 @@ class EnaReceiptToMarsTest {
       IsaJson isaJson = jsonMapper.readValue(isaJsonFile, IsaJson.class);
 
       // Converting ENA receipt to MARS receipt
-      ReceiptMarsService marsService = new ReceiptMarsService();
-      MarsReceipt marsReceipt = marsService.convertReceiptToMars(receipt, isaJson);
+      MarsReceiptService marsReceiptService = new MarsReceiptService();
+      MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receipt, isaJson);
 
       // Saving the result as a Json file
       String marsReceiptPath = "../../test-data/mars-ena-receipt.json";
