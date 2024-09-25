@@ -35,7 +35,7 @@ import java.util.*;
   "submittedDate",
   "submittedVia"
 })
-public class Sample implements Comparable<Sample> {
+public class BioSample implements Comparable<BioSample> {
   protected String accession;
   protected String name;
 
@@ -61,7 +61,7 @@ public class Sample implements Comparable<Sample> {
   protected SortedSet<Publication> publications;
   protected SubmittedViaType submittedVia;
 
-  protected Sample() {}
+  protected BioSample() {}
 
   @JsonProperty("accession")
   public String getAccession() {
@@ -228,10 +228,10 @@ public class Sample implements Comparable<Sample> {
   public boolean equals(Object o) {
 
     if (o == this) return true;
-    if (!(o instanceof Sample)) {
+    if (!(o instanceof BioSample)) {
       return false;
     }
-    Sample other = (Sample) o;
+    BioSample other = (BioSample) o;
 
     // dont use update date for comparisons, too volatile. SubmittedVia doesnt contain information
     // for comparison
@@ -251,7 +251,7 @@ public class Sample implements Comparable<Sample> {
   }
 
   @Override
-  public int compareTo(Sample other) {
+  public int compareTo(BioSample other) {
     if (other == null) {
       return 1;
     }
@@ -413,7 +413,7 @@ public class Sample implements Comparable<Sample> {
     return sb.toString();
   }
 
-  public static Sample build(
+  public static BioSample build(
       String name,
       String accession,
       String domain,
@@ -447,7 +447,7 @@ public class Sample implements Comparable<Sample> {
         null);
   }
 
-  public static Sample build(
+  public static BioSample build(
       String name,
       String accession,
       String domain,
@@ -484,7 +484,7 @@ public class Sample implements Comparable<Sample> {
 
   // Used for deserializtion (JSON -> Java)
   @JsonCreator
-  public static Sample build(
+  public static BioSample build(
       @JsonProperty("name") String name,
       @JsonProperty("accession") String accession,
       @JsonProperty("domain") String domain,
@@ -509,7 +509,7 @@ public class Sample implements Comparable<Sample> {
       @JsonProperty("publications") Collection<Publication> publications,
       @JsonProperty("submittedVia") SubmittedViaType submittedVia) {
 
-    Sample sample = new Sample();
+    BioSample sample = new BioSample();
 
     if (accession != null) {
       sample.accession = accession.trim();
@@ -890,8 +890,8 @@ public class Sample implements Comparable<Sample> {
       return this;
     }
 
-    public Sample build() {
-      return Sample.build(
+    public BioSample build() {
+      return BioSample.build(
           name,
           accession,
           domain,
@@ -931,7 +931,7 @@ public class Sample implements Comparable<Sample> {
      * @param sample the sample to use as reference
      * @return the Builder
      */
-    public static Builder fromSample(Sample sample) {
+    public static Builder fromSample(BioSample sample) {
       return new Builder(sample.getName(), sample.getAccession())
           .withDomain(sample.getDomain())
           .withWebinSubmissionAccountId(sample.getWebinSubmissionAccountId())
