@@ -38,7 +38,7 @@ public class BioSamplesSubmitter {
         }
       }
 
-      typeToBioSamplesAccessionMap.sourceAccessionsMap.isaKeyName = Source.Fields.name;
+      typeToBioSamplesAccessionMap.sourceAccessionsMap.keyName = Source.Fields.name;
       typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
           sourceBioSample.getName(),
           sourceBioSample.getAccession());
@@ -71,7 +71,7 @@ public class BioSamplesSubmitter {
                               : new ArrayList<>();
                           sampleCharacteristics.add(biosampleAccessionCharacteristic);
 
-                          typeToBioSamplesAccessionMap.sampleAccessionsMap.isaKeyName = Sample.Fields.name;
+                          typeToBioSamplesAccessionMap.sampleAccessionsMap.keyName = Sample.Fields.name;
                           typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
                               persistedChildSample.getName(),
                               persistedChildSample.getAccession());

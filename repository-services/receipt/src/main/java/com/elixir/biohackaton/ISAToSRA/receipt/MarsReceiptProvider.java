@@ -1,17 +1,20 @@
 package com.elixir.biohackaton.ISAToSRA.receipt;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class MarsReceiptProvider {
 
   private class ReceiptAccessionMap {
+    public String keyName;
     public String isaKeyName;
-    public String isaKeyValue;
+    public String keyValue;
     public String accession;
   }
 
@@ -192,7 +195,7 @@ public abstract class MarsReceiptProvider {
                     .where(
                         MarsWhere.builder()
                             .key(studyAccessionMap.isaKeyName)
-                            .value(studyAccessionMap.isaKeyValue)
+                            .value(studyAccessionMap.keyValue)
                             .build())
                     .build());
               }
@@ -213,7 +216,7 @@ public abstract class MarsReceiptProvider {
                     .key("studies")
                     .where(MarsWhere.builder()
                         .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.isaKeyValue)
+                        .value(studyAccessionMap.keyValue)
                         .build())
                     .build());
                 add(MarsPath.builder().key("materials").build());
@@ -221,7 +224,7 @@ public abstract class MarsReceiptProvider {
                     .key("samples")
                     .where(MarsWhere.builder()
                         .key(sampleAccessionMap.isaKeyName)
-                        .value(sampleAccessionMap.isaKeyValue)
+                        .value(sampleAccessionMap.keyValue)
                         .build())
                     .build());
               }
@@ -242,7 +245,7 @@ public abstract class MarsReceiptProvider {
                     .key("studies")
                     .where(MarsWhere.builder()
                         .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.isaKeyValue)
+                        .value(studyAccessionMap.keyValue)
                         .build())
                     .build());
                 add(MarsPath.builder().key("materials").build());
@@ -250,7 +253,7 @@ public abstract class MarsReceiptProvider {
                     .key("sources")
                     .where(MarsWhere.builder()
                         .key(sourceAccessionMap.isaKeyName)
-                        .value(sourceAccessionMap.isaKeyValue)
+                        .value(sourceAccessionMap.keyValue)
                         .build())
                     .build());
               }
@@ -272,7 +275,7 @@ public abstract class MarsReceiptProvider {
                     .key("studies")
                     .where(MarsWhere.builder()
                         .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.isaKeyValue)
+                        .value(studyAccessionMap.keyValue)
                         .build())
                     .build());
                 add(MarsPath.builder()
@@ -287,7 +290,7 @@ public abstract class MarsReceiptProvider {
                     .key("otherMaterials")
                     .where(MarsWhere.builder()
                         .key(otherMaterialAccessionMap.isaKeyName)
-                        .value(otherMaterialAccessionMap.isaKeyValue)
+                        .value(otherMaterialAccessionMap.keyValue)
                         .build())
                     .build());
               }
@@ -309,7 +312,7 @@ public abstract class MarsReceiptProvider {
                     .key("studies")
                     .where(MarsWhere.builder()
                         .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.isaKeyValue)
+                        .value(studyAccessionMap.keyValue)
                         .build())
                     .build());
                 add(MarsPath.builder()
@@ -323,7 +326,7 @@ public abstract class MarsReceiptProvider {
                     .key("dataFiles")
                     .where(MarsWhere.builder()
                         .key(dataFileAccessionMap.isaKeyName)
-                        .value(dataFileAccessionMap.isaKeyValue)
+                        .value(dataFileAccessionMap.keyValue)
                         .build())
                     .build());
               }
@@ -341,9 +344,15 @@ public abstract class MarsReceiptProvider {
     try {
       return new ReceiptAccessionMap() {
         {
-          isaKeyName = accessionsMap.isaKeyName;
-          isaKeyValue = item.getClass().getField(accessionsMap.isaKeyName).get(item).toString();
-          accession = accessionsMap.accessionMap.get(isaKeyValue);
+          Field field = item.getClass().getField(accessionsMap.keyName);
+          if (field.isAnnotationPresent(JsonProperty.class)) {
+            isaKeyName = field.getAnnotation(JsonProperty.class).value();
+          } else {
+            isaKeyName = accessionsMap.keyName;
+          }
+          keyName = accessionsMap.keyName;
+          keyValue = field.get(item).toString();
+          accession = accessionsMap.accessionMap.get(keyValue);
         }
       };
     } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -353,7 +362,7 @@ public abstract class MarsReceiptProvider {
                   .message(
                       String.format("Cannot find an item of %s with the key %s in the ISA-JSON input",
                           item.getClass().getSimpleName(),
-                          accessionsMap.isaKeyName))
+                          accessionsMap.keyName))
                   .type(MarsErrorType.INVALID_METADATA)
                   .build());
       return new ReceiptAccessionMap();

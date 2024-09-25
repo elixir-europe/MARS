@@ -5,17 +5,17 @@ import java.util.HashMap;
 public class ReceiptAccessionsMap {
     public HashMap<String, String> accessionMap;
 
-    public String isaKeyName;
+    public String keyName;
 
     public ReceiptAccessionsMap() {
         accessionMap = new HashMap<>();
     }
 
-    public ReceiptAccessionsMap(String isaKeyName, String isaKeyValue) {
-        this.isaKeyName = isaKeyName;
+    public ReceiptAccessionsMap(String keyName, String keyValue) {
+        this.keyName = keyName;
         this.accessionMap = new HashMap<>() {
             {
-                put(isaKeyValue, null);
+                put(keyValue, null);
             }
         };
     }

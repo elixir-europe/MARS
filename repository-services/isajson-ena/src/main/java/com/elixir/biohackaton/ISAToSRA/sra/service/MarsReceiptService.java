@@ -64,10 +64,10 @@ public class MarsReceiptService extends MarsReceiptProvider {
   }
 
   private ReceiptAccessionsMap getAliasAccessionPairs(
-      String IsaKeyNameInput, final List<ReceiptObject> items) {
+      String keyNameInput, final List<ReceiptObject> items) {
     return new ReceiptAccessionsMap() {
       {
-        isaKeyName = IsaKeyNameInput;
+        keyName = keyNameInput;
         accessionMap =
             new HashMap<String, String>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
