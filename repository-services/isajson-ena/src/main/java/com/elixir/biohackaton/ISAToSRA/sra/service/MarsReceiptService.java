@@ -2,6 +2,7 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
+import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
@@ -51,19 +52,29 @@ public class MarsReceiptService extends MarsReceiptProvider {
     return buildMarsReceipt(
         "ena.embl", // https://registry.identifiers.org/registry/ena.embl
         getAliasAccessionPairs(
+            Study.Fields.title,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
-        getAliasAccessionPairs(receipt.getSamples()),
-        getAliasAccessionPairs(receipt.getExperiments()),
-        getAliasAccessionPairs(receipt.getRuns()),
+        getAliasAccessionPairs(Sample.Fields.id, receipt.getSamples()),
+        null,
+        getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
+        getAliasAccessionPairs(DataFile.Fields.id, receipt.getRuns()),
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
   }
 
-  private HashMap<String, String> getAliasAccessionPairs(final List<ReceiptObject> items) {
-    return new HashMap<String, String>(
-        Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-            .filter(item -> item != null)
-            .collect(Collectors.toMap(ReceiptObject::getAlias, ReceiptObject::getAccession)));
+  private ReceiptAccessionsMap getAliasAccessionPairs(
+      String IsaKeyNameInput, final List<ReceiptObject> items) {
+    return new ReceiptAccessionsMap() {
+      {
+        isaKeyName = IsaKeyNameInput;
+        accessionMap =
+            new HashMap<String, String>(
+                Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
+                    .filter(item -> item != null)
+                    .collect(
+                        Collectors.toMap(ReceiptObject::getAlias, ReceiptObject::getAccession)));
+      }
+    };
   }
 }
