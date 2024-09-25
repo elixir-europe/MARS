@@ -33,7 +33,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
   }
 
   /**
-   * Converting ENA receipt to Mars data format
+   * Converting BioSample receipt to Mars data format
    *
    * @see
    *      https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
