@@ -2,8 +2,10 @@ package com.elixir.biohackaton.ISAToSRA.receipt.isamodel;
 
 import java.util.ArrayList;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 @Data
+@FieldNameConstants
 public class Investigation {
   public String identifier;
   public String title;
