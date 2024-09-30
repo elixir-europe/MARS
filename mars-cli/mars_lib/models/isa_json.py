@@ -31,8 +31,18 @@ class DataTypeEnum(str, Enum):
     RAW_DATA_FILE = "Raw Data File"
     DERIVED_DATA_FILE = "Derived Data File"
     IMAGE_FILE = "Image File"
-    SPECTRAL_RAW_DATA_FILE = "Spectral Raw Data File"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/)
-    FREE_INDUCTION_DECAY_FILE = "Free Induction Decay File"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/)
+    # The following names are not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#data-schema-json).
+    # However, spectral data file names are mentioned in the ISA-Tab specs (https://isa-specs.readthedocs.io/en/latest/isatab.html).
+    # TODO: Review and support all possible data file names mentioned in the the ISA-Tab specs (Section 2.3.8).
+    # Metabolights support the following data file types:
+    RAW_SPECTRAL_DATA_FILE = "Raw Spectral Data File"
+    DERIVED_SPECTRAL_DATA_FILE = "Derived Spectral Data File"
+    FREE_INDUCTION_DECAY_DATA_FILE = "Free Induction Decay Data File"
+    ACQUSITION_PARAMETER_DATA_FILE = "Acquisition Parameter Data File"
+    METABOLITE_ASSIGNMENT_FILE = "Metabolite Assignment File"  # Used in MetaboLights to report metabolite assignments
+
+
+DATA_TYPE_VALUES = {item.value for item in DataTypeEnum}
 
 
 class Data(IsaBase):
@@ -43,7 +53,7 @@ class Data(IsaBase):
 
     @field_validator("type")
     def apply_enum(cls, v: str) -> str:
-        if v not in [item.value for item in DataTypeEnum]:
+        if v not in DATA_TYPE_VALUES:
             raise ValueError("Invalid material type")
         return v
 
