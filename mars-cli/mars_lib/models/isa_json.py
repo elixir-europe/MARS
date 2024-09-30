@@ -32,7 +32,7 @@ class DataTypeEnum(str, Enum):
     DERIVED_DATA_FILE = "Derived Data File"
     IMAGE_FILE = "Image File"
     # The following names are not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#data-schema-json).
-    # However, spectral data file names are mentioned in the ISA-Tab specs (https://isa-specs.readthedocs.io/en/latest/isatab.html). 
+    # However, spectral data file names are mentioned in the ISA-Tab specs (https://isa-specs.readthedocs.io/en/latest/isatab.html).
     # TODO: Review and support all possible data file names mentioned in the the ISA-Tab specs (Section 2.3.8).
     # Metabolights support the following data file types:
     RAW_SPECTRAL_DATA_FILE = "Raw Spectral Data File"
