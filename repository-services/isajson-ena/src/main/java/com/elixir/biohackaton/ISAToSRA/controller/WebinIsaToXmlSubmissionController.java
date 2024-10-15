@@ -4,7 +4,6 @@ package com.elixir.biohackaton.ISAToSRA.controller;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
-import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesAccessionsParser;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
@@ -36,8 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class WebinIsaToXmlSubmissionController {
-  @Autowired private BioSamplesAccessionsParser bioSamplesAccessionsParser;
-
   @Autowired private WebinStudyXmlCreator webinStudyXmlCreator;
 
   @Autowired private WebinExperimentXmlCreator webinExperimentXmlCreator;
@@ -80,18 +77,16 @@ public class WebinIsaToXmlSubmissionController {
     }
 
     final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
-    final List<Study> studies = getStudies(isaJson);
-    final Map<String, String> typeToBioSamplesAccessionMap =
-        this.bioSamplesAccessionsParser.parseIsaFileAndGetBioSampleAccessions(
-            studies, new HashMap<>());
 
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = startPreparingWebinV2SubmissionXml(document);
     final String randomSubmissionIdentifier = String.valueOf(Math.random());
 
+    final List<Study> studies = getStudies(isaJson);
     this.webinStudyXmlCreator.createENAStudySetElement(
         webinElement, studies, randomSubmissionIdentifier);
 
+    final Map<String, String> typeToBioSamplesAccessionMap = getBiosamples(studies);
     final Map<Integer, String> experimentSequenceMap =
         this.webinExperimentXmlCreator.createENAExperimentSetElement(
             typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
@@ -133,6 +128,31 @@ public class WebinIsaToXmlSubmissionController {
     }
 
     return null;
+  }
+
+  public Map<String, String> getBiosamples(List<Study> studies) {
+    HashMap<String, String> biosamples = new HashMap<>();
+    for (Study study : studies) {
+      for (Source source : study.materials.sources) {
+        String sourceAccession = getCharacteresticAnnotation(source.characteristics);
+        if (!sourceAccession.isBlank()) {
+          biosamples.put("SOURCE", sourceAccession);
+          return biosamples;
+        }
+      }
+    }
+
+    return biosamples;
+  }
+
+  private String getCharacteresticAnnotation(List<Characteristic> characteristics) {
+    for (Characteristic characteristic : characteristics) {
+      if ("#characteristic_category/accession".equals(characteristic.category.id)) {
+        return characteristic.value.annotationValue;
+      }
+    }
+
+    return "";
   }
 
   private static Element startPreparingWebinV2SubmissionXml(Document document) {
