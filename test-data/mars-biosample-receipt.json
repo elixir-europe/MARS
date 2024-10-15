@@ -1,0 +1,57 @@
+{
+    "targetRepository": "biosample",
+    "errors": [],
+    "info": [],
+    "accessions": [
+        {
+            "value": "SAMEA131393369",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "samples",
+                    "where": {
+                        "key": "name",
+                        "value": "leaf 1"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "SAMEA131393368",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Arabidopsis thaliana"
+                    }
+                },
+                {
+                    "key": "materials"
+                },
+                {
+                    "key": "sources",
+                    "where": {
+                        "key": "name",
+                        "value": "plant 1"
+                    }
+                }
+            ]
+        }
+    ]
+}
