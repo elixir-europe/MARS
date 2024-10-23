@@ -3,7 +3,7 @@ FROM gradle:jdk11 AS builder
 
 WORKDIR /app
 
-COPY .. .
+COPY . .
 
 WORKDIR /app/receipt
 RUN ./gradlew build
@@ -14,6 +14,7 @@ RUN ./gradlew build -x test -x spotlessApply --info --stacktrace "-Dorg.gradle.j
 
 # Use a lightweight base image to run the jar file
 FROM openjdk:11-jre-slim
+WORKDIR /app
 
 ARG JAR_FILE=/app/isajson-ena/build/libs/*.jar
 
