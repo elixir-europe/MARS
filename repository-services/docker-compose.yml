@@ -1,27 +1,13 @@
 services:
   isa_biosamples:
-      build: 
-       context: .
-       dockerfile: isajson-biosamples/Dockerfile
-       network: host
+      build: isajson-biosamples
       ports:
         - "8032:8032"
       restart: unless-stopped
-      networks:
-        - host
 
   isa_sra:
-      build: 
-       context: .
-       dockerfile: isajson-ena/Dockerfile
-       network: host
+      build: isajson-ena
       ports:
         - "8042:8042"
       restart: unless-stopped
-      networks:
-        - host
-
-networks:
-  host:
-    external: true
 
