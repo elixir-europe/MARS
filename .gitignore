@@ -162,3 +162,15 @@ cython_debug/
 
 # Test credentials
 test_credentials.json
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### VS Code ###
+.vscode/
