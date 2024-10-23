@@ -28,5 +28,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: repository-services/isajson-ena
+          file: repository-services/isajson-ena/Dockerfile
           push: false
           tags: user/app:latest
