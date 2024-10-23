@@ -31,3 +31,5 @@ jobs:
           file: repository-services/isajson-biosamples/Dockerfile
           push: false
           tags: user/app:latest
+          build-args: |
+            --network host
