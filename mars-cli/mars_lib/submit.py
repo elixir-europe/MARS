@@ -46,18 +46,10 @@ def submit_to_biosamples(
     biosamples_credentials: dict[str, str],
     url: str,
 ) -> requests.Response:
-    bs_input_investiagation = reduce_isa_json_for_target_repo(
-        investiagation, TargetRepository.BIOSAMPLES
-    )
 
-    webin_token = get_webin_auth_token(biosamples_credentials)
-    s = requests.Session()
-    s.headers.update({"accept": "application/json", "Content-Type": "application/json"})
-    return s.post(
-        url,
-        params={"webinjwt": webin_token},
-        data=bs_input_investiagation.model_dump_json(),
-    )
+    params = {"webinjwt": get_webin_auth_token(biosamples_credentials)}
+    headers = {"accept": "*/*", "Content-Type": "application/json"}
+    return requests.post(url, headers=headers, params=params, json=investiagation)
 
 
 def create_external_references(
