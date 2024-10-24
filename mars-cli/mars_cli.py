@@ -2,9 +2,12 @@ import click
 import logging
 import pathlib
 from configparser import ConfigParser
+from datetime import datetime
 from mars_lib.target_repo import TargetRepository
 from mars_lib.models.isa_json import Investigation, IsaJson
 from mars_lib.isa_json import load_isa_json
+from mars_lib.submit import submission
+from mars_lib.credential import CredentialManager
 from logging.handlers import RotatingFileHandler
 import requests
 import sys
@@ -80,8 +83,8 @@ def cli(ctx, development):
 
 @cli.command()
 @click.argument(
-    "credentials_file",
-    type=click.File("r"),
+    "username_credentials",
+    type=click.STRING,
 )
 @click.argument(
     "isa_json_file",
@@ -101,7 +104,7 @@ def cli(ctx, development):
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
 def submit(
-    credentials_file,
+    username_credentials,
     isa_json_file,
     submit_to_ena,
     submit_to_metabolights,
@@ -124,7 +127,9 @@ def submit(
         f"Staring submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
     )
 
-    # TODO: Entry point for the submission logic
+    submission(
+        username_credentials, isa_json_file, target_repositories, investigation_is_root
+    )
 
 
 @cli.command()
@@ -199,6 +204,31 @@ def validate_isa_json(isa_json_file, investigation_is_root):
         investigation = IsaJson.model_validate(json_data).investigation
 
     print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
+
+
+@cli.command()
+@click.option(
+    "--service_name",
+    type=click.STRING,
+    is_flag=False,
+    flag_value="value",
+    default=f"mars-cli_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+)
+@click.argument(
+    "username",
+    type=click.STRING,
+)
+@click.option(
+    "--password",
+    type=click.STRING,
+    hide_input=True,
+    prompt=True,
+    confirmation_prompt=True,
+    help="The password to store.",
+)
+def set_password(service_name, username, password):
+    """Store a password in the keyring."""
+    CredentialManager(service_name).set_password_keyring(username, password)
 
 
 if __name__ == "__main__":

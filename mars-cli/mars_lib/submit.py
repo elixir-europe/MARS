@@ -9,8 +9,36 @@ from mars_lib.biosamples_external_references import (
 )
 from mars_lib.isa_json import reduce_isa_json_for_target_repo
 from mars_lib.target_repo import TargetRepository
+from mars_lib.credential import CredentialManager
 import requests
 from typing import Any
+
+
+def submission(
+    username_credentials, isa_json_file, target_repositories, investigation_is_root
+):
+    cm = CredentialManager("mars-cli")
+    pwd = cm.get_password_keyring(username_credentials)
+
+    if TargetRepository.ENA in target_repositories:
+        target_repositories.pop(TargetRepository.BIOSAMPLES)
+
+    if TargetRepository.ENA in target_repositories:
+        submit_to_ena()
+    elif TargetRepository.BIOSAMPLES in target_repositories:
+        # Submit to Biosamples
+        biosamples_credentials = {"username": username_credentials, "password": pwd}
+        submit_to_biosamples(
+            isa_json_file, biosamples_credentials, biosamples_endpoints["prod"]
+        )
+    elif TargetRepository.METABOLIGHTS in target_repositories:
+        # Submit to MetaboLights
+        pass
+    elif TargetRepository.EVA in target_repositories:
+        # Submit to EVA
+        pass
+    else:
+        raise ValueError("No target repository selected.")
 
 
 def submit_to_biosamples(
@@ -67,3 +95,7 @@ def create_external_references(
         new_ext_refs_list = biosample_r["externalReferences"]
         BSrecord.extend_externalReferences(new_ext_refs_list)
         BSrecord.update_remote_record(header)
+
+
+def submit_to_ena():
+    pass
