@@ -113,7 +113,7 @@ def submit(
     """Start a submission to the target repositories."""
     target_repositories = ["biosamples"]
 
-    investigation = load_isa_json(isa_json_file, investigation_is_root)
+    investigation = load_isa_json(isa_json_file.name, investigation_is_root)
 
     print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
 
