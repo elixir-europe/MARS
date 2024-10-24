@@ -83,6 +83,10 @@ def cli(ctx, development):
 
 @cli.command()
 @click.argument(
+    "credential_service_name",
+    type=click.STRING,
+)
+@click.argument(
     "username_credentials",
     type=click.STRING,
 )
@@ -104,6 +108,7 @@ def cli(ctx, development):
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
 def submit(
+    credential_service_name,
     username_credentials,
     isa_json_file,
     submit_to_ena,
@@ -128,7 +133,11 @@ def submit(
     )
 
     submission(
-        username_credentials, isa_json_file, target_repositories, investigation_is_root
+        credential_service_name,
+        username_credentials,
+        isa_json_file,
+        target_repositories,
+        investigation_is_root,
     )
 
 
