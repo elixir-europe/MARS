@@ -94,8 +94,11 @@ class CredentialManager:
         """
         pwd = keyring.get_password(self.service_name, username)
         if pwd is None:
-            raise ValueError(f"Password not found for username '{username}'.")
-        return pwd
+            new_pwd = self.prompt_for_password()
+            self.set_password_keyring(username, new_pwd)
+            # raise ValueError(f"Password not found for username '{username}'.")
+
+        return keyring.get_password(self.service_name, username)
 
     def delete_password_keyring(self, username: str) -> None:
         """
