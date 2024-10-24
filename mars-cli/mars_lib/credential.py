@@ -93,12 +93,12 @@ class CredentialManager:
         :return: The password or None if not found.
         """
         pwd = keyring.get_password(self.service_name, username)
+        new_pwd = pwd
         if pwd is None:
             new_pwd = self.prompt_for_password()
             self.set_password_keyring(username, new_pwd)
-            # raise ValueError(f"Password not found for username '{username}'.")
 
-        return keyring.get_password(self.service_name, username)
+        return str(new_pwd)
 
     def delete_password_keyring(self, username: str) -> None:
         """
