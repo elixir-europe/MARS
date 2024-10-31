@@ -74,20 +74,16 @@ urls = {
             ),
         },
         "BIOSAMPLES": {
-            "SERVICE": {
-                config.get(
-                    "biosamples",
-                    "development-url",
-                    fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
-                )
-            },
-            "SUBMISSION": {
-                config.get(
-                    "biosamples",
-                    "development-submission-url",
-                    fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
-                )
-            },
+            "SERVICE": config.get(
+                "biosamples",
+                "development-url",
+                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
+            ),
+            "SUBMISSION": config.get(
+                "biosamples",
+                "development-submission-url",
+                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
+            ),
         },
     },
     "PROD": {
@@ -107,29 +103,25 @@ urls = {
             "SERVICE": config.get(
                 "webin",
                 "production-url",
-                fallback="https://www.ebi.ac.uk/ena/submit/webin/auth",
+                fallback="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth",
             ),
             "TOKEN": config.get(
                 "webin",
                 "production-token-url",
-                fallback="https://www.ebi.ac.uk/ena/submit/webin/auth/token",
+                fallback="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
             ),
         },
         "BIOSAMPLES": {
-            "SERVICE": {
-                config.get(
-                    "biosamples",
-                    "production-url",
-                    fallback="https://www.ebi.ac.uk/biosamples/samples/",
-                )
-            },
-            "SUBMISSION": {
-                config.get(
-                    "biosamples",
-                    "production-submission-url",
-                    fallback="https://www.ebi.ac.uk/biosamples/samples/",
-                )
-            },
+            "SERVICE": config.get(
+                "biosamples",
+                "production-url",
+                fallback="https://www.ebi.ac.uk/biosamples/samples/",
+            ),
+            "SUBMISSION": config.get(
+                "biosamples",
+                "production-submission-url",
+                fallback="https://www.ebi.ac.uk/biosamples/samples/",
+            ),
         },
     },
 }
