@@ -219,13 +219,13 @@ def submit(
     except requests.RequestException as err:
         tb = sys.exc_info()[2]  # Traceback value
         print_and_log(
-            f"Request to BioSamples could not be made.\n{err.with_traceback(tb)}",
+            f"Request to repository could not be made.\n{err.with_traceback(tb)}",
             level="error",
         )
     except Exception as err:
         tb = sys.exc_info()[2]  # Traceback value
         print_and_log(
-            f"Unexpected error occurred during submission to BioSamples.\n{err.with_traceback(tb)}",
+            f"Unexpected error occurred during submission.\n{err.with_traceback(tb)}",
             level="error",
         )
 

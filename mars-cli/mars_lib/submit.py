@@ -1,6 +1,5 @@
-import sys
 import requests
-from typing import Any
+from typing import Any, Union
 from mars_lib.authentication import get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -13,7 +12,6 @@ from mars_lib.credential import CredentialManager
 from mars_lib.isa_json import load_isa_json
 from mars_lib.models.isa_json import IsaJson, Investigation
 from mars_lib.target_repo import TargetRepository
-from mars_lib.logging import print_and_log
 
 def submission(
         credential_service_name,
@@ -25,26 +23,29 @@ def submission(
 ):
     # Get password from the credential manager
     cm = CredentialManager(credential_service_name)
-    pwd = cm.get_password_keyring(username_credentials)
+    user_credentials = {
+        "username": username_credentials,
+        "password": cm.get_password_keyring(username_credentials),
+    }
 
     isa_json: IsaJson = load_isa_json(isa_json_file, investigation_is_root)
 
     # Remove the biosamples step if ENA is the repositories list
     # Probably not the best way to address this
     if TargetRepository.ENA in target_repositories:
-        target_repositories.pop(TargetRepository.BIOSAMPLES)
+        target_repositories.remove(TargetRepository.BIOSAMPLES)
 
     if TargetRepository.ENA in target_repositories:
-        submit_to_ena()
+        submit_to_ena(
+            isa_json=isa_json,
+            user_credentials=user_credentials,
+            submission_url=urls["ENA"]["SUBMISSION"],
+        )
     elif TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
-        biosamples_credentials = {
-            "username": username_credentials,
-            "password": pwd,
-        }
         submit_to_biosamples(
-            investigation=isa_json,
-            biosamples_credentials=biosamples_credentials,
+            isa_json=isa_json,
+            biosamples_credentials=user_credentials,
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
@@ -59,11 +60,11 @@ def submission(
 
 
 def submit_to_biosamples(
-        investigation: IsaJson,
+        isa_json: IsaJson,
     biosamples_credentials: dict[str, str],
         webin_token_url: str,
         biosamples_url: str,
-) -> requests.Response:
+) -> Union[requests.Response, requests.HTTPError]:
     params = {
         "webinjwt": get_webin_auth_token(
             biosamples_credentials, auth_base_url=webin_token_url
@@ -74,13 +75,39 @@ def submit_to_biosamples(
         biosamples_url,
         headers=headers,
         params=params,
-        json=investigation.model_dump(by_alias=True, exclude_none=True),
+        json=isa_json.model_dump(by_alias=True, exclude_none=True),
     )
 
     if result.status_code != 200:
-        raise requests.HTTPError(f"Request towards BioSamples failed!\nRequest:{str(result.request)}")
+        raise requests.HTTPError(
+            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}")
 
     return result
+
+
+def submit_to_ena(
+        isa_json: IsaJson,
+        user_credentials: dict[str, str],
+        submission_url: str
+) -> Union[requests.Response, requests.RequestException]:
+    params = {
+        "webinUserName": user_credentials["username"],
+        "webinPassword": user_credentials["password"]
+    }
+    headers = {"accept": "*/*", "Content-Type": "application/json"}
+    result = requests.post(
+        submission_url,
+        headers=headers,
+        params=params,
+        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+    )
+
+    if result.status_code != 200:
+        raise requests.HTTPError(
+            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}")
+
+    return result
+
 
 def create_external_references(
     biosamples_credentials: dict[str, str],
@@ -119,5 +146,3 @@ def create_external_references(
         BSrecord.update_remote_record(header)
 
 
-def submit_to_ena():
-    pass
