@@ -47,6 +47,93 @@ logging.basicConfig(
     level=log_level,
 )
 
+urls = {
+    "DEV": {
+        "ENA": {
+            "SERVICE": config.get(
+                "ena",
+                "development-url",
+                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples",
+            ),
+            "SUBMISSION": config.get(
+                "ena",
+                "development-submission-url",
+                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/submit",
+            ),
+        },
+        "WEBIN": {
+            "SERVICE": config.get(
+                "webin",
+                "development-url",
+                fallback="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth",
+            ),
+            "TOKEN": config.get(
+                "webin",
+                "development-token-url",
+                fallback="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
+            ),
+        },
+        "BIOSAMPLES": {
+            "SERVICE": {
+                config.get(
+                    "biosamples",
+                    "development-url",
+                    fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
+                )
+            },
+            "SUBMISSION": {
+                config.get(
+                    "biosamples",
+                    "development-submission-url",
+                    fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
+                )
+            },
+        },
+    },
+    "PROD": {
+        "ENA": {
+            "SERVICE": config.get(
+                "ena",
+                "production-url",
+                fallback="https://www.ebi.ac.uk/ena/submit/webin-v2/",
+            ),
+            "SUBMISSION": config.get(
+                "ena",
+                "production-submission-url",
+                fallback="https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+            ),
+        },
+        "WEBIN": {
+            "SERVICE": config.get(
+                "webin",
+                "production-url",
+                fallback="https://www.ebi.ac.uk/ena/submit/webin/auth",
+            ),
+            "TOKEN": config.get(
+                "webin",
+                "production-token-url",
+                fallback="https://www.ebi.ac.uk/ena/submit/webin/auth/token",
+            ),
+        },
+        "BIOSAMPLES": {
+            "SERVICE": {
+                config.get(
+                    "biosamples",
+                    "production-url",
+                    fallback="https://www.ebi.ac.uk/biosamples/samples/",
+                )
+            },
+            "SUBMISSION": {
+                config.get(
+                    "biosamples",
+                    "production-submission-url",
+                    fallback="https://www.ebi.ac.uk/biosamples/samples/",
+                )
+            },
+        },
+    },
+}
+
 
 def print_and_log(msg, level="info"):
     if level == "info":
@@ -79,6 +166,10 @@ def cli(ctx, development):
 
     ctx.ensure_object(dict)
     ctx.obj["DEVELOPMENT"] = development
+    if development:
+        ctx.obj["FILTERED_URLS"] = urls["DEV"]
+    else:
+        ctx.obj["FILTERED_URLS"] = urls["PROD"]
 
 
 @cli.command()
@@ -147,46 +238,31 @@ def health_check(ctx):
     """Check the health of the target repositories."""
     print_and_log("Checking the health of the target repositories.")
 
-    if ctx.obj["DEVELOPMENT"]:
-        print_and_log("Checking development instances.")
-        webin_url = config.get("webin", "development-url")
-        ena_url = config.get("ena", "development-url")
-        biosamples_url = config.get("biosamples", "development-url")
-    else:
-        print_and_log("Checking production instances.")
-        webin_url = config.get("webin", "production-url")
-        ena_url = config.get("ena", "production-url")
-        biosamples_url = config.get("biosamples", "production-url")
+    filtered_urls = ctx.obj["FILTERED_URLS"]
+    for repo in ["WEBIN", "ENA", "BIOSAMPLES"]:
+        repo_url = filtered_urls[repo]["SERVICE"]
+        try:
+            health_response = requests.get(repo_url)
+            if health_response.status_code != 200:
+                print_and_log(
+                    f"Could not reach service '{repo.lower()}' on this URL: '{repo_url}'. Status code: {health_response.status_code}. Content: {health_response.json()}",
+                    level="error",
+                )
+            else:
+                print_and_log(f"Service '{repo.lower()}' healthy and ready to use!")
 
-    # Check webin service
-    webin_health = requests.get(webin_url)
-    if webin_health.status_code != 200:
-        print_and_log(
-            f"Webin ({webin_url}): Could not reach service! Status code '{webin_health.status_code}'.",
-            level="error",
-        )
-    else:
-        print_and_log(f"Webin ({webin_url}) is healthy.")
-
-    # Check ENA service
-    ena_health = requests.get(ena_url)
-    if ena_health.status_code != 200:
-        print_and_log(
-            f"ENA ({ena_url}): Could not reach service! Status code '{ena_health.status_code}'.",
-            level="error",
-        )
-    else:
-        print_and_log(f"ENA ({ena_url}) is healthy.")
-
-    # Check Biosamples service
-    biosamples_health = requests.get(biosamples_url)
-    if biosamples_health.status_code != 200:
-        print_and_log(
-            f"Biosamples ({biosamples_url}): Could not reach service! Status code '{biosamples_health.status_code}'.",
-            level="error",
-        )
-    else:
-        print_and_log(f"Biosamples ({biosamples_url}) is healthy.")
+        except requests.RequestException as err:
+            tb = sys.exc_info()[2]
+            print_and_log(
+                f"Unexpected error for service '{repo.lower()}' on this URL: '{repo_url}'.\nError Trace:\n{err.with_traceback(tb)}",
+                level="error",
+            )
+        except Exception as err:
+            tb = sys.exc_info()[2]
+            print_and_log(
+                f"Unexpected error occurred.\nError Trace:\n{err.with_traceback(tb)}",
+                level="error",
+            )
 
 
 @cli.command()
