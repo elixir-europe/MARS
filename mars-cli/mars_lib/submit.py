@@ -12,6 +12,7 @@ from mars_lib.credential import CredentialManager
 from mars_lib.isa_json import load_isa_json
 from mars_lib.models.isa_json import IsaJson, Investigation
 from mars_lib.target_repo import TargetRepository
+from mars_lib.logging import print_and_log
 
 def submission(
         credential_service_name,
@@ -34,6 +35,9 @@ def submission(
     # Probably not the best way to address this
     if TargetRepository.ENA in target_repositories:
         target_repositories.remove(TargetRepository.BIOSAMPLES)
+        print_and_log(
+            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
+            level="debug")
 
     if TargetRepository.ENA in target_repositories:
         submit_to_ena(
@@ -41,6 +45,8 @@ def submission(
             user_credentials=user_credentials,
             submission_url=urls["ENA"]["SUBMISSION"],
         )
+        print_and_log(f"Submission to {TargetRepository.ENA} was successful")
+        # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         submit_to_biosamples(
@@ -49,12 +55,16 @@ def submission(
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
+        print_and_log(f"Submission to {TargetRepository.BIOSAMPLES} was successful", level="info")
+        # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
         # Submit to MetaboLights
-        pass
+        print_and_log(f"Submission to {TargetRepository.METABOLIGHTS} was successful", level="info")
+        # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.EVA in target_repositories:
         # Submit to EVA
-        pass
+        print_and_log(f"Submission to {TargetRepository.EVA} was successful", level="info")
+        # TODO: Update `isa_json`, based on the receipt returned
     else:
         raise ValueError("No target repository selected.")
 
