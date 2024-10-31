@@ -14,13 +14,14 @@ from mars_lib.models.isa_json import IsaJson, Investigation
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
 
+
 def submission(
-        credential_service_name,
-        username_credentials,
-        isa_json_file,
-        target_repositories,
-        investigation_is_root,
-        urls,
+    credential_service_name,
+    username_credentials,
+    isa_json_file,
+    target_repositories,
+    investigation_is_root,
+    urls,
 ):
     # Get password from the credential manager
     cm = CredentialManager(credential_service_name)
@@ -37,7 +38,8 @@ def submission(
         target_repositories.remove(TargetRepository.BIOSAMPLES)
         print_and_log(
             f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
-            level="debug")
+            level="debug",
+        )
 
     if TargetRepository.ENA in target_repositories:
         submit_to_ena(
@@ -55,25 +57,32 @@ def submission(
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
-        print_and_log(f"Submission to {TargetRepository.BIOSAMPLES} was successful", level="info")
+        print_and_log(
+            f"Submission to {TargetRepository.BIOSAMPLES} was successful", level="info"
+        )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
         # Submit to MetaboLights
-        print_and_log(f"Submission to {TargetRepository.METABOLIGHTS} was successful", level="info")
+        print_and_log(
+            f"Submission to {TargetRepository.METABOLIGHTS} was successful",
+            level="info",
+        )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.EVA in target_repositories:
         # Submit to EVA
-        print_and_log(f"Submission to {TargetRepository.EVA} was successful", level="info")
+        print_and_log(
+            f"Submission to {TargetRepository.EVA} was successful", level="info"
+        )
         # TODO: Update `isa_json`, based on the receipt returned
     else:
         raise ValueError("No target repository selected.")
 
 
 def submit_to_biosamples(
-        isa_json: IsaJson,
+    isa_json: IsaJson,
     biosamples_credentials: dict[str, str],
-        webin_token_url: str,
-        biosamples_url: str,
+    webin_token_url: str,
+    biosamples_url: str,
 ) -> Union[requests.Response, requests.HTTPError]:
     params = {
         "webinjwt": get_webin_auth_token(
@@ -90,19 +99,18 @@ def submit_to_biosamples(
 
     if result.status_code != 200:
         raise requests.HTTPError(
-            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}")
+            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}"
+        )
 
     return result
 
 
 def submit_to_ena(
-        isa_json: IsaJson,
-        user_credentials: dict[str, str],
-        submission_url: str
+    isa_json: IsaJson, user_credentials: dict[str, str], submission_url: str
 ) -> Union[requests.Response, requests.RequestException]:
     params = {
         "webinUserName": user_credentials["username"],
-        "webinPassword": user_credentials["password"]
+        "webinPassword": user_credentials["password"],
     }
     headers = {"accept": "*/*", "Content-Type": "application/json"}
     result = requests.post(
@@ -114,7 +122,8 @@ def submit_to_ena(
 
     if result.status_code != 200:
         raise requests.HTTPError(
-            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}")
+            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}"
+        )
 
     return result
 
@@ -154,5 +163,3 @@ def create_external_references(
         new_ext_refs_list = biosample_r["externalReferences"]
         BSrecord.extend_externalReferences(new_ext_refs_list)
         BSrecord.update_remote_record(header)
-
-

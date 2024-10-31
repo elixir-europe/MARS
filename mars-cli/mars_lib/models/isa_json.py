@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 
+
 class IsaBase(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

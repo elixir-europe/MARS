@@ -2,6 +2,7 @@ import click
 import logging
 import sys
 
+
 def print_and_log(msg, level="info"):
     if level == "info":
         click.echo(msg)
@@ -15,4 +16,3 @@ def print_and_log(msg, level="info"):
     else:
         click.echo(msg)
         logging.debug(msg)
-

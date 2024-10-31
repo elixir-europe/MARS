@@ -179,7 +179,7 @@ def cli(ctx, development):
 )
 @click.pass_context
 def submit(
-        ctx,
+    ctx,
     credential_service_name,
     username_credentials,
     isa_json_file,
