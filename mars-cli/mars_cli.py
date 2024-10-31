@@ -8,6 +8,7 @@ from mars_lib.models.isa_json import Investigation, IsaJson
 from mars_lib.isa_json import load_isa_json
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
+from mars_lib.logging import print_and_log
 from logging.handlers import RotatingFileHandler
 import requests
 import sys
@@ -47,6 +48,7 @@ logging.basicConfig(
     level=log_level,
 )
 
+# Read in all the URLs from the config file
 urls = {
     "DEV": {
         "ENA": {
@@ -127,21 +129,6 @@ urls = {
 }
 
 
-def print_and_log(msg, level="info"):
-    if level == "info":
-        click.echo(msg)
-        logging.info(msg)
-    elif level == "error":
-        click.echo(msg, file=sys.stderr)
-        logging.error(msg)
-    elif level == "warning":
-        click.echo(msg)
-        logging.warning(msg)
-    else:
-        click.echo(msg)
-        logging.debug(msg)
-
-
 @click.group()
 @click.option(
     "--development",
@@ -190,7 +177,9 @@ def cli(ctx, development):
     type=click.BOOL,
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
+@click.pass_context
 def submit(
+        ctx,
     credential_service_name,
     username_credentials,
     isa_json_file,
@@ -199,11 +188,13 @@ def submit(
     investigation_is_root,
 ):
     """Start a submission to the target repositories."""
-    target_repositories = ["biosamples"]
+    target_repositories = [TargetRepository.BIOSAMPLES]
 
-    investigation = load_isa_json(isa_json_file.name, investigation_is_root)
+    isa_json = load_isa_json(isa_json_file.name, investigation_is_root)
 
-    print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
+    print_and_log(
+        f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
+    )
 
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
@@ -215,12 +206,15 @@ def submit(
         f"Staring submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
     )
 
+    urls_dict = ctx.obj["FILTERED_URLS"]
+
     submission(
         credential_service_name,
         username_credentials,
-        isa_json_file,
+        isa_json_file.name,
         target_repositories,
         investigation_is_root,
+        urls_dict,
     )
 
 
