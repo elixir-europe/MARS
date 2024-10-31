@@ -10,6 +10,7 @@ from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log
 from logging.handlers import RotatingFileHandler
+from pydantic import ValidationError
 import requests
 import sys
 import os
@@ -190,14 +191,13 @@ def submit(
     """Start a submission to the target repositories."""
     target_repositories = [TargetRepository.BIOSAMPLES]
 
-    isa_json = load_isa_json(isa_json_file.name, investigation_is_root)
-
-    print_and_log(
-        f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
-    )
-
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
+        target_repositories.remove(TargetRepository.BIOSAMPLES)
+        print_and_log(
+            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
+            level="debug",
+        )
 
     if submit_to_metabolights:
         target_repositories.append(TargetRepository.METABOLIGHTS)
@@ -222,6 +222,14 @@ def submit(
             f"Request to repository could not be made.\n{err.with_traceback(tb)}",
             level="error",
         )
+
+    except ValidationError as err:
+        tb = sys.exc_info()[2]  # Traceback value
+        print_and_log(
+            f"A validation error occurred while reading the ISA JSON. Please correct the following mistakes:\n{err.with_traceback(tb)}",
+            level="error",
+        )
+
     except Exception as err:
         tb = sys.exc_info()[2]  # Traceback value
         print_and_log(

@@ -96,7 +96,7 @@ def load_isa_json(
         investigation_is_root (bool): Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.
 
     Returns:
-        Union[Dict[str, str], ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
+        Union[IsaJson, ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
     """
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)

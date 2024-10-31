@@ -1,5 +1,5 @@
 import requests
-from typing import Any, Union
+from typing import Any
 from mars_lib.authentication import get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -10,14 +10,15 @@ from mars_lib.biosamples_external_references import (
 )
 from mars_lib.credential import CredentialManager
 from mars_lib.isa_json import load_isa_json
-from mars_lib.models.isa_json import IsaJson, Investigation
+from mars_lib.models.isa_json import IsaJson
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
+from pydantic import ValidationError
 
 
 def submission(
-    credential_service_name,
-    username_credentials,
+        credential_service_name: str,
+        username_credentials: str,
     isa_json_file,
     target_repositories,
     investigation_is_root,
@@ -30,35 +31,35 @@ def submission(
         "password": cm.get_password_keyring(username_credentials),
     }
 
-    isa_json: IsaJson = load_isa_json(isa_json_file, investigation_is_root)
+    isa_json = load_isa_json(isa_json_file, investigation_is_root)
 
-    # Remove the biosamples step if ENA is the repositories list
-    # Probably not the best way to address this
-    if TargetRepository.ENA in target_repositories:
-        target_repositories.remove(TargetRepository.BIOSAMPLES)
-        print_and_log(
-            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
-            level="debug",
-        )
+    # Guard clause to keep MyPy happy
+    if isinstance(isa_json, ValidationError):
+        raise ValidationError(f"ISA JSON is invalid: {isa_json}")
+
+    print_and_log(
+        f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
+    )
 
     if TargetRepository.ENA in target_repositories:
-        submit_to_ena(
+        ena_result = submit_to_ena(
             isa_json=isa_json,
             user_credentials=user_credentials,
             submission_url=urls["ENA"]["SUBMISSION"],
         )
-        print_and_log(f"Submission to {TargetRepository.ENA} was successful")
+        print_and_log(f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}")
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
-        submit_to_biosamples(
+        biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
             biosamples_credentials=user_credentials,
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
         print_and_log(
-            f"Submission to {TargetRepository.BIOSAMPLES} was successful", level="info"
+            f"Submission to {TargetRepository.BIOSAMPLES} was successful. Result:\n{biosamples_result.json()}",
+            level="info"
         )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
@@ -83,7 +84,7 @@ def submit_to_biosamples(
     biosamples_credentials: dict[str, str],
     webin_token_url: str,
     biosamples_url: str,
-) -> Union[requests.Response, requests.HTTPError]:
+) -> requests.Response:
     params = {
         "webinjwt": get_webin_auth_token(
             biosamples_credentials, auth_base_url=webin_token_url
@@ -98,8 +99,13 @@ def submit_to_biosamples(
     )
 
     if result.status_code != 200:
+        body = (
+            result.request.body.decode()
+            if isinstance(result.request.body, bytes)
+            else result.request.body or ""
+        )
         raise requests.HTTPError(
-            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}"
+            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
         )
 
     return result
@@ -107,7 +113,7 @@ def submit_to_biosamples(
 
 def submit_to_ena(
     isa_json: IsaJson, user_credentials: dict[str, str], submission_url: str
-) -> Union[requests.Response, requests.RequestException]:
+) -> requests.Response:
     params = {
         "webinUserName": user_credentials["username"],
         "webinPassword": user_credentials["password"],
@@ -121,8 +127,13 @@ def submit_to_ena(
     )
 
     if result.status_code != 200:
+        body = (
+            result.request.body.decode()
+            if isinstance(result.request.body, bytes)
+            else result.request.body or ""
+        )
         raise requests.HTTPError(
-            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{result.request.body}"
+            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
         )
 
     return result
