@@ -207,15 +207,27 @@ def submit(
     )
 
     urls_dict = ctx.obj["FILTERED_URLS"]
-
-    submission(
-        credential_service_name,
-        username_credentials,
-        isa_json_file.name,
-        target_repositories,
-        investigation_is_root,
-        urls_dict,
-    )
+    try:
+        submission(
+            credential_service_name,
+            username_credentials,
+            isa_json_file.name,
+            target_repositories,
+            investigation_is_root,
+            urls_dict,
+        )
+    except requests.RequestException as err:
+        tb = sys.exc_info()[2]  # Traceback value
+        print_and_log(
+            f"Request to BioSamples could not be made.\n{err.with_traceback(tb)}",
+            level="error",
+        )
+    except Exception as err:
+        tb = sys.exc_info()[2]  # Traceback value
+        print_and_log(
+            f"Unexpected error occurred during submission to BioSamples.\n{err.with_traceback(tb)}",
+            level="error",
+        )
 
 
 @cli.command()
