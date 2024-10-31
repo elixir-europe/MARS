@@ -43,7 +43,6 @@ setup(
             "pytest",
             "pytest-cov",
             "mypy",
-            "keyring-pass",
         ]
     },
     project_urls={

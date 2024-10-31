@@ -28,10 +28,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: '**/setup.py'
-      - run: pip install -e '.[test]'
+      - run: |
+          pip install -e '.[test]'
+          pip install keyring keyrings.alt
+
         working-directory: ${{ env.working-directory }}
         
       - name: Test python code
+        env:
+          PYTHON_KEYRING_BACKEND: keyrings.alt.file.PlaintextKeyring
         run: pytest
         working-directory: ${{ env.working-directory }}
 
