@@ -17,8 +17,8 @@ from pydantic import ValidationError
 
 
 def submission(
-        credential_service_name: str,
-        username_credentials: str,
+    credential_service_name: str,
+    username_credentials: str,
     isa_json_file,
     target_repositories,
     investigation_is_root,
@@ -47,7 +47,9 @@ def submission(
             user_credentials=user_credentials,
             submission_url=urls["ENA"]["SUBMISSION"],
         )
-        print_and_log(f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}")
+        print_and_log(
+            f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
+        )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
@@ -59,7 +61,7 @@ def submission(
         )
         print_and_log(
             f"Submission to {TargetRepository.BIOSAMPLES} was successful. Result:\n{biosamples_result.json()}",
-            level="info"
+            level="info",
         )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
