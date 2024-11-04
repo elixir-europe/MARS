@@ -1,4 +1,6 @@
+from io import TextIOWrapper
 import requests
+import json
 from typing import Any
 from mars_lib.authentication import get_webin_auth_token
 from mars_lib.biosamples_external_references import (
@@ -19,17 +21,27 @@ from pydantic import ValidationError
 def submission(
     credential_service_name: str,
     username_credentials: str,
-    isa_json_file,
-    target_repositories,
-    investigation_is_root,
-    urls,
+    credentials_file: TextIOWrapper,
+    isa_json_file: str,
+    target_repositories: list[str],
+    investigation_is_root: bool,
+    urls: dict[str, Any],
 ):
+    # If credential manager info found:
     # Get password from the credential manager
-    cm = CredentialManager(credential_service_name)
-    user_credentials = {
-        "username": username_credentials,
-        "password": cm.get_password_keyring(username_credentials),
-    }
+    # Else:
+    # read credentials from file
+    if not (credential_service_name is None or username_credentials is None):
+        cm = CredentialManager(credential_service_name)
+        user_credentials = {
+            "username": username_credentials,
+            "password": cm.get_password_keyring(username_credentials),
+        }
+    else:
+        if credentials_file == "":
+            raise ValueError("No credentials found")
+
+        user_credentials = json.load(credentials_file)
 
     isa_json = load_isa_json(isa_json_file, investigation_is_root)
 

@@ -153,18 +153,19 @@ def cli(ctx, development):
 
 
 @cli.command()
-@click.argument(
-    "credential_service_name",
-    type=click.STRING,
+@click.option(
+    "--credential-service-name", type=click.STRING, help="service name from the keyring"
 )
-@click.argument(
-    "username_credentials",
-    type=click.STRING,
+@click.option(
+    "--username-credentials", type=click.STRING, help="Username from the keyring"
 )
-@click.argument(
-    "isa_json_file",
+@click.option(
+    "--credentials-file",
     type=click.File("r"),
+    required=False,
+    help="Name of a credentials file",
 )
+@click.argument("isa_json_file", type=click.File("r"))
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
 @click.option(
     "--submit-to-metabolights",
@@ -183,6 +184,7 @@ def submit(
     ctx,
     credential_service_name,
     username_credentials,
+    credentials_file,
     isa_json_file,
     submit_to_ena,
     submit_to_metabolights,
@@ -211,6 +213,7 @@ def submit(
         submission(
             credential_service_name,
             username_credentials,
+            credentials_file,
             isa_json_file.name,
             target_repositories,
             investigation_is_root,
