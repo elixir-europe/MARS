@@ -128,20 +128,23 @@ Usage: mars-cli submit [OPTIONS] CREDENTIALS_FILE ISA_JSON_FILE
   Start a submission to the target repositories.
 
 Options:
-  --submit-to-ena BOOLEAN         Submit to ENA.
-  --submit-to-metabolights BOOLEAN
-                                  Submit to Metabolights.
-  --investigation-is-root BOOLEAN
-                                  Boolean indicating if the investigation is
-                                  the root of the ISA JSON. Set this to True
-                                  if the ISA-JSON does not contain a
-                                  'investigation' field.
-  --help                          Show this message and exit.
+  -d, --development  Boolean indicating the usage of the development
+                     environment of the target repositories. If not present,
+                     the production instances will be used.
+  --help             Show this message and exit.
+
+Commands:
+  health-check       Check the health of the target repositories.
+  set-password       Store a password in the keyring.
+  submit             Start a submission to the target repositories.
+  validate-isa-json  Validate the ISA JSON file.
 ```
 
 ## Development
 
-By default the mars-CLI will try to submit the ISA-JSON's metadata towards the repositories' production servers. Passing the development flag will run it in development mode and substitute the production servers with the development servers.
+By default, the mars-CLI will try to submit the ISA-JSON's metadata towards the repositories' production servers.
+Passing the development flag will run it in development mode and substitute the production servers with the development
+servers.
 
 ## Health check repository services
 
@@ -162,6 +165,28 @@ Checking production instances.
 Webin (https://www.ebi.ac.uk/ena/submit/webin/auth) is healthy.
 ENA (https://www.ebi.ac.uk/ena/submit/webin-v2/) is healthy.
 Biosamples (https://www.ebi.ac.uk/biosamples/samples/) is healthy.
+```
+
+## using the keychain
+
+This CLI application comes with functionality to interact with your device's keychain backend.
+
+### Store a password
+
+You can add a password to keychain:
+
+```sh
+mars-cli set-password set-password [OPTIONS] USERNAME
+
+  Store a password in the keyring.
+
+Options:
+  --service-name TEXT  You are advised to include service name to match the
+                       credentials to. If empty, it defaults to "mars-
+                       cli_{DATESTAMP}"
+  --password TEXT      The password to store. Note: You are required to
+                       confirm the password.
+  --help               Show this message and exit.
 ```
 
 ## Submitting to repository services

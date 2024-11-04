@@ -299,11 +299,12 @@ def validate_isa_json(isa_json_file, investigation_is_root):
 
 @cli.command()
 @click.option(
-    "--service_name",
+    "--service-name",
     type=click.STRING,
     is_flag=False,
     flag_value="value",
     default=f"mars-cli_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+    help='You are advised to include service name to match the credentials to. If empty, it defaults to "mars-cli_{DATESTAMP}"',
 )
 @click.argument(
     "username",
@@ -315,7 +316,7 @@ def validate_isa_json(isa_json_file, investigation_is_root):
     hide_input=True,
     prompt=True,
     confirmation_prompt=True,
-    help="The password to store.",
+    help="The password to store. Note: You are required to confirm the password.",
 )
 def set_password(service_name, username, password):
     """Store a password in the keyring."""
