@@ -201,13 +201,16 @@ TODO
 mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
 ```
 
-- `--submit-to-metabolights`: By default set to `True`. Will try submit ISA-JSON metadata towards Metabolights. Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
+- `--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
+  Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
 
 ```sh
 mars-cli submit --submit-to-metabolights False my-credentials my-isa-json.json
 ```
 
-`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+`--investigation-is-root`: By default this flag is set to false, meaning the ISA-JSON should have the `investigation`
+key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set
+the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
 
 ```sh
 mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
@@ -217,7 +220,18 @@ mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
 
 You can perform a syntactic validation of the ISA-JSON, without submitting to the target repositories.
 
-__Note:__ This does not take validation into account from the repository's side. This does not guarantee successful submission.
+__Note:__ This does not take repository-side validation into account, nor guarantees successful submission.
+
+### JSONata validation
+
+[JSONata](https://jsonata.org/) is a JSON query and transformation tool that will be used it this project to perform
+additional validation
+of the ISA-JSON and, in some cases, automatically patch inconsistencies.
+
+This feature is implemented as a set of additional validation rules a user can customize according to the submission
+needs.
+
+TODO
 
 ```sh
 mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-input-isa.json
@@ -225,7 +239,9 @@ mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-
 
 ### Options
 
-`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+`--investigation-is-root`: By default this flag is set to false, meaning the ISA-JSON should have the `investigation`
+key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set
+the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
 
 ```sh
 mars-cli validate-isa-json my-isa-investigation.json

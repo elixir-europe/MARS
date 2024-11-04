@@ -42,6 +42,7 @@ def submission(
     )
 
     if TargetRepository.ENA in target_repositories:
+        # TODO: Filter out other assays
         ena_result = submit_to_ena(
             isa_json=isa_json,
             user_credentials=user_credentials,
@@ -66,6 +67,7 @@ def submission(
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
         # Submit to MetaboLights
+        # TODO: Filter out other assays
         print_and_log(
             f"Submission to {TargetRepository.METABOLIGHTS} was successful",
             level="info",
@@ -73,12 +75,15 @@ def submission(
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.EVA in target_repositories:
         # Submit to EVA
+        # TODO: Filter out other assays
         print_and_log(
             f"Submission to {TargetRepository.EVA} was successful", level="info"
         )
         # TODO: Update `isa_json`, based on the receipt returned
     else:
         raise ValueError("No target repository selected.")
+
+    # TODO: Return the updated ISA JSON
 
 
 def submit_to_biosamples(

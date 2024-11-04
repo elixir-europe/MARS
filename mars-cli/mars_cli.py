@@ -5,10 +5,10 @@ from configparser import ConfigParser
 from datetime import datetime
 from mars_lib.target_repo import TargetRepository
 from mars_lib.models.isa_json import Investigation, IsaJson
-from mars_lib.isa_json import load_isa_json
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log
+from mars_lib.validation import validate, CustomValidationException
 from logging.handlers import RotatingFileHandler
 from pydantic import ValidationError
 import requests
@@ -282,19 +282,26 @@ def health_check(ctx):
     type=click.BOOL,
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
-def validate_isa_json(isa_json_file, investigation_is_root):
+@click.option("--validation-schema", default="{}", type=click.STRING, help="")
+def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
     """Validate the ISA JSON file."""
     print_and_log(f"Validating {isa_json_file}.")
 
-    with open(isa_json_file) as f:
-        json_data = json.load(f)
+    try:
+        with open(isa_json_file) as f:
+            json_data = json.load(f)
 
-    if investigation_is_root:
-        investigation = Investigation.model_validate(json_data)
-    else:
-        investigation = IsaJson.model_validate(json_data).investigation
-
-    print_and_log(f"ISA JSON with investigation '{investigation.title}' is valid.")
+        if investigation_is_root:
+            isa_json = IsaJson(investigation=isa_json_file.model_validate(json_data))
+        else:
+            isa_json = IsaJson.model_validate(json_data).investigation
+        validation_schema = json.loads(validation_schema)
+        isa_json = validate(isa_json, validation_schema)
+        print_and_log(f"ISA JSON with investigation '{isa_json.title}' is valid.")
+    except CustomValidationException as err:
+        print_and_log(f"Validation errors occurred:\n{err}", level="error")
+    except Exception as err:
+        print_and_log(f"Unexpected error occurred:\n{err}", level="error")
 
 
 @cli.command()
