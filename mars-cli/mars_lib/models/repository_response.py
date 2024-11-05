@@ -1,9 +1,8 @@
 import json
 from typing import List, Optional
 from pydantic import BaseModel, field_validator, Field, ConfigDict
-import pydantic
 import pydantic.alias_generators
-from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
+from mars_lib.target_repo import TargetRepository
 
 
 class Filter(BaseModel):
