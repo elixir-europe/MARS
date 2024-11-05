@@ -373,7 +373,73 @@ public class BiosamplesIntegration {
         PyObject result = biosamplesRecord.invoke("fetch_bs_json", new PyString("biosamples_endpoint"));
         System.out.println(result.toString());
 
+
+
+
         // Handle other operations similarly
     }
 }
 ````
+# Testing BioSamples submission using the local docer converter instance or a remote converter instance
+
+## Getting Started
+
+To set up and run the MARS tool locally using Docker, follow these steps:
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed on your system.
+
+### Running the Docker Containers
+
+1. **Navigate** to the `repository-services` directory in your cloned repository.
+
+2. **Start the Docker containers** by running the following command:
+
+   ```bash
+   docker compose up
+   ```
+
+3. **Check the BioSamples submission service** by visiting:
+
+   ```
+   http://localhost:8032/isabiosamples/swagger-ui/index.html
+   ```
+
+   This URL will indicate if the BioSamples submission Docker container is up and running.
+
+### Configuration
+
+To configure MARS for submissions, modify the configuration file `settings.ini` located at `~/.mars/settings.ini`. Ensure the following content is set:
+
+```ini
+[webin]
+development-url = https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth
+development-token-url = https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token
+production-url = https://www.ebi.ac.uk/ena/submit/webin/auth
+production-token-url = https://www.ebi.ac.uk/ena/submit/webin/auth/token
+
+[ena]
+development-url = http://localhost:8042/isaena
+development-submission-url = http://localhost:8042/isaena/submit
+production-url = https://www.ebi.ac.uk/ena/submit/webin-v2/
+production-submission-url = https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA
+
+[biosamples]
+development-url = http://localhost:8032/isabiosamples
+development-submission-url = http://localhost:8032/isabiosamples/submit
+production-url = https://www.ebi.ac.uk/biosamples/samples/
+production-submission-url = https://www.ebi.ac.uk/biosamples/samples/
+```
+
+### Running MARS Submission
+
+After configuring the `settings.ini` file, you can run the MARS CLI tool to submit data:
+
+```bash
+python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credential-service-name <biosamples> --username-credentials <username> ../test-data/biosamples-input-isa.json
+```
+
+- Replace `<biosamples>` with the appropriate service name.
+- Replace `<username>` with your BioSamples username.
+- Adjust the submission file path (`../test-data/biosamples-input-isa.json`) as needed.
