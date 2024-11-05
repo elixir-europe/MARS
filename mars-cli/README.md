@@ -128,20 +128,23 @@ Usage: mars-cli submit [OPTIONS] CREDENTIALS_FILE ISA_JSON_FILE
   Start a submission to the target repositories.
 
 Options:
-  --submit-to-ena BOOLEAN         Submit to ENA.
-  --submit-to-metabolights BOOLEAN
-                                  Submit to Metabolights.
-  --investigation-is-root BOOLEAN
-                                  Boolean indicating if the investigation is
-                                  the root of the ISA JSON. Set this to True
-                                  if the ISA-JSON does not contain a
-                                  'investigation' field.
-  --help                          Show this message and exit.
+  -d, --development  Boolean indicating the usage of the development
+                     environment of the target repositories. If not present,
+                     the production instances will be used.
+  --help             Show this message and exit.
+
+Commands:
+  health-check       Check the health of the target repositories.
+  set-password       Store a password in the keyring.
+  submit             Start a submission to the target repositories.
+  validate-isa-json  Validate the ISA JSON file.
 ```
 
 ## Development
 
-By default the mars-CLI will try to submit the ISA-JSON's metadata towards the repositories' production servers. Passing the development flag will run it in development mode and substitute the production servers with the development servers.
+By default, the mars-CLI will try to submit the ISA-JSON's metadata towards the repositories' production servers.
+Passing the development flag will run it in development mode and substitute the production servers with the development
+servers.
 
 ## Health check repository services
 
@@ -164,6 +167,28 @@ ENA (https://www.ebi.ac.uk/ena/submit/webin-v2/) is healthy.
 Biosamples (https://www.ebi.ac.uk/biosamples/samples/) is healthy.
 ```
 
+## using the keychain
+
+This CLI application comes with functionality to interact with your device's keychain backend.
+
+### Store a password
+
+You can add a password to keychain:
+
+```sh
+mars-cli set-password set-password [OPTIONS] USERNAME
+
+  Store a password in the keyring.
+
+Options:
+  --service-name TEXT  You are advised to include service name to match the
+                       credentials to. If empty, it defaults to "mars-
+                       cli_{DATESTAMP}"
+  --password TEXT      The password to store. Note: You are required to
+                       confirm the password.
+  --help               Show this message and exit.
+```
+
 ## Submitting to repository services
 
 TODO
@@ -176,13 +201,16 @@ TODO
 mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
 ```
 
-- `--submit-to-metabolights`: By default set to `True`. Will try submit ISA-JSON metadata towards Metabolights. Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
+- `--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
+  Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
 
 ```sh
 mars-cli submit --submit-to-metabolights False my-credentials my-isa-json.json
 ```
 
-`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+`--investigation-is-root`: By default this flag is set to false, meaning the ISA-JSON should have the `investigation`
+key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set
+the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
 
 ```sh
 mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
@@ -192,7 +220,18 @@ mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
 
 You can perform a syntactic validation of the ISA-JSON, without submitting to the target repositories.
 
-__Note:__ This does not take validation into account from the repository's side. This does not guarantee successful submission.
+__Note:__ This does not take repository-side validation into account, nor guarantees successful submission.
+
+### JSONata validation
+
+[JSONata](https://jsonata.org/) is a JSON query and transformation tool that will be used it this project to perform
+additional validation
+of the ISA-JSON and, in some cases, automatically patch inconsistencies.
+
+This feature is implemented as a set of additional validation rules a user can customize according to the submission
+needs.
+
+TODO
 
 ```sh
 mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-input-isa.json
@@ -200,7 +239,9 @@ mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-
 
 ### Options
 
-`--investigation-is-root`: By default this flag is set to false, maening the ISA-JSON should have the `investigation` key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
+`--investigation-is-root`: By default this flag is set to false, meaning the ISA-JSON should have the `investigation`
+key at the root level. In case the root level __IS__ the investigation (`investigation` level is omitted), you need set
+the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
 
 ```sh
 mars-cli validate-isa-json my-isa-investigation.json
@@ -332,7 +373,81 @@ public class BiosamplesIntegration {
         PyObject result = biosamplesRecord.invoke("fetch_bs_json", new PyString("biosamples_endpoint"));
         System.out.println(result.toString());
 
+
+
+
         // Handle other operations similarly
     }
 }
 ````
+# Testing BioSamples submission using the local docer converter instance or a remote converter instance
+
+## Getting Started
+
+To set up and run the MARS tool locally using Docker, follow these steps:
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed on your system.
+
+### Running the Docker Containers
+
+1. **Navigate** to the `repository-services` directory in your cloned repository.
+
+2. **Start the Docker containers** by running the following command:
+
+   ```bash
+   docker compose up
+   ```
+
+3. **Check the BioSamples submission service** by visiting:
+
+   ```
+   http://localhost:8032/isabiosamples/swagger-ui/index.html
+   ```
+
+   This URL will indicate if the BioSamples submission Docker container is up and running.
+
+### Configuration
+
+To configure MARS for submissions, modify the configuration file `settings.ini` located at `~/.mars/settings.ini`. Ensure the following content is set:
+
+```ini
+[webin]
+development-url = https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth
+development-token-url = https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token
+production-url = https://www.ebi.ac.uk/ena/submit/webin/auth
+production-token-url = https://www.ebi.ac.uk/ena/submit/webin/auth/token
+
+[ena]
+development-url = http://localhost:8042/isaena
+development-submission-url = http://localhost:8042/isaena/submit
+production-url = https://www.ebi.ac.uk/ena/submit/webin-v2/
+production-submission-url = https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA
+
+[biosamples]
+development-url = http://localhost:8032/isabiosamples
+development-submission-url = http://localhost:8032/isabiosamples/submit
+production-url = https://www.ebi.ac.uk/biosamples/samples/
+production-submission-url = https://www.ebi.ac.uk/biosamples/samples/
+```
+
+### Running MARS Submission
+
+After configuring the `settings.ini` file, you can run the MARS CLI tool to submit data:
+
+```bash
+python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credential-service-name <biosamples> --username-credentials <username> ../test-data/biosamples-input-isa.json
+```
+
+- Replace `<biosamples>` with the appropriate service name.
+- Replace `<username>` with your BioSamples username.
+- Adjust the submission file path (`../test-data/biosamples-input-isa.json`) as needed.
+
+Aternatively, you can also use a credentials file to authenticate to the services. An example can be found here: https://github.com/elixir-europe/MARS/blob/main/mars-cli/tests/test_credentials_example.json
+	
+Run the MARS CLI tool to submit the data:
+	
+```bash
+python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credentials-file <path_to_your_credentials_file.json> ../test-data/biosamples-input-isa.json
+```
