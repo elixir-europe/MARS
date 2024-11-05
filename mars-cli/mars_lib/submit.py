@@ -11,7 +11,7 @@ from mars_lib.biosamples_external_references import (
     input_json_schema_filepath,
 )
 from mars_lib.credential import CredentialManager
-from mars_lib.isa_json import load_isa_json
+from mars_lib.isa_json import load_isa_json, reduce_isa_json_for_target_repo
 from mars_lib.models.isa_json import IsaJson
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
@@ -54,7 +54,6 @@ def submission(
     )
 
     if TargetRepository.ENA in target_repositories:
-        # TODO: Filter out other assays
         ena_result = submit_to_ena(
             isa_json=isa_json,
             user_credentials=user_credentials,
@@ -114,7 +113,9 @@ def submit_to_biosamples(
         biosamples_url,
         headers=headers,
         params=params,
-        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+        json=reduce_isa_json_for_target_repo(
+            isa_json, TargetRepository.BIOSAMPLES
+        ).model_dump(by_alias=True, exclude_none=True),
     )
 
     if result.status_code != 200:
@@ -142,7 +143,9 @@ def submit_to_ena(
         submission_url,
         headers=headers,
         params=params,
-        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+        json=reduce_isa_json_for_target_repo(isa_json, TargetRepository.ENA).model_dump(
+            by_alias=True, exclude_none=True
+        ),
     )
 
     if result.status_code != 200:
