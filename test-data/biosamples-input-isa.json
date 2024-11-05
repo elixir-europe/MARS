@@ -633,6 +633,12 @@
                      "termSource": "",
                      "termAccession": ""
                   },
+                  "comments": [
+                     {
+                         "name": "target repository",
+                         "value": "ena"
+                     }
+                  ],
                   "technologyType": {
                      "annotationValue": "",
                      "termSource": "",
@@ -968,27 +974,27 @@
                   "dataFiles": [
                      {
                         "@id": "#data/334",
-                        "name": "fake2.bam",
+                        "name": "RD file 1a",
                         "type": "Raw Data File",
                         "comments": [
                            {
-                              "name": "file type",
-                              "value": "bam"
+                              "name": "file_name",
+                              "value": "ENA_TEST2.R1.fastq.gz"
+                           },
+                           {
+                              "name": "file_type",
+                              "value": "fastq"
                            },
                            {
                               "name": "file checksum",
-                              "value": "9840f585055afc37de353706fd31a377"
-                           },
-                           {
-                              "name": "submission date",
-                              "value": ""
-                           },
-                           {
-                              "name": "status",
                               "value": ""
                            },
                            {
                               "name": "accession",
+                              "value": ""
+                           },
+                           {
+                              "name": "submission date",
                               "value": ""
                            }
                         ]
