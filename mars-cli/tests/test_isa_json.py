@@ -97,7 +97,7 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_001",
-                "name": "target repository",
+                "name": "target_repository",
                 "value": TargetRepository.ENA,
             }
         ],
@@ -108,7 +108,7 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_002",
-                "name": "target repository",
+                "name": "target_repository",
                 "value": "my special repo",
             }
         ],
