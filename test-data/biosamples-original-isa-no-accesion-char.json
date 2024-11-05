@@ -650,6 +650,12 @@
                         }
                      }
                   ],
+                  "comments": [
+                     {
+                         "name": "target_repository",
+                         "value": "ena"
+                     }
+                  ],
                   "materials": {
                      "samples": [
                         {

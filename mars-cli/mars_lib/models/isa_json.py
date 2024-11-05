@@ -195,9 +195,9 @@ class Assay(CommentedIsaBase):
             comment for comment in v if comment.name == TARGET_REPO_KEY
         ]
         if len(target_repo_comments) == 0:
-            raise ValueError("'target_repository' comment is missing")
+            raise ValueError(f"'{TARGET_REPO_KEY}' comment is missing")
         elif len(target_repo_comments) > 1:
-            raise ValueError("Multiple 'target_repository' comments found")
+            raise ValueError(f"Multiple '{TARGET_REPO_KEY}' comments found")
         else:
             if target_repo_comments[0].value in [
                 item.value for item in TargetRepository
@@ -205,7 +205,7 @@ class Assay(CommentedIsaBase):
                 return v
             else:
                 raise ValueError(
-                    f"Invalid 'target_repository' value: '{target_repo_comments[0].value}'"
+                    f"Invalid '{TARGET_REPO_KEY}' value: '{target_repo_comments[0].value}'"
                 )
 
 
