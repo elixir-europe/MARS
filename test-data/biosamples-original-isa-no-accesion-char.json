@@ -6,7 +6,7 @@
       "submissionDate": "",
       "publicReleaseDate": "",
       "ontologySourceReferences": [],
-      "filename": "Bob's investigation.txt",
+      "filename": "i_Bob's investigation.txt",
       "comments": [
          {
             "name": "ISAjson export time",
@@ -60,7 +60,7 @@
             "description": "Nucleic acid sequencing and metabolomics and proteomics of Arabidopsis thaliana in specific experimental conditions to test a specific hypothesis.\r\n",
             "submissionDate": "",
             "publicReleaseDate": "",
-            "filename": "Arabidopsis thaliana.txt",
+            "filename": "s_Arabidopsis thaliana.txt",
             "comments": [
                {
                   "name": "SEEK Study ID",
