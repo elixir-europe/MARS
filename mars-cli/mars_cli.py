@@ -166,6 +166,12 @@ def cli(ctx, development):
     help="Name of a credentials file",
 )
 @click.argument("isa_json_file", type=click.File("r"))
+@click.option(
+    "--submit-to-biosamples",
+    type=click.BOOL,
+    default=True,
+    help="Submit to BioSamples.",
+)
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
 @click.option(
     "--submit-to-metabolights",
@@ -186,6 +192,7 @@ def submit(
     username_credentials,
     credentials_file,
     isa_json_file,
+    submit_to_biosamples,
     submit_to_ena,
     submit_to_metabolights,
     investigation_is_root,
@@ -193,13 +200,11 @@ def submit(
     """Start a submission to the target repositories."""
     target_repositories = [TargetRepository.BIOSAMPLES]
 
+    if submit_to_biosamples:
+        target_repositories.append(TargetRepository.BIOSAMPLES)
+
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
-        target_repositories.remove(TargetRepository.BIOSAMPLES)
-        print_and_log(
-            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
-            level="debug",
-        )
 
     if submit_to_metabolights:
         target_repositories.append(TargetRepository.METABOLIGHTS)
