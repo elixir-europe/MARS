@@ -443,3 +443,11 @@ python mars_cli.py --development submit --submit-to-metabolights False --submit-
 - Replace `<biosamples>` with the appropriate service name.
 - Replace `<username>` with your BioSamples username.
 - Adjust the submission file path (`../test-data/biosamples-input-isa.json`) as needed.
+
+Aternatively, you can also use a credentials file to authenticate to the services. An example can be found here: https://github.com/elixir-europe/MARS/blob/main/mars-cli/tests/test_credentials_example.json
+	
+Run the MARS CLI tool to submit the data:
+	
+```bash
+python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credentials-file <path_to_your_credentials_file.json> ../test-data/biosamples-input-isa.json
+```
