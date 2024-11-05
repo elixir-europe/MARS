@@ -3,3 +3,4 @@ jsonschema
 keyring
 pydantic
 click
+retry
