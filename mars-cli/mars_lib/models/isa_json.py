@@ -1,14 +1,11 @@
 from __future__ import annotations
-
 from enum import Enum
 from typing import List, Optional, Union
-
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 
 
 class IsaBase(BaseModel):
-    # model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="forbid")
 
 
@@ -18,8 +15,11 @@ class Comment(IsaBase):
     value: Optional[str] = None
 
 
-class OntologySourceReference(IsaBase):
+class CommentedIsaBase(IsaBase):
     comments: List[Comment] = []
+
+
+class OntologySourceReference(CommentedIsaBase):
     description: Optional[str] = None
     file: Optional[str] = None
     name: Optional[str] = None
@@ -31,29 +31,37 @@ class DataTypeEnum(str, Enum):
     RAW_DATA_FILE = "Raw Data File"
     DERIVED_DATA_FILE = "Derived Data File"
     IMAGE_FILE = "Image File"
-    SPECTRAL_RAW_DATA_FILE = "Spectral Raw Data File"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/)
-    FREE_INDUCTION_DECAY_FILE = "Free Induction Decay File"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/)
+    # The following names are not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#data-schema-json).
+    # However, spectral data file names are mentioned in the ISA-Tab specs (https://isa-specs.readthedocs.io/en/latest/isatab.html).
+    # TODO: Review and support all possible data file names mentioned in the the ISA-Tab specs (Section 2.3.8).
+    # Metabolights support the following data file types:
+    RAW_SPECTRAL_DATA_FILE = "Raw Spectral Data File"
+    DERIVED_SPECTRAL_DATA_FILE = "Derived Spectral Data File"
+    FREE_INDUCTION_DECAY_DATA_FILE = "Free Induction Decay Data File"
+    ACQUSITION_PARAMETER_DATA_FILE = "Acquisition Parameter Data File"
+    METABOLITE_ASSIGNMENT_FILE = "Metabolite Assignment File"  # Used in MetaboLights to report metabolite assignments
 
 
-class Data(IsaBase):
+DATA_TYPE_VALUES = {item.value for item in DataTypeEnum}
+
+
+class Data(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    comments: List[Comment] = []
     name: Optional[str] = None
     type: Optional[DataTypeEnum] = None
 
     @field_validator("type")
     def apply_enum(cls, v: str) -> str:
-        if v not in [item.value for item in DataTypeEnum]:
+        if v not in DATA_TYPE_VALUES:
             raise ValueError("Invalid material type")
         return v
 
 
-class OntologyAnnotation(IsaBase):
+class OntologyAnnotation(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     annotationValue: Union[Optional[str], Optional[float], Optional[int]] = Field(
         default=None
     )
-    comments: List[Comment] = []
     termAccession: Optional[str] = None
     termSource: Optional[str] = Field(
         description="The abbreviated ontology name. It should correspond to one of the sources as specified in the ontologySourceReference section of the Investigation.",
@@ -61,19 +69,16 @@ class OntologyAnnotation(IsaBase):
     )
 
 
-class MaterialAttributeValue(IsaBase):
+# TODO: QUESTION: comments field is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-attribute-value-schema-json)
+class MaterialAttributeValue(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     category: Optional[MaterialAttribute] = None
     value: Union[str, float, int, OntologyAnnotation, None] = None
     unit: Optional[OntologyAnnotation] = None
-    comments: List[Comment] = Field(
-        default=[]
-    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-attribute-value-schema-json)
 
 
-class Factor(IsaBase):
+class Factor(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    comments: List[Comment] = []
     factorName: Optional[str] = None
     factorType: Optional[OntologyAnnotation] = None
 
@@ -85,24 +90,20 @@ class FactorValue(IsaBase):
     unit: Optional[OntologyAnnotation] = None
 
 
-class Source(IsaBase):
+# TODO: QUESTION: comments field is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-attribute-value-schema-json)
+class Source(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristics: List[MaterialAttributeValue] = []
     name: Optional[str] = None
-    comments: List[Comment] = Field(
-        default=[]
-    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#source-schema-json)
 
 
-class Sample(IsaBase):
+# TODO: QUESTION: comments field is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-attribute-value-schema-json)
+class Sample(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     name: Optional[str] = None
     characteristics: List[MaterialAttributeValue] = []
     factorValues: List[FactorValue] = []
     derivesFrom: List[Source] = []
-    comments: List[Comment] = Field(
-        default=[]
-    )  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#sample-schema-json)
 
 
 class ProtocolParameter(IsaBase):
@@ -122,9 +123,8 @@ class Component(IsaBase):
     componentType: Optional[OntologyAnnotation] = None
 
 
-class Protocol(IsaBase):
+class Protocol(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    comments: List[Comment] = []
     components: List[Component] = []
     description: Optional[str] = None
     name: Optional[str] = None
@@ -142,10 +142,9 @@ class MaterialTypeEnum(str, Enum):
     LIBRARY_NAME = "library name"  # TODO: QUESTION: This is not mentioned in the specs (https://isa-specs.readthedocs.io/en/latest/isajson.html#material-schema-json) but was found in DataHub ISA-JSON and ARC ISA-JSON.
 
 
-class Material(IsaBase):
+class Material(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristics: List[MaterialAttributeValue] = []
-    comments: List[Comment] = []
     name: Optional[str] = None
     type: Optional[str] = None
     derivesFrom: List[Material] = []
@@ -157,9 +156,8 @@ class Material(IsaBase):
         return v
 
 
-class Process(IsaBase):
+class Process(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    comments: List[Comment] = []
     date: Optional[str] = None
     executesProtocol: Optional[Protocol] = None
     inputs: Optional[Union[List[Source], List[Sample], List[Material], list[Data]]] = []
@@ -179,10 +177,9 @@ class AssayMaterialType(IsaBase):
     otherMaterials: List[Material] = []
 
 
-class Assay(IsaBase):
+class Assay(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     characteristicCategories: List[MaterialAttribute] = []
-    comments: List[Comment] = []
     dataFiles: List[Data] = []
     filename: Optional[str] = None
     materials: Optional[AssayMaterialType] = None
@@ -212,11 +209,10 @@ class Assay(IsaBase):
                 )
 
 
-class Person(IsaBase):
+class Person(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     address: Optional[str] = None
     affiliation: Optional[str] = None
-    comments: List[Comment] = []
     email: Optional[str] = None
     fax: Optional[str] = None
     firstName: Optional[str] = None
@@ -226,9 +222,8 @@ class Person(IsaBase):
     roles: List[OntologyAnnotation] = []
 
 
-class Publication(IsaBase):
+class Publication(CommentedIsaBase):
     authorList: Optional[str] = None
-    comments: List[Comment] = []
     doi: Optional[str] = None
     pubMedID: Optional[str] = None
     status: Optional[OntologyAnnotation] = None
@@ -246,11 +241,10 @@ class MaterialAttribute(IsaBase):
     characteristicType: Optional[OntologyAnnotation] = None
 
 
-class Study(IsaBase):
+class Study(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     assays: List[Assay] = []
     characteristicCategories: List[MaterialAttribute] = []
-    comments: List[Comment] = []
     description: Optional[str] = None
     factors: List[Factor] = []
     filename: Optional[str] = None
@@ -267,9 +261,8 @@ class Study(IsaBase):
     unitCategories: List[OntologyAnnotation] = []
 
 
-class Investigation(IsaBase):
+class Investigation(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
-    comments: List[Comment] = []
     description: Optional[str] = None
     filename: Optional[str] = None
     identifier: Optional[str] = None
