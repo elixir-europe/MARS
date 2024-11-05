@@ -43,7 +43,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
    */
   public MarsReceipt convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
     return buildMarsReceipt(
-        "biosample", // https://registry.identifiers.org/registry/biosample
+        "biosamples", // https://registry.identifiers.org/registry/biosample
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
         biosampleAccessionsMap.sourceAccessionsMap,
