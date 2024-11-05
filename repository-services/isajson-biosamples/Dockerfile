@@ -22,5 +22,5 @@ ARG JAR_FILE=/app/isajson-biosamples/build/libs/*.jar
 COPY --from=builder ${JAR_FILE} app.jar
 
 # Set the entry point for the application
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
