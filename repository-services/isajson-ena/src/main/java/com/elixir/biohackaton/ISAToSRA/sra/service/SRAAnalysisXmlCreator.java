@@ -1,9 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.model.Assay;
-import com.elixir.biohackaton.ISAToSRA.model.DataFile;
-import com.elixir.biohackaton.ISAToSRA.model.Study;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;

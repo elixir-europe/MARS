@@ -27,6 +27,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          context: repository-services/isajson-biosamples
+          context: repository-services
+          file: repository-services/isajson-biosamples/Dockerfile
           push: false
           tags: user/app:latest

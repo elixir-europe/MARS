@@ -163,6 +163,18 @@ cython_debug/
 # Test credentials
 test_credentials.json
 
-tmp/
+### IntelliJ IDEA ###
 .gradle/
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### VS Code ###
 .vscode/
+
+### tmp ###
+tmp/
