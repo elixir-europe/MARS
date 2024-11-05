@@ -353,8 +353,8 @@ def create_accession_characteristic(
 
 
 def update_investigation(
-    investigation: Investigation, repo_response: RepositoryResponse
-) -> Investigation:
+    isa_json: IsaJson, repo_response: RepositoryResponse
+) -> IsaJson:
     """
     Adds the accession to the ISA JSON.
 
@@ -365,7 +365,7 @@ def update_investigation(
     Returns:
         Investigation: The updated ISA JSON.
     """
-    updated_investigation = investigation.model_copy(deep=True)
+    investigation = isa_json.investigation
     for accession in repo_response.accessions:
 
         has_assay_in_path = [p for p in accession.path if p.key == "assays"]
@@ -380,7 +380,7 @@ def update_investigation(
         if not study_filter:
             raise ValueError(f"Study filter is not present in {accession.path}.")
 
-        updated_node = apply_filter(study_filter, updated_investigation.studies)
+        updated_node = apply_filter(study_filter, investigation.studies)
 
         if target_level == "assay":
             assay_filter = get_filter_for_accession_key(accession, "assays")
@@ -407,4 +407,5 @@ def update_investigation(
 
         add_accession_to_node(updated_node, accession.value, material_type_path)
 
-    return updated_investigation
+    isa_json.investigation = investigation
+    return isa_json
