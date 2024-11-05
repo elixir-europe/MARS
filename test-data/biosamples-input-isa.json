@@ -675,7 +675,7 @@
             ],
             "comments": [
               {
-                "name": "target repository",
+                "name": "target_repository",
                 "value": "ena"
               }
             ],
@@ -974,27 +974,27 @@
             "dataFiles": [
               {
                 "@id": "#data/334",
-                "name": "fake2.bam",
+                "name": "RD file 1b",
                 "type": "Raw Data File",
                 "comments": [
                   {
-                    "name": "file type",
-                    "value": "bam"
+                    "name": "file_name",
+                    "value": "ENA_TEST2.R2.fastq.gz"
+                  },
+                  {
+                    "name": "file_type",
+                    "value": "fastq"
                   },
                   {
                     "name": "file checksum",
-                    "value": "9840f585055afc37de353706fd31a377"
-                  },
-                  {
-                    "name": "submission date",
-                    "value": ""
-                  },
-                  {
-                    "name": "status",
-                    "value": ""
+                    "value": "69c903251902c1e0b75331f70e531012"
                   },
                   {
                     "name": "accession",
+                    "value": ""
+                  },
+                  {
+                    "name": "submission date",
                     "value": ""
                   }
                 ]

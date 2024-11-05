@@ -121,12 +121,12 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_003",
-                "name": "target repository",
+                "name": "target_repository",
                 "value": TargetRepository.ENA,
             },
             {
                 "@id": "comment_004",
-                "name": "target repository",
+                "name": "target_repository",
                 "value": TargetRepository.METABOLIGHTS,
             },
         ],
@@ -134,15 +134,15 @@ def test_target_repo_comment_validator():
 
     assert Assay.model_validate(valid_assay_json)
     with pytest.raises(
-        ValidationError, match="Invalid 'target repository' value: 'my special repo'"
+        ValidationError, match="Invalid 'target_repository' value: 'my special repo'"
     ):
         Assay.model_validate(invalid_assay_json)
 
-    with pytest.raises(ValidationError, match="'target repository' comment is missing"):
+    with pytest.raises(ValidationError, match="'target_repository' comment is missing"):
         Assay.model_validate(second_invalid_assay_json)
 
     with pytest.raises(
-        ValidationError, match="Multiple 'target repository' comments found"
+        ValidationError, match="Multiple 'target_repository' comments found"
     ):
         Assay.model_validate(third_invalid_assay_json)
 
