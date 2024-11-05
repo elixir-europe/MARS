@@ -198,7 +198,7 @@ def submit(
     investigation_is_root,
 ):
     """Start a submission to the target repositories."""
-    target_repositories = [TargetRepository.BIOSAMPLES]
+    target_repositories = []
 
     if submit_to_biosamples:
         target_repositories.append(TargetRepository.BIOSAMPLES)

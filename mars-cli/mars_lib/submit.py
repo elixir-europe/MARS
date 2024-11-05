@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 from io import TextIOWrapper
 import requests
 import json
@@ -11,11 +13,27 @@ from mars_lib.biosamples_external_references import (
     input_json_schema_filepath,
 )
 from mars_lib.credential import CredentialManager
-from mars_lib.isa_json import load_isa_json, reduce_isa_json_for_target_repo
+from mars_lib.isa_json import (
+    load_isa_json,
+    reduce_isa_json_for_target_repo,
+    update_isa_json,
+)
 from mars_lib.models.isa_json import IsaJson
+from mars_lib.models.repository_response import RepositoryResponse
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
 from pydantic import ValidationError
+
+
+def save_step_to_file(time_stamp: float, filename: str, isa_json: IsaJson):
+    dir_path = f"tmp/{str(time_stamp)}"
+    os.makedirs(dir_path, exist_ok=True)
+
+    with open(f"{dir_path}/{filename}.json", "w") as f:
+        f.write(isa_json.model_dump_json(by_alias=True, exclude_none=True))
+
+
+DEBUG = os.getenv("MARS_DEBUG") in ["1", 1]
 
 
 def submission(
@@ -53,17 +71,18 @@ def submission(
         f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
     )
 
-    if TargetRepository.ENA in target_repositories:
-        ena_result = submit_to_ena(
-            isa_json=isa_json,
-            user_credentials=user_credentials,
-            submission_url=urls["ENA"]["SUBMISSION"],
-        )
-        print_and_log(
-            f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
-        )
-        # TODO: Update `isa_json`, based on the receipt returned
-    elif TargetRepository.BIOSAMPLES in target_repositories:
+    time_stamp = datetime.timestamp(datetime.now())
+
+    if DEBUG:
+        save_step_to_file(time_stamp, "0_Initial_ISA_JSON_in_model", isa_json)
+
+    if all(
+        repo not in TargetRepository.available_repositories()
+        for repo in target_repositories
+    ):
+        raise ValueError("No target repository selected.")
+
+    if TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
@@ -76,7 +95,29 @@ def submission(
             level="info",
         )
         # TODO: Update `isa_json`, based on the receipt returned
-    elif TargetRepository.METABOLIGHTS in target_repositories:
+        bs_mars_receipt = RepositoryResponse.model_validate(
+            json.loads(biosamples_result.content)
+        )
+        isa_json = update_isa_json(isa_json, bs_mars_receipt)
+        if DEBUG:
+            save_step_to_file(time_stamp, "1_after_biosamples", isa_json)
+
+    if TargetRepository.ENA in target_repositories:
+        ena_result = submit_to_ena(
+            isa_json=isa_json,
+            user_credentials=user_credentials,
+            submission_url=urls["ENA"]["SUBMISSION"],
+        )
+        print_and_log(
+            f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
+        )
+        # TODO: Update `isa_json`, based on the receipt returned
+        ena_mars_receipt = RepositoryResponse.from_json(str(ena_result.content))
+        isa_json = update_isa_json(isa_json, ena_mars_receipt)
+        if DEBUG:
+            save_step_to_file(time_stamp, "2_after_ena", isa_json)
+
+    if TargetRepository.METABOLIGHTS in target_repositories:
         # Submit to MetaboLights
         # TODO: Filter out other assays
         print_and_log(
@@ -84,17 +125,17 @@ def submission(
             level="info",
         )
         # TODO: Update `isa_json`, based on the receipt returned
-    elif TargetRepository.EVA in target_repositories:
+
+    if TargetRepository.EVA in target_repositories:
         # Submit to EVA
         # TODO: Filter out other assays
         print_and_log(
             f"Submission to {TargetRepository.EVA} was successful", level="info"
         )
         # TODO: Update `isa_json`, based on the receipt returned
-    else:
-        raise ValueError("No target repository selected.")
 
     # TODO: Return the updated ISA JSON
+    return isa_json
 
 
 def submit_to_biosamples(

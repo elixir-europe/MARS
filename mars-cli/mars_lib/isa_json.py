@@ -64,6 +64,8 @@ def detect_target_repo_comment(comments: List[Comment]) -> Comment:
     Returns:
         Comment: The comment where the name corresponds with the name of the provided target repo.
     """
+    if len(comments) < 1:
+        raise ValueError("No comments found! Not able to detect the target repository!")
     return next(comment for comment in comments if comment.name == TARGET_REPO_KEY)
 
 
