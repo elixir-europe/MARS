@@ -22,21 +22,21 @@ from mars_lib.models.repository_response import (
 
 
 def reduce_isa_json_for_target_repo(
-    input_isa_json: Investigation, target_repo: str
-) -> Investigation:
+    input_isa_json: IsaJson, target_repo: str
+) -> IsaJson:
     """
     Filters out assays that are not meant to be sent to the specified target repository.
 
     Args:
-        input_isa_json (Investigation): Input ISA JSON that contains the original information.
+        input_isa_json (IsaJson): Input ISA JSON that contains the original information.
         target_repo (TargetRepository): Target repository as a constant.
 
     Returns:
-        Investigation: Filtered ISA JSON.
+        IsaJson: Filtered ISA JSON.
     """
     filtered_isa_json = input_isa_json.model_copy(deep=True)
     new_studies = []
-    studies = filtered_isa_json.studies
+    studies = filtered_isa_json.investigation.studies
     for study in studies:
         if target_repo == TargetRepository.BIOSAMPLES:
             filtered_assays = []
@@ -51,7 +51,7 @@ def reduce_isa_json_for_target_repo(
         study.assays = filtered_assays
         new_studies.append(study)
 
-    filtered_isa_json.studies = new_studies
+    filtered_isa_json.investigation.studies = new_studies
     return filtered_isa_json
 
 
@@ -352,18 +352,16 @@ def create_accession_characteristic(
     updated_material.characteristics.append(new_material_attribute_value)
 
 
-def update_investigation(
-    isa_json: IsaJson, repo_response: RepositoryResponse
-) -> IsaJson:
+def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> IsaJson:
     """
     Adds the accession to the ISA JSON.
 
     Args:
-        isa_json (Investigation): The ISA JSON to be updated.
+        isa_json (IsaJson): The ISA JSON to be updated.
         repo_response (RepositoryResponse): The response from the repository.
 
     Returns:
-        Investigation: The updated ISA JSON.
+        IsaJson: The updated ISA JSON.
     """
     investigation = isa_json.investigation
     for accession in repo_response.accessions:
