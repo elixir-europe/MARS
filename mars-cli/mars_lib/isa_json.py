@@ -87,7 +87,7 @@ def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
 
 def load_isa_json(
     file_path: str, investigation_is_root: bool
-) -> Union[Investigation, ValidationError]:
+) -> Union[IsaJson, ValidationError]:
     """
     Reads the file and validates it as a valid ISA JSON.
 
@@ -96,15 +96,16 @@ def load_isa_json(
         investigation_is_root (bool): Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.
 
     Returns:
-        Union[Dict[str, str], ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
+        Union[IsaJson, ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
     """
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)
 
     if investigation_is_root:
-        return Investigation.model_validate(isa_json)
+        inv = Investigation.model_validate(isa_json)
+        return IsaJson(investigation=inv)
     else:
-        return IsaJson.model_validate(isa_json).investigation
+        return IsaJson.model_validate(isa_json)
 
 
 def get_filter_for_accession_key(accession: Accession, key: str) -> Optional[Filter]:

@@ -23,8 +23,8 @@ def create_settings_file(settings_dir):
     }
 
     config["webin"] = {
-        "development-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth",
-        "development-token-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
+        "development-url": "https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth",
+        "development-token-url": "https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
         "production-url": "https://www.ebi.ac.uk/ena/submit/webin/auth",
         "production-token-url": "https://www.ebi.ac.uk/ena/submit/webin/auth/token",
     }

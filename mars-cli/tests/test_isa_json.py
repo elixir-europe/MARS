@@ -16,13 +16,13 @@ def test_load_isa_json():
     valid_isa_json01 = load_isa_json(
         "../test-data/ISA-BH2023-ALL/isa-bh2023-all.json", True
     )
-    assert len(valid_isa_json01.studies) == 1
-    assert valid_isa_json01.studies[0].identifier == "BH2023"
+    assert len(valid_isa_json01.investigation.studies) == 1
+    assert valid_isa_json01.investigation.studies[0].identifier == "BH2023"
 
     # Should test the validation process of the ISA JSON file where root has 'investigation' as key.
     valid_isa_json02 = load_isa_json("../test-data/biosamples-input-isa.json", False)
-    assert len(valid_isa_json02.studies) == 1
-    assert valid_isa_json02.studies[0].title == "Arabidopsis thaliana"
+    assert len(valid_isa_json02.investigation.studies) == 1
+    assert valid_isa_json02.investigation.studies[0].title == "Arabidopsis thaliana"
 
     with pytest.raises(ValidationError):
         load_isa_json("./tests/fixtures/invalid_investigation.json", True)
@@ -34,10 +34,10 @@ def test_reduce_isa_json_for_target_repo():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.ENA
+        good_isa_json.investigation, TargetRepository.ENA
     )
 
-    good_isa_json_study = good_isa_json.studies[0]
+    good_isa_json_study = good_isa_json.investigation.studies[0]
 
     filtered_isa_json_study = filtered_isa_json.studies[0]
 
@@ -51,7 +51,7 @@ def test_reduce_isa_json_for_biosamples():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.BIOSAMPLES
+        good_isa_json.investigation, TargetRepository.BIOSAMPLES
     )
 
     assert len(filtered_isa_json.studies[0].assays) == 0
