@@ -43,6 +43,7 @@ class DataTypeEnum(str, Enum):
     FREE_INDUCTION_DECAY_DATA_FILE = "Free Induction Decay Data File"
     ACQUSITION_PARAMETER_DATA_FILE = "Acquisition Parameter Data File"
     METABOLITE_ASSIGNMENT_FILE = "Metabolite Assignment File"  # Used in MetaboLights to report metabolite assignments
+    CHECKSUM = "checksum"
 
 
 DATA_TYPE_VALUES = {item.value for item in DataTypeEnum}
@@ -105,7 +106,7 @@ class Sample(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     name: Optional[str] = None
     characteristics: List[MaterialAttributeValue] = []
-    factorValues: List[FactorValue] = []
+    factorValues: Optional[List[FactorValue]] = None
     derivesFrom: List[Source] = []
 
 
@@ -117,7 +118,7 @@ class ProtocolParameter(IsaBase):
 class ProcessParameterValue(IsaBase):
     category: Optional[ProtocolParameter] = None
     value: Union[str, float, int, OntologyAnnotation, None] = None
-    unit: Optional[OntologyAnnotation] = None
+    unit: Union[OntologyAnnotation, List[OntologyAnnotation], None] = None
 
 
 # Helper class for protocol -> components
