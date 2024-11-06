@@ -111,7 +111,7 @@ def submission(
         print_and_log(
             f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
         )
-        # TODO: Update `isa_json`, based on the receipt returned
+        # Update `isa_json`, based on the receipt returned
         ena_mars_receipt = RepositoryResponse.from_json(str(ena_result.content))
         isa_json = update_isa_json(isa_json, ena_mars_receipt)
         if DEBUG:
