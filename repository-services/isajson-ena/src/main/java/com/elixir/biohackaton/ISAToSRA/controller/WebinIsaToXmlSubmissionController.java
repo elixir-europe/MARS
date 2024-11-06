@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -148,8 +147,11 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   private String getCharacteresticAnnotation(List<Characteristic> characteristics) {
-    List<Characteristic> filteredCharacteristics = characteristics.stream()
-            .filter(characteristic -> characteristic.category.id.contains("#characteristic_category/accession"))
+    List<Characteristic> filteredCharacteristics =
+        characteristics.stream()
+            .filter(
+                characteristic ->
+                    characteristic.category.id.contains("#characteristic_category/accession"))
             .collect(Collectors.toList());
 
     if (filteredCharacteristics.isEmpty()) {
