@@ -220,11 +220,6 @@
                     "annotationValue": "plant 1",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -235,11 +230,6 @@
                     "annotationValue": "plant in the lab",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -250,11 +240,6 @@
                     "annotationValue": "NCBI:txid3702",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -265,11 +250,6 @@
                     "annotationValue": "Arabidopsis thaliana",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -280,11 +260,6 @@
                     "annotationValue": "na",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -295,11 +270,6 @@
                     "annotationValue": "budding",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -310,11 +280,6 @@
                     "annotationValue": "01/01/2022",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -325,11 +290,6 @@
                     "annotationValue": "seed",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -340,11 +300,6 @@
                     "annotationValue": "Bob",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -355,11 +310,6 @@
                     "annotationValue": "Belgium",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -370,11 +320,6 @@
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -385,11 +330,6 @@
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -405,11 +345,6 @@
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 }
               ]
