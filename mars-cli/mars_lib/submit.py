@@ -24,6 +24,10 @@ from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
 from pydantic import ValidationError
 
+from mars_lib.ftp_upload import FTPUploader
+from pathlib import Path
+from typing import List
+
 
 def save_step_to_file(time_stamp: float, filename: str, isa_json: IsaJson):
     dir_path = f"tmp/{str(time_stamp)}"
@@ -44,6 +48,8 @@ def submission(
     target_repositories: list[str],
     investigation_is_root: bool,
     urls: dict[str, Any],
+    file_transfer: str,
+    data_file_paths=None,
 ):
     # If credential manager info found:
     # Get password from the credential manager
@@ -82,7 +88,17 @@ def submission(
     ):
         raise ValueError("No target repository selected.")
 
-    if TargetRepository.BIOSAMPLES in target_repositories:
+    if (
+        TargetRepository.ENA in target_repositories
+        and data_file_paths
+        and file_transfer
+    ):
+        upload_to_ena(
+            file_paths=data_file_paths,
+            user_credentials=user_credentials,
+            submission_url=urls["ENA"]["DATA-SUBMISSION"],
+            file_transfer=file_transfer,
+        )
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
@@ -200,6 +216,26 @@ def submit_to_ena(
         )
 
     return result
+
+
+def upload_to_ena(
+    file_paths: List[Path],
+    user_credentials: dict[str, str],
+    submission_url: str,
+    file_transfer: str,
+):
+    ALLOWED_FILE_TRANSFER_SOLUTIONS = {"ftp", "aspera"}
+    file_transfer = file_transfer.lower()
+
+    if file_transfer not in ALLOWED_FILE_TRANSFER_SOLUTIONS:
+        raise ValueError(f"Unsupported transfer protocol: {file_transfer}")
+    if file_transfer == "ftp":
+        uploader = FTPUploader(
+            submission_url,
+            user_credentials["username"],
+            user_credentials["password"],
+        )
+        uploader.upload(file_paths)
 
 
 def create_external_references(
