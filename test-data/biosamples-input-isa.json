@@ -1,6 +1,6 @@
 {
   "investigation": {
-    "identifier": "",
+    "identifier": "investigation1",
     "title": "Bob's investigation",
     "description": "",
     "submissionDate": "",
@@ -55,7 +55,7 @@
     ],
     "studies": [
       {
-        "identifier": "",
+        "identifier": "study1",
         "title": "Arabidopsis thaliana",
         "description": "Nucleic acid sequencing and metabolomics and proteomics of Arabidopsis thaliana in specific experimental conditions to test a specific hypothesis.\r\n",
         "submissionDate": "",
