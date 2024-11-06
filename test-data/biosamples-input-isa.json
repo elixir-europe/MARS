@@ -425,23 +425,7 @@
                 }
               ],
               "characteristics": [],
-              "factorValues": [
-                {
-                  "category": {
-                    "@id": ""
-                  },
-                  "value": {
-                    "annotationValue": "",
-                    "termSource": "",
-                    "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
-                  }
-                }
-              ]
+              "factorValues": []
             }
           ]
         },
@@ -715,11 +699,6 @@
                         "annotationValue": "library 1",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -730,11 +709,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -745,11 +719,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -760,11 +729,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     }
                   ],
@@ -848,11 +812,6 @@
                       "annotationValue": "OTHER",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -863,11 +822,6 @@
                       "annotationValue": "OTHER",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -878,11 +832,6 @@
                       "annotationValue": "RT-PCR",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -893,11 +842,6 @@
                       "annotationValue": "SINGLE",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -908,11 +852,6 @@
                       "annotationValue": "100",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   }
                 ],
