@@ -17,6 +17,10 @@ from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
 from pydantic import ValidationError
 
+from mars_lib.ftp_upload import FTPUploader
+from pathlib import Path
+from typing import List
+
 
 def submission(
     credential_service_name: str,
@@ -156,6 +160,17 @@ def submit_to_ena(
         )
 
     return result
+
+
+def upload_to_ena(
+    file_paths: List[Path],
+    user_credentials: dict[str, str],
+    submission_url: str,
+    tranfer_protocol: str,
+):
+    if tranfer_protocol == "FTP":
+        uploader = FTPUploader(submission_url, user_credentials[0], user_credentials[1])
+        uploader.upload(file_paths)
 
 
 def create_external_references(

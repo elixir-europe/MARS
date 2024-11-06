@@ -63,6 +63,11 @@ urls = {
                 "development-submission-url",
                 fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/submit",
             ),
+            "DATA-SUBMISSION": config.get(
+                "ena",
+                "development-data-submission-url",
+                fallback="webin2.ebi.ac.uk",
+            ),
         },
         "WEBIN": {
             "SERVICE": config.get(
@@ -100,6 +105,11 @@ urls = {
                 "ena",
                 "production-submission-url",
                 fallback="https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+            ),
+            "DATA-SUBMISSION": config.get(
+                "ena",
+                "development-data-submission-url",
+                fallback="webin2.ebi.ac.uk",
             ),
         },
         "WEBIN": {
@@ -167,6 +177,13 @@ def cli(ctx, development):
 )
 @click.argument("isa_json_file", type=click.File("r"))
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
+@click.option("--data_file", type=click.File("r"))
+@click.option(
+    "--data-submit-to-ena",
+    type=click.BOOL,
+    default=True,
+    help="Submit data files to ENA.",
+)
 @click.option(
     "--submit-to-metabolights",
     type=click.BOOL,
