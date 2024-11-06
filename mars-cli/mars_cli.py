@@ -177,13 +177,23 @@ def cli(ctx, development):
 )
 @click.argument("isa_json_file", type=click.File("r"))
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
-@click.option("--data_file", type=click.File("r"))
 @click.option(
-    "--data-submit-to-ena",
-    type=click.BOOL,
-    default=True,
-    help="Submit data files to ENA.",
+    "--file-transfer",
+    type=click.STRING,
+    help="provide the name of a file transfer solution, like ftp or aspera",
 )
+@click.option(
+    "--data-files",
+    type=click.File("r"),
+    multiple=True,
+    help="Path of files to upload",
+)
+# @click.option(
+#     "--data-submit-to-ena",
+#     type=click.BOOL,
+#     default=False,
+#     help="Submit data files to ENA.",
+# )
 @click.option(
     "--submit-to-metabolights",
     type=click.BOOL,
@@ -206,6 +216,8 @@ def submit(
     submit_to_ena,
     submit_to_metabolights,
     investigation_is_root,
+    file_transfer,
+    data_files,
 ):
     """Start a submission to the target repositories."""
     target_repositories = [TargetRepository.BIOSAMPLES]
@@ -226,6 +238,9 @@ def submit(
     )
 
     urls_dict = ctx.obj["FILTERED_URLS"]
+
+    data_file_paths = [f.name for f in data_files] if file_transfer else []
+
     try:
         submission(
             credential_service_name,
@@ -235,6 +250,8 @@ def submit(
             target_repositories,
             investigation_is_root,
             urls_dict,
+            file_transfer,
+            data_file_paths,
         )
     except requests.RequestException as err:
         tb = sys.exc_info()[2]  # Traceback value
