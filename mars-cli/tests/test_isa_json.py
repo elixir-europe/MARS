@@ -1,3 +1,5 @@
+import re
+
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
@@ -6,7 +8,15 @@ from mars_lib.isa_json import (
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
 from pydantic import ValidationError
-from mars_lib.models.isa_json import Data, Material, Assay, Person, IsaJson
+from mars_lib.models.isa_json import (
+    Data,
+    Material,
+    Assay,
+    Person,
+    IsaJson,
+    Investigation,
+    Study,
+)
 from mars_lib.models.repository_response import RepositoryResponse
 import json
 
@@ -97,7 +107,7 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_001",
-                "name": "target repository",
+                "name": f"{TARGET_REPO_KEY}",
                 "value": TargetRepository.ENA,
             }
         ],
@@ -108,7 +118,7 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_002",
-                "name": "target repository",
+                "name": f"{TARGET_REPO_KEY}",
                 "value": "my special repo",
             }
         ],
@@ -121,12 +131,12 @@ def test_target_repo_comment_validator():
         "comments": [
             {
                 "@id": "comment_003",
-                "name": "target repository",
+                "name": f"{TARGET_REPO_KEY}",
                 "value": TargetRepository.ENA,
             },
             {
                 "@id": "comment_004",
-                "name": "target repository",
+                "name": f"{TARGET_REPO_KEY}",
                 "value": TargetRepository.METABOLIGHTS,
             },
         ],
@@ -134,15 +144,17 @@ def test_target_repo_comment_validator():
 
     assert Assay.model_validate(valid_assay_json)
     with pytest.raises(
-        ValidationError, match="Invalid 'target repository' value: 'my special repo'"
+        ValidationError, match=f"Invalid '{TARGET_REPO_KEY}' value: 'my special repo'"
     ):
         Assay.model_validate(invalid_assay_json)
 
-    with pytest.raises(ValidationError, match="'target repository' comment is missing"):
+    with pytest.raises(
+        ValidationError, match=f"'{TARGET_REPO_KEY}' comment is missing"
+    ):
         Assay.model_validate(second_invalid_assay_json)
 
     with pytest.raises(
-        ValidationError, match="Multiple 'target repository' comments found"
+        ValidationError, match=f"Multiple '{TARGET_REPO_KEY}' comments found"
     ):
         Assay.model_validate(third_invalid_assay_json)
 
@@ -223,3 +235,21 @@ def test_update_study_materials_with_accession_categories():
         updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
         == repo_response.accessions[1].value
     )
+
+
+def test_filename_validation():
+    # ISA should have a filename that starts with 'x_'
+    with pytest.raises(ValidationError, match=f"'filename' should start with 'i_'"):
+        Investigation.model_validate({"@id": "1", "filename": "bad filename"})
+
+    with pytest.raises(ValidationError, match=f"'filename' should start with 's_'"):
+        Study.model_validate({"@id": "2", "filename": "bad filename"})
+
+    with pytest.raises(ValidationError, match=f"'filename' should start with 'a_'"):
+        Assay.model_validate({"@id": "3", "filename": "bad filename"})
+
+    assert re.match(r"^i_", "i_Good_file_name")
+
+    assert Investigation.model_validate({"@id": "4", "filename": "i_Good_File_Name"})
+    assert Study.model_validate({"@id": "5", "filename": "s_Good_File_Name"})
+    assert Assay.model_validate({"@id": "6", "filename": "a_Good_File_Name"})

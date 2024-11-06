@@ -1,4 +1,3 @@
-import pytest
 from mars_lib.credential import CredentialManager
 
 
