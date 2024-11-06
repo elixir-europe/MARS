@@ -188,12 +188,6 @@ def cli(ctx, development):
     multiple=True,
     help="Path of files to upload",
 )
-# @click.option(
-#     "--data-submit-to-ena",
-#     type=click.BOOL,
-#     default=False,
-#     help="Submit data files to ENA.",
-# )
 @click.option(
     "--submit-to-metabolights",
     type=click.BOOL,
