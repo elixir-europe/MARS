@@ -978,11 +978,11 @@
                 "type": "Raw Data File",
                 "comments": [
                   {
-                    "name": "file_name",
+                    "name": "file name",
                     "value": "ENA_TEST2.R2.fastq.gz"
                   },
                   {
-                    "name": "file_type",
+                    "name": "file type",
                     "value": "fastq"
                   },
                   {
