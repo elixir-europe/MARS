@@ -4,7 +4,7 @@ import pathlib
 from configparser import ConfigParser
 from datetime import datetime
 from mars_lib.target_repo import TargetRepository
-from mars_lib.models.isa_json import Investigation, IsaJson
+from mars_lib.models.isa_json import IsaJson
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log

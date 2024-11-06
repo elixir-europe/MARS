@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-TARGET_REPO_KEY = "target repository"
+TARGET_REPO_KEY = "target_repository"
 
 
 class TargetRepository(str, Enum):
