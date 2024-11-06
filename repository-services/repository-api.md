@@ -2,7 +2,7 @@
 This document is to define the interface between the broker and the target repository services.
 This applies to all repositories, including BioSamples.
 
-At present, only a single API endpoint is required, `submit`. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
+There is one required endpoint, `submit`, as well as a submission status endpoint recommended for long-running submission processing. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
 
 ## Authentication
 If the repository requires authentication to submit data, the submit endpoint must allow authentication via an authorization header.
@@ -35,6 +35,9 @@ The response must be JSON in the following format:
     "errors": [ 
         // error objects
     ],
+    "status": {
+      // status object
+    },
     "info": [ 
         // info objects
     ]
@@ -42,17 +45,23 @@ The response must be JSON in the following format:
 ```
 where:
 * `targetRepository` is the identifier used to annotate the ISA-JSON and should take values from [identifiers.org](http://identifiers.org/)
-* Either [`accessions`](#accession-object) OR [`errors`](#error-object), but not both, must be present as a list of objects of the form described below. Presence of this field indicates whether the submission was a success or a failure.
-* (optional) [`info`](#info-object) is a list of objects of the form described below. This allows additional repository-specific information to be returned in the response.
+* Exactly one of the following:
+  * `accessions`: list of objects defined [here](#accession-object)
+  * `errors`: list of objects defined [here](#error-object)
+  * `status`: object defined [here](#status-object)
+* Presence of `accession`, `errors`, or `status` indicates whether the submission was a success, failure, or is still pending (asynchronous response).
+* (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response.
+
+This object is frequently referred to as the "receipt" or the "MARS receipt".
 
 #### Accession object
 The accession object looks like the following:
 ```jsonc
 {
     "path": [
-        {"key": "studies", "where": {"key": "X", "value": "Y"}},
-	    {"key": "materials"}
-	    // further path objects as needed
+      {"key": "studies", "where": {"key": "X", "value": "Y"}},
+      {"key": "materials"}
+      // further path objects as needed
     ],
     "value": "REPO_123"
 }
@@ -88,6 +97,20 @@ The error objects being returned by the repository may be used by developers to 
 
 Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
 
+#### Status object
+The status object looks like the following:
+```jsonc
+{
+  "statusUrl": "...",
+  "id": "...",
+  "percentComplete": 0.25,
+}
+```
+where:
+* `statusUrl` is a URL that can be queried to determine the completion status of the submission (see [status endpoint](#submission-status-endpoint) section below)
+* (optional) `id` is an identifier for the submission
+* (optional) `percentComplete` is a number between 0 and 1 indicating the approximate percentage of the processing by the repository that is complete
+
 #### Info object
 The info object looks like the following:
 ```jsonc
@@ -96,9 +119,20 @@ The info object looks like the following:
     "message": "..."
 }
 ```
-where `name` and `message` are strings at the repository’s discretion.
+where `name` (optional) and `message` are strings at the repository’s discretion.
 
 This can be used to provide any additional information back to the user, not relating to accessions or errors. For example, it could include the submission date and when the data will be made public. This will not be processed further by the broker but will only be presented to the user.
+
+## Submission status endpoint
+`GET /{submission_id}/status`
+
+(The endpoint path is only a suggestion, the actual path can differ as long as it is accurately returned in the `status` field of the receipt.)
+
+This endpoint is used to poll for the status of a previous submission. It should be used whenever the time from data and metadata submission until the issuing of accessions exceeds a reasonable duration, and it must be returned in the `status` field of the receipt.
+
+### Response
+
+The response must be the same format as for the submit endpoint (i.e. the [MARS receipt](#response)), again indicating whether the submission is complete and successful, complete with errors, or still pending.
 
 ## Examples
 
@@ -217,5 +251,16 @@ For illustration only.
      ]
    }
  ]
+}
+```
+
+### Status response
+```json
+{
+  "targetRepository": "eva",
+  "status": {
+    "id": "123-456",
+    "statusUrl": "https://ebi.ac.uk/eva/submission/123-456/status"
+  }
 }
 ```
