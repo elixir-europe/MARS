@@ -995,6 +995,10 @@
                     "value": "69c903251902c1e0b75331f70e531012"
                   },
                   {
+                    "name": "checksum_method",
+                    "value": "MD5"
+                  },
+                  {
                     "name": "accession",
                     "value": ""
                   },
