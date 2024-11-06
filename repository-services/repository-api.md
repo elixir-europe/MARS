@@ -2,7 +2,7 @@
 This document is to define the interface between the broker and the target repository services.
 This applies to all repositories, including BioSamples.
 
-At present, only a single API endpoint is required, `submit`. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
+There is one required endpoint, `submit`, as well as a submission status endpoint recommended for long-running submission processing. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
 
 ## Authentication
 If the repository requires authentication to submit data, the submit endpoint must allow authentication via an authorization header.
@@ -41,7 +41,6 @@ The response must be JSON in the following format:
     "info": [ 
         // info objects
     ]
-
 }
 ```
 where:
@@ -60,9 +59,9 @@ The accession object looks like the following:
 ```jsonc
 {
     "path": [
-        {"key": "studies", "where": {"key": "X", "value": "Y"}},
-	    {"key": "materials"}
-	    // further path objects as needed
+      {"key": "studies", "where": {"key": "X", "value": "Y"}},
+      {"key": "materials"}
+      // further path objects as needed
     ],
     "value": "REPO_123"
 }
@@ -99,11 +98,12 @@ The error objects being returned by the repository may be used by developers to 
 Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
 
 #### Status object
+The status object looks like the following:
 ```jsonc
 {
   "statusUrl": "...",
-	"id": "...",
-	"percentComplete": 0.25,
+  "id": "...",
+  "percentComplete": 0.25,
 }
 ```
 where:
@@ -126,7 +126,7 @@ This can be used to provide any additional information back to the user, not rel
 ## Submission status endpoint
 `GET /{submission_id}/status`
 
-The endpoint path is a suggestion, the actual path can differ in detail as long as it is accurately returned in the `status` field of the receipt.
+(The endpoint path is only a suggestion, the actual path can differ as long as it is accurately returned in the `status` field of the receipt.)
 
 This endpoint is used to poll for the status of a previous submission. It should be used whenever the time from data and metadata submission until the issuing of accessions exceeds a reasonable duration, and it must be returned in the `status` field of the receipt.
 
@@ -260,7 +260,7 @@ For illustration only.
   "targetRepository": "eva",
   "status": {
     "id": "123-456",
-    "statusUrl": "https://repository.com/123-456/status"
+    "statusUrl": "https://ebi.ac.uk/eva/submission/123-456/status"
   }
 }
 ```
