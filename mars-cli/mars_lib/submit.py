@@ -30,6 +30,8 @@ def submission(
     target_repositories: list[str],
     investigation_is_root: bool,
     urls: dict[str, Any],
+    file_transfer: str,
+    data_file_paths=None,
 ):
     # If credential manager info found:
     # Get password from the credential manager
@@ -57,7 +59,18 @@ def submission(
         f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
     )
 
-    if TargetRepository.ENA in target_repositories:
+    if (
+        TargetRepository.ENA in target_repositories
+        and data_file_paths
+        and file_transfer
+    ):
+        upload_to_ena(
+            file_paths=data_file_paths,
+            user_credentials=user_credentials,
+            submission_url=urls["ENA"]["DATA-SUBMISSION"],
+            file_transfer=file_transfer,
+        )
+    elif TargetRepository.ENA in target_repositories:
         # TODO: Filter out other assays
         ena_result = submit_to_ena(
             isa_json=isa_json,
@@ -68,6 +81,7 @@ def submission(
             f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
         )
         # TODO: Update `isa_json`, based on the receipt returned
+
     elif TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
@@ -166,10 +180,19 @@ def upload_to_ena(
     file_paths: List[Path],
     user_credentials: dict[str, str],
     submission_url: str,
-    tranfer_protocol: str,
+    file_transfer: str,
 ):
-    if tranfer_protocol == "FTP":
-        uploader = FTPUploader(submission_url, user_credentials[0], user_credentials[1])
+    ALLOWED_FILE_TRANSFER_SOLUTIONS = {"ftp", "aspera"}
+    file_transfer = file_transfer.lower()
+
+    if file_transfer not in ALLOWED_FILE_TRANSFER_SOLUTIONS:
+        raise ValueError(f"Unsupported transfer protocol: {file_transfer}")
+    if file_transfer == "ftp":
+        uploader = FTPUploader(
+            submission_url,
+            user_credentials["username"],
+            user_credentials["password"],
+        )
         uploader.upload(file_paths)
 
 
