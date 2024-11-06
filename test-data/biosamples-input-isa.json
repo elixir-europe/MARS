@@ -394,7 +394,12 @@
                 },
                 {
                   "category": {
-                    "@id": "#characteristic_category/accession_329"
+                    "@id": "#characteristic_category/accession_329",
+                    "characteristicType": {
+                      "annotationValue": "accession",
+                      "termAccession": "",
+                      "termSource": ""
+                    }
                   },
                   "value": {
                     "annotationValue": "",
