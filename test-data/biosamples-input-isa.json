@@ -613,7 +613,7 @@
                 {
                   "@id": "#other_material/332",
                   "name": "extract 1",
-                  "type": "Extract Name",
+                  "type": "library name",
                   "characteristics": [],
                   "derivesFrom": [
                     {
@@ -624,7 +624,7 @@
                 {
                   "@id": "#other_material/333",
                   "name": "library 1",
-                  "type": "Extract Name",
+                  "type": "library name",
                   "characteristics": [
                     {
                       "category": {
