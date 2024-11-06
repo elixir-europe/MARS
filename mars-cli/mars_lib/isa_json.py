@@ -190,13 +190,15 @@ def accession_characteristic_present(
             f"'where' atribute is missing in path {material_type_path.key}."
         )
 
-    accession_characteristics = [
-        char
-        for char in material.characteristics
-        if char.category
-        and char.category.characteristicType
-        and char.category.characteristicType.annotationValue == "accession"
-    ]
+    accession_characteristics = []
+    for char in material.characteristics:
+        if char.category and char.category.characteristicType:
+            if char.category.characteristicType.annotationValue:
+                if char.category.characteristicType.annotationValue == "accession":
+                    accession_characteristics.append(char)
+            else:
+                if char.category.characteristicType == "accession":
+                    accession_characteristics.append(char)
 
     if len(accession_characteristics) > 1:
         raise AttributeError(

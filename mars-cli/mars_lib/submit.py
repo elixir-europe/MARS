@@ -94,7 +94,7 @@ def submission(
             f"Submission to {TargetRepository.BIOSAMPLES} was successful. Result:\n{biosamples_result.json()}",
             level="info",
         )
-        # TODO: Update `isa_json`, based on the receipt returned
+        # Update `isa_json`, based on the receipt returned
         bs_mars_receipt = RepositoryResponse.model_validate(
             json.loads(biosamples_result.content)
         )
