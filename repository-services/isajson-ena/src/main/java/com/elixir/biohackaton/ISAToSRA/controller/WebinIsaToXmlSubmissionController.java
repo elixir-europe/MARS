@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -146,13 +148,20 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   private String getCharacteresticAnnotation(List<Characteristic> characteristics) {
-    for (Characteristic characteristic : characteristics) {
-      if ("#characteristic_category/accession".equals(characteristic.category.id)) {
-        return characteristic.value.annotationValue;
-      }
+    List<Characteristic> filteredCharacteristics = characteristics.stream()
+            .filter(characteristic -> characteristic.category.id.contains("#characteristic_category/accession"))
+            .collect(Collectors.toList());
+
+    if (filteredCharacteristics.isEmpty()) {
+      log.error("No accession found in the characteristics");
+      throw new RuntimeException("No accession found in the characteristics");
     }
 
-    return "";
+    if (filteredCharacteristics.size() > 1) {
+      log.error("More than one accession found in the characteristics");
+      throw new RuntimeException("Too many accessions found in the characteristics");
+    }
+    return filteredCharacteristics.get(0).value.annotationValue;
   }
 
   private static Element startPreparingWebinV2SubmissionXml(Document document) {
