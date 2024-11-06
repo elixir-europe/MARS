@@ -259,17 +259,12 @@ def add_accession_to_node(
     if not updated_material_accession_characteristic:
         raise ValueError("Accession characteristic is not present.")
 
-    if updated_material_accession_characteristic.value and hasattr(
-        updated_material_accession_characteristic.value, "annotationValue"
-    ):
-        accession_ontology_annotation = OntologyAnnotation()
-        accession_ontology_annotation.id = (
-            f"#ontology_annotation/accession_{updated_material.id}"
-        )
-        accession_ontology_annotation.annotationValue = accession_number
-        updated_material_accession_characteristic.value = accession_ontology_annotation
-    else:
-        updated_material_accession_characteristic.value = accession_number
+    accession_ontology_annotation = OntologyAnnotation()
+    accession_ontology_annotation.id = (
+        f"#ontology_annotation/accession_{updated_material.id}"
+    )
+    accession_ontology_annotation.annotationValue = accession_number
+    updated_material_accession_characteristic.value = accession_ontology_annotation
 
     updated_material.characteristics.append(updated_material_accession_characteristic)
     print(f"{updated_material.id}: {updated_material_accession_characteristic.value}.")
