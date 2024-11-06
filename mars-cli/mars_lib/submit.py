@@ -169,7 +169,9 @@ def upload_to_ena(
     tranfer_protocol: str,
 ):
     if tranfer_protocol == "FTP":
-        uploader = FTPUploader(submission_url, user_credentials[0], user_credentials[1])
+        uploader = FTPUploader(
+            submission_url, user_credentials["username"], user_credentials["password"]
+        )
         uploader.upload(file_paths)
 
 
