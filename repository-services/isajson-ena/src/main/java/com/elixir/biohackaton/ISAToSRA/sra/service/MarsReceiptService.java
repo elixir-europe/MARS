@@ -50,7 +50,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
     return buildMarsReceipt(
-        "ena", // TODO decide whether to use instead https://registry.identifiers.org/registry/ena.embl
+        "ena", // TODO decide whether to use instead
+        // https://registry.identifiers.org/registry/ena.embl
         getAliasAccessionPairs(
             Study.Fields.title,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
