@@ -70,7 +70,7 @@ Study Assay Technology Type	mass spectrometry	nucleotide sequencing	nucleotide s
 Study Assay Technology Type Term Accession Number	http://purl.obolibrary.org/obo/CHMO_0000470	https://purl.org	https://purl.org
 Study Assay Technology Type Term Source REF	MSIO	MSIO	MSIO
 Study Assay Technology Platform			
-Comment[target_repository]	metabolights	arrayexpress	ega
+Comment[target_repository]	metabolights	arrayexpress	eva
 STUDY PROTOCOLS
 Study Protocol Name	cell culture and isotopic labeling	metabolite extraction	liquid chromatography	mass spectrometry	1D 13C NMR spectroscopy for isotopomer analysis	1D 13C NMR spectroscopy for metabolite profiling	MS metabolite identification	NMR metabolite identification	mRNA extraction	gDNA extraction	gDNA library preparation	mRNA library preparation	nucleic acid sequencing	transcription analysis	CNV analysis
 Study Protocol Type	sample collection	Extraction	liquid chromatography	mass spectrometry	NMR spectroscopy	NMR spectroscopy	metabolite identification	data transformation	material separation	material separation	library construction	library construction	nucleic acid sequencing	data transformation	data transformation
