@@ -87,7 +87,7 @@ public class WebinIsaToXmlSubmissionController {
         webinElement, studies, randomSubmissionIdentifier);
 
     final Map<String, String> typeToBioSamplesAccessionMap = getBiosamples(studies);
-    final Map<Integer, String> experimentSequenceMap =
+    final Map<String, String> experimentSequenceMap =
         this.webinExperimentXmlCreator.createENAExperimentSetElement(
             typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
 
