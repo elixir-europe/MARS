@@ -266,8 +266,8 @@ def upload_to_metabolights(
         ftp_credentials_response = requests.get(ftp_credentials_url, headers=headers)
         ftp_credentials_response.raise_for_status()
         ftp_credentials = ftp_credentials_response.json()
-        ftp_base_path = ftp_credentials["ftpPath"]
-        uploader = FTPUploader(
+        ftp_base_path = ftp_credentials["ftpPath"]  # noqa F841
+        uploader = FTPUploader(  # noqa F841
             ftp_credentials["ftpHost"],
             ftp_credentials["ftpUser"],
             ftp_credentials["ftpPassword"],
