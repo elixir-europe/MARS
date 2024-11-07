@@ -1,8 +1,9 @@
 from io import TextIOWrapper
+import time
 import requests
 import json
 from typing import Any
-from mars_lib.authentication import get_webin_auth_token
+from mars_lib.authentication import get_metabolights_auth_token, get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
     biosamples_endpoints,
@@ -96,10 +97,16 @@ def submission(
         )
         # TODO: Update `isa_json`, based on the receipt returned
     elif TargetRepository.METABOLIGHTS in target_repositories:
-        # Submit to MetaboLights
-        # TODO: Filter out other assays
+        metabolights_result = upload_to_metabolights(
+            file_paths=data_file_paths,
+            file_transfer=file_transfer,
+            isa_json=isa_json,
+            metabolights_credentials=user_credentials,
+            metabolights_url=urls["METABOLIGHTS"]["SUBMISSION"],
+            metabolights_token_url=urls["METABOLIGHTS"]["TOKEN"],
+        )
         print_and_log(
-            f"Submission to {TargetRepository.METABOLIGHTS} was successful",
+            f"Submission to {TargetRepository.METABOLIGHTS} was successful. Result:\n{metabolights_result}",
             level="info",
         )
         # TODO: Update `isa_json`, based on the receipt returned
@@ -107,7 +114,7 @@ def submission(
         # Submit to EVA
         # TODO: Filter out other assays
         print_and_log(
-            f"Submission to {TargetRepository.EVA} was successful", level="info"
+            f"Submission to {TargetRepository.EVA} was successful.", level="info"
         )
         # TODO: Update `isa_json`, based on the receipt returned
     else:
@@ -146,6 +153,77 @@ def submit_to_biosamples(
         )
 
     return result
+
+def upload_to_metabolights(
+    file_paths: list[str],
+    isa_json: IsaJson,
+    metabolights_credentials: dict[str, str],
+    metabolights_url: str,
+    metabolights_token_url: str,
+    file_transfer: str = "ftp",
+):
+    data_upload_protocol = "ftp" if not file_transfer or file_transfer.lower() == "ftp"  else ""
+    
+    if not data_upload_protocol == "ftp":
+        raise ValueError(f"Data upload protocol {data_upload_protocol} is not supported")
+    
+    token = get_metabolights_auth_token(
+            metabolights_credentials, auth_url=metabolights_token_url
+    )
+    headers = {"accept": "*/*", "Content-Type": "application/json", 'Authorization': f'Bearer {token}',}
+    result = requests.post(
+        metabolights_url,
+        headers=headers,
+        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+    )
+    result.raise_for_status()
+    validation_url = find_value_in_info_section("validation-url", result["info"])
+    validation_status_url = find_value_in_info_section("validation-status-url", result["info"])
+    ftp_credentials_url = find_value_in_info_section("ftp-credentials-url", result["info"])
+    
+    if file_transfer == "ftp":
+        ftp_credentials_url = find_value_in_info_section("validation-url", result["info"])
+        ftp_credentials_response = requests.get(ftp_credentials_url, headers=headers)
+        ftp_credentials_response.raise_for_status()
+        ftp_credentials = ftp_credentials_response.json()
+        ftp_base_path = ftp_credentials["ftpPath"]
+        uploader = FTPUploader(
+            ftp_credentials["ftpHost"],
+            ftp_credentials["ftpUsername"],
+            ftp_credentials["ftpPassword"],
+        )
+        
+        uploader.upload(file_paths, target_location=ftp_base_path)
+    
+    validation_response = requests.get(validation_url, headers=headers)
+    validation_response.raise_for_status()
+    pool_time_in_seconds = 10
+    max_pool_count = 100
+    validation_status_response = None
+    for _ in range(max_pool_count):
+        validation_status_response = requests.get(validation_status_url, headers=headers)
+        validation_status_response.raise_for_status()
+        validation_status = validation_status_response.json()
+        validation_time = find_value_in_info_section("validation-time", validation_status["info"], fail_gracefully=True)
+        if validation_time:
+            break
+        time.sleep(pool_time_in_seconds)
+    else:
+        raise ValueError(f"Validation failed after {max_pool_count} iterations")
+    
+    if validation_status_response:
+        return validation_status_response.text  
+        
+    return None
+
+def find_value_in_info_section(key: str, info_section: list[Any], fail_gracefully: bool = False) -> Any:
+    for info in info_section:
+        if info["name"] == key:
+            return info["message"]
+    if fail_gracefully:
+        return None
+    raise ValueError(f"Name {key} not found in info section")
+    
 
 
 def submit_to_ena(

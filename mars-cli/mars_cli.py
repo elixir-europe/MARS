@@ -81,6 +81,18 @@ urls = {
                 fallback="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
             ),
         },
+        "METABOLIGHTS": {
+            "SERVICE": config.get(
+                "metabolights",
+                "development-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
+            ),
+            "TOKEN": config.get(
+                "metabolights",
+                "development-token-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
+            ),
+        },
         "BIOSAMPLES": {
             "SERVICE": config.get(
                 "biosamples",
@@ -122,6 +134,18 @@ urls = {
                 "webin",
                 "production-token-url",
                 fallback="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
+            ),
+        },
+        "METABOLIGHTS": {
+            "SERVICE": config.get(
+                "metabolights",
+                "production-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
+            ),
+            "TOKEN": config.get(
+                "metabolights",
+                "production-token-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
             ),
         },
         "BIOSAMPLES": {
