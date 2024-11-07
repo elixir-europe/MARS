@@ -365,44 +365,58 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
     investigation = isa_json.investigation
     for accession in repo_response.accessions:
 
-        has_assay_in_path = [p for p in accession.path if p.key == "assays"]
-        target_level = "assay" if len(has_assay_in_path) > 0 else "study"
-        material_type_path = next(
-            p
-            for p in accession.path
-            if p.key in ["sources", "samples", "otherMaterials"]
+        has_assay_in_path = len([p for p in accession.path if p.key == "assays"]) > 0
+        has_materials_in_path = (
+            len([p for p in accession.path if p.key == "materials"]) > 0
         )
+        target_level = "assay" if has_assay_in_path else "study"
 
         study_filter = get_filter_for_accession_key(accession, "studies")
         if not study_filter:
             raise ValueError(f"Study filter is not present in {accession.path}.")
 
-        updated_node = apply_filter(study_filter, investigation.studies)
-
-        if target_level == "assay":
-            assay_filter = get_filter_for_accession_key(accession, "assays")
-            if not assay_filter:
-                raise ValueError(f"Assay filter is not present in {accession.path}.")
-
-            updated_node = apply_filter(assay_filter, updated_node.assays)
-
-        if not updated_node:
-            raise ValueError(f"Node not found for {accession.value}.")
-        if not accession_characteristic_category_present(updated_node):
-            (accession_id, category) = create_accession_characteristic_category(
-                updated_node
+        if has_materials_in_path:
+            material_type_path = next(
+                p
+                for p in accession.path
+                if p.key in ["sources", "samples", "otherMaterials"]
             )
+
+            updated_node = apply_filter(study_filter, investigation.studies)
+
+            if target_level == "assay":
+                assay_filter = get_filter_for_accession_key(accession, "assays")
+                if not assay_filter:
+                    raise ValueError(
+                        f"Assay filter is not present in {accession.path}."
+                    )
+
+                updated_node = apply_filter(assay_filter, updated_node.assays)
+
+            if not updated_node:
+                raise ValueError(f"Node not found for {accession.value}.")
+            if not accession_characteristic_category_present(updated_node):
+                (accession_id, category) = create_accession_characteristic_category(
+                    updated_node
+                )
+            else:
+                (accession_id, category) = fetch_existing_characteristic_category(
+                    updated_node
+                )
+
+            if not accession_characteristic_present(updated_node, material_type_path):
+                create_accession_characteristic(
+                    updated_node, material_type_path, category, accession_id
+                )
+
+            add_accession_to_node(updated_node, accession.value, material_type_path)
         else:
-            (accession_id, category) = fetch_existing_characteristic_category(
-                updated_node
-            )
+            updated_study = apply_filter(study_filter, investigation.studies)
 
-        if not accession_characteristic_present(updated_node, material_type_path):
-            create_accession_characteristic(
-                updated_node, material_type_path, category, accession_id
+            study_accession_comment: Comment = Comment(
+                name="accession", value=accession.value
             )
-
-        add_accession_to_node(updated_node, accession.value, material_type_path)
+            updated_study.comments.append(study_accession_comment)
 
     isa_json.investigation = investigation
     return isa_json
