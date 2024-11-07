@@ -58,7 +58,6 @@ public abstract class MarsReceiptProvider {
         isaJson,
         marsMessage,
         marsAccessions);
-    System.out.println("Mars accessions: " + marsAccessions);
     return MarsReceipt.builder()
         .targetRepository(targetRepository)
         .accessions(marsAccessions)
