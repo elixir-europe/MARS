@@ -129,7 +129,7 @@ def submission(
             f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
         )
         # Update `isa_json`, based on the receipt returned
-        ena_mars_receipt = RepositoryResponse.from_json(str(ena_result.content))
+        ena_mars_receipt = RepositoryResponse.model_validate(json.loads(ena_result.content))
         isa_json = update_isa_json(isa_json, ena_mars_receipt)
         if DEBUG:
             save_step_to_file(time_stamp, "2_after_ena", isa_json)
