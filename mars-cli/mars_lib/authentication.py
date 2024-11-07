@@ -59,7 +59,10 @@ def get_metabolights_auth_token(
     Returns:
     str: The obtained token.
     """
-    headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+    }
     form_data = f'grant_type=password&username={credentials_dict["username"]}&password={credentials_dict["password"]}'
     try:
         response = requests.post(
@@ -72,9 +75,13 @@ def get_metabolights_auth_token(
 
     except Exception as ex:
         raise ex
-    
+
     response_content = response.json()
-    if response and "access_token" in response_content and response_content["access_token"]:
+    if (
+        response
+        and "access_token" in response_content
+        and response_content["access_token"]
+    ):
         return response_content["access_token"]
     else:
         error_message = f"ERROR when generating token. See response's content below:\n{response_content}"
