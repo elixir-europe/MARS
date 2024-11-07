@@ -99,6 +99,7 @@ def submission(
             submission_url=urls["ENA"]["DATA-SUBMISSION"],
             file_transfer=file_transfer,
         )
+    if TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
@@ -119,6 +120,16 @@ def submission(
             save_step_to_file(time_stamp, "1_after_biosamples", isa_json)
 
     if TargetRepository.ENA in target_repositories:
+        # Step 1 : upload data if file paths are provided
+        if data_file_paths and file_transfer:
+            upload_to_ena(
+                file_paths=data_file_paths,
+                user_credentials=user_credentials,
+                submission_url=urls["ENA"]["DATA-SUBMISSION"],
+                file_transfer=file_transfer,
+            )
+
+        # Step 2 : submit isa-json to ena
         ena_result = submit_to_ena(
             isa_json=isa_json,
             user_credentials=user_credentials,
