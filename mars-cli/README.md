@@ -200,22 +200,36 @@ The MARS-CLI tool is a powerful interface for submitting metadata and associated
 
 ### Options
 
-- `--submit-to-ena`: By default set to `True`. Will try submit ISA-JSON metadata towards ENA. Setting it to `False` will skip sending the ISA-JSON's metadata to ENA.
+#### Biosamples submissions 
+`--submit-to-biosamples`: By default set to `True`. Will try submit ISA-JSON metadata towards Biosamples. Setting it to `False` will skip sending the ISA-JSON's metadata to Biosamples.
 
+Following command line will avoid submission to Biosamples repository:
+```sh
+mars-cli submit  --submit-to-biosamples False my-credentials my-isa-json.json
+```
+
+#### ENA submissions 
+`--submit-to-ena`: By default set to `True`. Will try submit ISA-JSON metadata towards ENA. Setting it to `False` will skip sending the ISA-JSON's metadata to ENA.
+
+Following command line will avoid submission to ENA repository:
 ```sh
 mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
 ```
 
-- `--file-transfer`: Provide the name of a file transfer solution, like ftp or aspera
+`--file-transfer`: Provide the name of a file transfer solution, like ftp or aspera
 
-- `--data-file`: Paths of files to upload.
+`--data-file`: Paths of files to upload.
+
+Following command line will submit isa-file and data-file using FTP solution to Biosamples and  ENA:
 ```sh
-mars-cli submit --file-transfer ftp --data-files ../data/file_to_upload.fastq.gz my-credentials my-isa-json.json
+mars-cli submit --submit-to-metabolights False --file-transfer ftp --data-files ../data/file_to_upload.fastq.gz my-credentials my-isa-json.json
 ```
 
-- `--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
+#### Metabolights submissions 
+`--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
   Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
 
+Following command line will avoid submission to metabolights repository:
 ```sh
 mars-cli submit --submit-to-metabolights False my-credentials my-isa-json.json
 ```
@@ -231,10 +245,13 @@ mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
 `--output`: By default "output_{datetime.now()}", the name of the isa final output.
 
 ```sh
-mars-cli submit --output my-credentials my-isa-json.json
+mars-cli submit --output final_isa my-credentials my-isa-json.json
 ```
 
-## Validation of the ISA JSON
+## Feature: Validation of the ISA JSON
+> **Status**: 🚧 To Be Developed
+
+This feature is planned but not yet implemented. Further details will be provided as development progresses.
 
 You can perform a syntactic validation of the ISA-JSON, without submitting to the target repositories.
 
@@ -248,8 +265,6 @@ of the ISA-JSON and, in some cases, automatically patch inconsistencies.
 
 This feature is implemented as a set of additional validation rules a user can customize according to the submission
 needs.
-
-TODO
 
 ```sh
 mars-cli validate-isa-json --investigation-is-root True ../test-data/biosamples-input-isa.json
@@ -272,10 +287,10 @@ The script takes in a dictionary of BioSamples' accessions and their associated 
 
 To summarize, the steps of the code are:
 1. Takes the BioSamples' submitter credentials and an input file containing a set of BioSamples accessions and their associated external references
-  1. Validates inputs
-1. For each BioSamples' accession, it downloads its JSON record from BioSamples
-1. Extend the BioSamples' JSON with the ``externalReferences`` of the input file
-1. Submit the extended JSON to BioSamples to replace the existing one
+2. Validates inputs
+3. For each BioSamples' accession, it downloads its JSON record from BioSamples
+4. Extend the BioSamples' JSON with the ``externalReferences`` of the input file
+5. Submit the extended JSON to BioSamples to replace the existing one
 
 ## Examples
 ### BioSamples JSON
@@ -416,8 +431,10 @@ production-token-url = https://www.ebi.ac.uk/ena/submit/webin/auth/token
 [ena]
 development-url = http://localhost:8042/isaena
 development-submission-url = http://localhost:8042/isaena/submit
+development-data-submission-url = webin2.ebi.ac.uk
 production-url = https://www.ebi.ac.uk/ena/submit/webin-v2/
 production-submission-url = https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA
+production-data-submission-url = webin2.ebi.ac.uk
 
 [biosamples]
 development-url = http://localhost:8032/isabiosamples
@@ -428,7 +445,9 @@ production-submission-url = https://www.ebi.ac.uk/biosamples/samples/
 
 ## Running MARS Submission
 
-After configuring the `settings.ini` file, you can run the MARS CLI tool to submit data:
+### Submit isa-json to biosamples
+
+After configuring the `settings.ini` file, you can run the MARS CLI tool to submit the isa-json:
 
 ```bash
 python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credential-service-name <biosamples> --username-credentials <username> ../test-data/biosamples-input-isa.json
@@ -440,8 +459,14 @@ python mars_cli.py --development submit --submit-to-metabolights False --submit-
 
 Aternatively, you can also use a credentials file to authenticate to the services. An example can be found here: https://github.com/elixir-europe/MARS/blob/main/mars-cli/tests/test_credentials_example.json
 	
-Run the MARS CLI tool to submit the data:
+Run the MARS CLI tool to submit the isa-json using credentials file:
 	
 ```bash
 python mars_cli.py --development submit --submit-to-metabolights False --submit-to-ena False --credentials-file <path_to_your_credentials_file.json> ../test-data/biosamples-input-isa.json
+```
+
+### Submit data files and isa-json and to biosamples and ENA
+
+```bash
+python mars_cli.py --credential-service-name biosamples  --username-credentials <username> --file-transfer ftp --data-files ../data/ENA_data.R1.fastq.gz --submit-to-metabolights False --output final-isa ../data/biosamples-input-isa.json
 ```
