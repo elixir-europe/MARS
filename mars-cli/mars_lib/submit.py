@@ -290,6 +290,8 @@ def upload_to_metabolights(
         except requests.exceptions.Timeout:
             timeout = True
         if not timeout:
+            if validation_status_response is None:
+                raise ValueError("Validation status response is None")
             validation_status = validation_status_response.json()
             validation_time = find_value_in_info_section(
                 "validation-time", validation_status["info"], fail_gracefully=True
