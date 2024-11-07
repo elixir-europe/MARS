@@ -23,8 +23,8 @@ def create_settings_file(settings_dir):
     }
 
     config["webin"] = {
-        "development-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth",
-        "development-token-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
+        "development-url": "https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth",
+        "development-token-url": "https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
         "production-url": "https://www.ebi.ac.uk/ena/submit/webin/auth",
         "production-token-url": "https://www.ebi.ac.uk/ena/submit/webin/auth/token",
     }
@@ -32,8 +32,10 @@ def create_settings_file(settings_dir):
     config["ena"] = {
         "development-url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/",
         "development-submission-url": "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+        "development-data-submission-url": "webin2.ebi.ac.uk",
         "production-url": "https://www.ebi.ac.uk/ena/submit/webin-v2/",
         "production-submission-url": "https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+        "production-data-submission-url": "webin2.ebi.ac.uk",
     }
 
     config["biosamples"] = {

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import re
+
 from enum import Enum
 from typing import List, Optional, Union
-
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 
 
 class IsaBase(BaseModel):
-    # model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="forbid")
 
 
@@ -43,6 +43,7 @@ class DataTypeEnum(str, Enum):
     FREE_INDUCTION_DECAY_DATA_FILE = "Free Induction Decay Data File"
     ACQUSITION_PARAMETER_DATA_FILE = "Acquisition Parameter Data File"
     METABOLITE_ASSIGNMENT_FILE = "Metabolite Assignment File"  # Used in MetaboLights to report metabolite assignments
+    CHECKSUM = "checksum"
 
 
 DATA_TYPE_VALUES = {item.value for item in DataTypeEnum}
@@ -105,7 +106,7 @@ class Sample(CommentedIsaBase):
     id: Optional[str] = Field(alias="@id", default=None)
     name: Optional[str] = None
     characteristics: List[MaterialAttributeValue] = []
-    factorValues: List[FactorValue] = []
+    factorValues: Optional[List[FactorValue]] = None
     derivesFrom: List[Source] = []
 
 
@@ -117,7 +118,7 @@ class ProtocolParameter(IsaBase):
 class ProcessParameterValue(IsaBase):
     category: Optional[ProtocolParameter] = None
     value: Union[str, float, int, OntologyAnnotation, None] = None
-    unit: Optional[OntologyAnnotation] = None
+    unit: Union[OntologyAnnotation, List[OntologyAnnotation], None] = None
 
 
 # Helper class for protocol -> components
@@ -192,15 +193,24 @@ class Assay(CommentedIsaBase):
     technologyType: Optional[OntologyAnnotation] = None
     unitCategories: List[OntologyAnnotation] = []
 
+    @field_validator("filename")
+    def validate_filename(cls, v: str) -> Union[str, None]:
+        if v is None:
+            return v
+        elif re.match(r"^a_", v):
+            return v
+        else:
+            raise ValueError("'filename' should start with 'a_'")
+
     @field_validator("comments")
     def detect_target_repo_comments(cls, v: List[Comment]) -> Optional[List[Comment]]:
         target_repo_comments = [
             comment for comment in v if comment.name == TARGET_REPO_KEY
         ]
         if len(target_repo_comments) == 0:
-            raise ValueError("'target repository' comment is missing")
+            raise ValueError(f"'{TARGET_REPO_KEY}' comment is missing")
         elif len(target_repo_comments) > 1:
-            raise ValueError("Multiple 'target repository' comments found")
+            raise ValueError(f"Multiple '{TARGET_REPO_KEY}' comments found")
         else:
             if target_repo_comments[0].value in [
                 item.value for item in TargetRepository
@@ -208,7 +218,7 @@ class Assay(CommentedIsaBase):
                 return v
             else:
                 raise ValueError(
-                    f"Invalid 'target repository' value: '{target_repo_comments[0].value}'"
+                    f"Invalid '{TARGET_REPO_KEY}' value: '{target_repo_comments[0].value}'"
                 )
 
 
@@ -245,14 +255,14 @@ class MaterialAttribute(IsaBase):
 
 
 class Study(CommentedIsaBase):
-    id: Optional[str] = Field(alias="@id", default=None)
+    id: str = Field(alias="@id", default=None)
     assays: List[Assay] = []
     characteristicCategories: List[MaterialAttribute] = []
     description: Optional[str] = None
     factors: List[Factor] = []
     filename: Optional[str] = None
     identifier: Optional[str] = None
-    materials: Optional[StudyMaterialType]
+    materials: Optional[StudyMaterialType] = None
     people: List[Person] = []
     processSequence: List[Process] = []
     protocols: List[Protocol] = []
@@ -263,9 +273,18 @@ class Study(CommentedIsaBase):
     title: Optional[str] = None
     unitCategories: List[OntologyAnnotation] = []
 
+    @field_validator("filename")
+    def validate_filename(cls, v: str) -> Union[str, None]:
+        if v is None:
+            return v
+        elif re.match(r"^s_", v):
+            return v
+        else:
+            raise ValueError("'filename' should start with 's_'")
+
 
 class Investigation(CommentedIsaBase):
-    id: Optional[str] = Field(alias="@id", default=None)
+    id: str = Field(alias="@id", default=None)
     description: Optional[str] = None
     filename: Optional[str] = None
     identifier: Optional[str] = None
@@ -276,6 +295,15 @@ class Investigation(CommentedIsaBase):
     studies: List[Study] = []
     submissionDate: Optional[str] = None
     title: Optional[str] = None
+
+    @field_validator("filename")
+    def validate_filename(cls, v: str) -> Union[str, None]:
+        if v is None:
+            return v
+        elif re.match(r"^i_", v):
+            return v
+        else:
+            raise ValueError("'filename' should start with 'i_'")
 
 
 class IsaJson(IsaBase):

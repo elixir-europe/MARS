@@ -1,14 +1,10 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.model.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.model.Parameter;
-import com.elixir.biohackaton.ISAToSRA.model.ParameterValue;
-import com.elixir.biohackaton.ISAToSRA.model.Study;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
@@ -19,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class WebinExperimentXmlCreator {
   public static final String OTHER_MATERIAL_LIBRARY_NAME_DETERMINES_EXPERIMENT = "Library Name";
 
-  public Map<Integer, String> createENAExperimentSetElement(
+  public Map<String, String> createENAExperimentSetElement(
       final Map<String, String> typeToBioSamplesAccessionMap,
       final Element webinElement,
       final List<Study> studies,
@@ -113,15 +109,14 @@ public class WebinExperimentXmlCreator {
     return protocolToParameterMap;
   }
 
-  private Map<Integer, String> mapExperiments(
+  private Map<String, String> mapExperiments(
       final List<Study> studies,
       final Element root,
       final Map<String, List<Parameter>> protocolToParameterMap,
       final Map<String, String> bioSampleAccessions,
       final String randomSubmissionIdentifier) {
     final Map<String, List<ParameterValue>> protocolToParameterValuesMap = new HashMap<>();
-    final Map<Integer, String> experimentSequence = new HashMap<>();
-    final AtomicInteger sequenceCounter = new AtomicInteger(0);
+    final Map<String, String> experimentSequence = new HashMap<>();
 
     studies.forEach(
         study ->
@@ -136,11 +131,11 @@ public class WebinExperimentXmlCreator {
                                 otherMaterial -> {
                                   final Element experimentElement = root.addElement("EXPERIMENT");
                                   final String otherMaterialId = otherMaterial.getId();
+                                  final String experimentId =
+                                      otherMaterialId + "-" + randomSubmissionIdentifier;
 
-                                  experimentSequence.put(
-                                      sequenceCounter.incrementAndGet(), otherMaterialId);
-                                  experimentElement.addAttribute(
-                                      "alias", otherMaterialId + "-" + randomSubmissionIdentifier);
+                                  experimentSequence.put(otherMaterialId, experimentId);
+                                  experimentElement.addAttribute("alias", experimentId);
                                   experimentElement
                                       .addElement("TITLE")
                                       .addText(otherMaterial.getName());

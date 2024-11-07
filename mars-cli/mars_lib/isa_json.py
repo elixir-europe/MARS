@@ -22,21 +22,21 @@ from mars_lib.models.repository_response import (
 
 
 def reduce_isa_json_for_target_repo(
-    input_isa_json: Investigation, target_repo: str
-) -> Investigation:
+    input_isa_json: IsaJson, target_repo: str
+) -> IsaJson:
     """
     Filters out assays that are not meant to be sent to the specified target repository.
 
     Args:
-        input_isa_json (Investigation): Input ISA JSON that contains the original information.
+        input_isa_json (IsaJson): Input ISA JSON that contains the original information.
         target_repo (TargetRepository): Target repository as a constant.
 
     Returns:
-        Investigation: Filtered ISA JSON.
+        IsaJson: Filtered ISA JSON.
     """
     filtered_isa_json = input_isa_json.model_copy(deep=True)
     new_studies = []
-    studies = filtered_isa_json.studies
+    studies = filtered_isa_json.investigation.studies
     for study in studies:
         if target_repo == TargetRepository.BIOSAMPLES:
             filtered_assays = []
@@ -51,7 +51,7 @@ def reduce_isa_json_for_target_repo(
         study.assays = filtered_assays
         new_studies.append(study)
 
-    filtered_isa_json.studies = new_studies
+    filtered_isa_json.investigation.studies = new_studies
     return filtered_isa_json
 
 
@@ -64,6 +64,8 @@ def detect_target_repo_comment(comments: List[Comment]) -> Comment:
     Returns:
         Comment: The comment where the name corresponds with the name of the provided target repo.
     """
+    if len(comments) < 1:
+        raise ValueError("No comments found! Not able to detect the target repository!")
     return next(comment for comment in comments if comment.name == TARGET_REPO_KEY)
 
 
@@ -87,7 +89,7 @@ def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
 
 def load_isa_json(
     file_path: str, investigation_is_root: bool
-) -> Union[Investigation, ValidationError]:
+) -> Union[IsaJson, ValidationError]:
     """
     Reads the file and validates it as a valid ISA JSON.
 
@@ -96,15 +98,16 @@ def load_isa_json(
         investigation_is_root (bool): Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.
 
     Returns:
-        Union[Dict[str, str], ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
+        Union[IsaJson, ValidationError]: Depending on the validation, returns a filtered ISA JSON or a pydantic validation error.
     """
     with open(file_path, "r") as json_file:
         isa_json = json.load(json_file)
 
     if investigation_is_root:
-        return Investigation.model_validate(isa_json)
+        inv = Investigation.model_validate(isa_json)
+        return IsaJson(investigation=inv)
     else:
-        return IsaJson.model_validate(isa_json).investigation
+        return IsaJson.model_validate(isa_json)
 
 
 def get_filter_for_accession_key(accession: Accession, key: str) -> Optional[Filter]:
@@ -187,13 +190,15 @@ def accession_characteristic_present(
             f"'where' atribute is missing in path {material_type_path.key}."
         )
 
-    accession_characteristics = [
-        char
-        for char in material.characteristics
-        if char.category
-        and char.category.characteristicType
-        and char.category.characteristicType.annotationValue == "accession"
-    ]
+    accession_characteristics = []
+    for char in material.characteristics:
+        if char.category and char.category.characteristicType:
+            if char.category.characteristicType.annotationValue:
+                if char.category.characteristicType.annotationValue == "accession":
+                    accession_characteristics.append(char)
+            else:
+                if char.category.characteristicType == "accession":
+                    accession_characteristics.append(char)
 
     if len(accession_characteristics) > 1:
         raise AttributeError(
@@ -254,17 +259,12 @@ def add_accession_to_node(
     if not updated_material_accession_characteristic:
         raise ValueError("Accession characteristic is not present.")
 
-    if updated_material_accession_characteristic.value and hasattr(
-        updated_material_accession_characteristic.value, "annotationValue"
-    ):
-        accession_ontology_annotation = OntologyAnnotation()
-        accession_ontology_annotation.id = (
-            f"#ontology_annotation/accession_{updated_material.id}"
-        )
-        accession_ontology_annotation.annotationValue = accession_number
-        updated_material_accession_characteristic.value = accession_ontology_annotation
-    else:
-        updated_material_accession_characteristic.value = accession_number
+    accession_ontology_annotation = OntologyAnnotation()
+    accession_ontology_annotation.id = (
+        f"#ontology_annotation/accession_{updated_material.id}"
+    )
+    accession_ontology_annotation.annotationValue = accession_number
+    updated_material_accession_characteristic.value = accession_ontology_annotation
 
     updated_material.characteristics.append(updated_material_accession_characteristic)
     print(f"{updated_material.id}: {updated_material_accession_characteristic.value}.")
@@ -351,20 +351,18 @@ def create_accession_characteristic(
     updated_material.characteristics.append(new_material_attribute_value)
 
 
-def update_investigation(
-    investigation: Investigation, repo_response: RepositoryResponse
-) -> Investigation:
+def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> IsaJson:
     """
     Adds the accession to the ISA JSON.
 
     Args:
-        isa_json (Investigation): The ISA JSON to be updated.
+        isa_json (IsaJson): The ISA JSON to be updated.
         repo_response (RepositoryResponse): The response from the repository.
 
     Returns:
-        Investigation: The updated ISA JSON.
+        IsaJson: The updated ISA JSON.
     """
-    updated_investigation = investigation.model_copy(deep=True)
+    investigation = isa_json.investigation
     for accession in repo_response.accessions:
 
         has_assay_in_path = [p for p in accession.path if p.key == "assays"]
@@ -379,7 +377,7 @@ def update_investigation(
         if not study_filter:
             raise ValueError(f"Study filter is not present in {accession.path}.")
 
-        updated_node = apply_filter(study_filter, updated_investigation.studies)
+        updated_node = apply_filter(study_filter, investigation.studies)
 
         if target_level == "assay":
             assay_filter = get_filter_for_accession_key(accession, "assays")
@@ -406,4 +404,5 @@ def update_investigation(
 
         add_accession_to_node(updated_node, accession.value, material_type_path)
 
-    return updated_investigation
+    isa_json.investigation = investigation
+    return isa_json

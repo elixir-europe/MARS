@@ -1,7 +1,6 @@
 import json
 from typing import List, Optional
 from pydantic import BaseModel, field_validator, Field, ConfigDict
-import pydantic
 import pydantic.alias_generators
 from mars_lib.target_repo import TargetRepository
 
@@ -51,7 +50,7 @@ class RepositoryResponse(BaseModel):
     @field_validator("target_repository")
     def validate_target_repository(cls, v: str) -> str:
         if v not in [item.value for item in TargetRepository]:
-            raise ValueError(f"Invalid 'target repository' value: '{v}'")
+            raise ValueError(f"Invalid 'targetRepository' value: '{v}'")
         return v
 
     @classmethod
