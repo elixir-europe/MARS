@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-TARGET_REPO_KEY = "target repository"
+TARGET_REPO_KEY = "target_repository"
 
 
 class TargetRepository(str, Enum):
@@ -13,3 +13,7 @@ class TargetRepository(str, Enum):
     METABOLIGHTS = "metabolights"
     BIOSAMPLES = "biosamples"
     EVA = "eva"
+
+    @classmethod
+    def available_repositories(cls):
+        return {item.value for item in cls}

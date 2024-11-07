@@ -1,12 +1,12 @@
 {
   "investigation": {
-    "identifier": "",
+    "identifier": "investigation1",
     "title": "Bob's investigation",
     "description": "",
     "submissionDate": "",
     "publicReleaseDate": "",
     "ontologySourceReferences": [],
-    "filename": "Bob's investigation.txt",
+    "filename": "i_Bob's investigation.txt",
     "comments": [
       {
         "name": "ISAjson export time",
@@ -55,12 +55,12 @@
     ],
     "studies": [
       {
-        "identifier": "",
+        "identifier": "study1",
         "title": "Arabidopsis thaliana",
         "description": "Nucleic acid sequencing and metabolomics and proteomics of Arabidopsis thaliana in specific experimental conditions to test a specific hypothesis.\r\n",
         "submissionDate": "",
         "publicReleaseDate": "",
-        "filename": "Arabidopsis thaliana.txt",
+        "filename": "s_Arabidopsis thaliana.txt",
         "comments": [
           {
             "name": "SEEK Study ID",
@@ -220,11 +220,6 @@
                     "annotationValue": "plant 1",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -235,11 +230,6 @@
                     "annotationValue": "plant in the lab",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -250,11 +240,6 @@
                     "annotationValue": "NCBI:txid3702",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -265,11 +250,6 @@
                     "annotationValue": "Arabidopsis thaliana",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -280,11 +260,6 @@
                     "annotationValue": "na",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -295,11 +270,6 @@
                     "annotationValue": "budding",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -310,11 +280,6 @@
                     "annotationValue": "01/01/2022",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -325,11 +290,6 @@
                     "annotationValue": "seed",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -340,11 +300,6 @@
                     "annotationValue": "Bob",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -355,11 +310,6 @@
                     "annotationValue": "Belgium",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -370,11 +320,6 @@
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
@@ -385,26 +330,21 @@
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 },
                 {
                   "category": {
-                    "@id": "#characteristic_category/accession_329"
+                    "@id": "#characteristic_category/accession_329",
+                    "characteristicType": {
+                      "annotationValue": "accession",
+                      "termAccession": "",
+                      "termSource": ""
+                    }
                   },
                   "value": {
                     "annotationValue": "",
                     "termSource": "",
                     "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
                   }
                 }
               ]
@@ -420,23 +360,7 @@
                 }
               ],
               "characteristics": [],
-              "factorValues": [
-                {
-                  "category": {
-                    "@id": ""
-                  },
-                  "value": {
-                    "annotationValue": "",
-                    "termSource": "",
-                    "termAccession": ""
-                  },
-                  "unit": {
-                    "termSource": "",
-                    "termAccession": "",
-                    "comments": []
-                  }
-                }
-              ]
+              "factorValues": []
             }
           ]
         },
@@ -675,11 +599,11 @@
             ],
             "comments": [
               {
-                  "name": "target repository",
-                  "value": "ena"
+                "name": "target_repository",
+                "value": "ena"
               }
-              ],
-      "materials": {
+            ],
+            "materials": {
               "samples": [
                 {
                   "@id": "#sample/331"
@@ -689,7 +613,7 @@
                 {
                   "@id": "#other_material/332",
                   "name": "extract 1",
-                  "type": "Extract Name",
+                  "type": "library name",
                   "characteristics": [],
                   "derivesFrom": [
                     {
@@ -700,7 +624,7 @@
                 {
                   "@id": "#other_material/333",
                   "name": "library 1",
-                  "type": "Extract Name",
+                  "type": "library name",
                   "characteristics": [
                     {
                       "category": {
@@ -710,11 +634,6 @@
                         "annotationValue": "library 1",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -725,11 +644,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -740,11 +654,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     },
                     {
@@ -755,11 +664,6 @@
                         "annotationValue": "",
                         "termSource": "",
                         "termAccession": ""
-                      },
-                      "unit": {
-                        "termSource": "",
-                        "termAccession": "",
-                        "comments": []
                       }
                     }
                   ],
@@ -843,11 +747,6 @@
                       "annotationValue": "OTHER",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -858,11 +757,6 @@
                       "annotationValue": "OTHER",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -873,11 +767,6 @@
                       "annotationValue": "RT-PCR",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -888,11 +777,6 @@
                       "annotationValue": "SINGLE",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   },
                   {
@@ -903,11 +787,6 @@
                       "annotationValue": "100",
                       "termSource": "",
                       "termAccession": ""
-                    },
-                    "unit": {
-                      "termSource": "",
-                      "termAccession": "",
-                      "comments": []
                     }
                   }
                 ],
@@ -978,23 +857,27 @@
                 "type": "Raw Data File",
                 "comments": [
                   {
+                    "name": "file name",
+                    "value": "ENA_TEST2.R2.fastq.gz"
+                  },
+                  {
                     "name": "file type",
-                    "value": "bam"
+                    "value": "fastq"
                   },
                   {
                     "name": "file checksum",
-                    "value": "9840f585055afc37de353706fd31a377"
+                    "value": "69c903251902c1e0b75331f70e531012"
                   },
                   {
-                    "name": "submission date",
-                    "value": ""
-                  },
-                  {
-                    "name": "status",
-                    "value": ""
+                    "name": "checksum_method",
+                    "value": "MD5"
                   },
                   {
                     "name": "accession",
+                    "value": ""
+                  },
+                  {
+                    "name": "submission date",
                     "value": ""
                   }
                 ]

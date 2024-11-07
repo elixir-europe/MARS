@@ -4,7 +4,7 @@ import pathlib
 from configparser import ConfigParser
 from datetime import datetime
 from mars_lib.target_repo import TargetRepository
-from mars_lib.models.isa_json import Investigation, IsaJson
+from mars_lib.models.isa_json import IsaJson
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log
@@ -63,6 +63,11 @@ urls = {
                 "development-submission-url",
                 fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/submit",
             ),
+            "DATA-SUBMISSION": config.get(
+                "ena",
+                "development-data-submission-url",
+                fallback="webin2.ebi.ac.uk",
+            ),
         },
         "WEBIN": {
             "SERVICE": config.get(
@@ -100,6 +105,11 @@ urls = {
                 "ena",
                 "production-submission-url",
                 fallback="https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
+            ),
+            "DATA-SUBMISSION": config.get(
+                "ena",
+                "development-data-submission-url",
+                fallback="webin2.ebi.ac.uk",
             ),
         },
         "WEBIN": {
@@ -166,7 +176,24 @@ def cli(ctx, development):
     help="Name of a credentials file",
 )
 @click.argument("isa_json_file", type=click.File("r"))
+@click.option(
+    "--submit-to-biosamples",
+    type=click.BOOL,
+    default=True,
+    help="Submit to BioSamples.",
+)
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
+@click.option(
+    "--file-transfer",
+    type=click.STRING,
+    help="provide the name of a file transfer solution, like ftp or aspera",
+)
+@click.option(
+    "--data-files",
+    type=click.File("r"),
+    multiple=True,
+    help="Path of files to upload",
+)
 @click.option(
     "--submit-to-metabolights",
     type=click.BOOL,
@@ -179,6 +206,11 @@ def cli(ctx, development):
     type=click.BOOL,
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
+@click.option(
+    "--output",
+    type=click.STRING,
+    default=f"output_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+)
 @click.pass_context
 def submit(
     ctx,
@@ -186,20 +218,22 @@ def submit(
     username_credentials,
     credentials_file,
     isa_json_file,
+    submit_to_biosamples,
     submit_to_ena,
     submit_to_metabolights,
     investigation_is_root,
+    file_transfer,
+    output,
+    data_files,
 ):
     """Start a submission to the target repositories."""
-    target_repositories = [TargetRepository.BIOSAMPLES]
+    target_repositories = []
+
+    if submit_to_biosamples:
+        target_repositories.append(TargetRepository.BIOSAMPLES)
 
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
-        target_repositories.remove(TargetRepository.BIOSAMPLES)
-        print_and_log(
-            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
-            level="debug",
-        )
 
     if submit_to_metabolights:
         target_repositories.append(TargetRepository.METABOLIGHTS)
@@ -209,6 +243,9 @@ def submit(
     )
 
     urls_dict = ctx.obj["FILTERED_URLS"]
+
+    data_file_paths = [f.name for f in data_files] if file_transfer else []
+
     try:
         submission(
             credential_service_name,
@@ -218,6 +255,9 @@ def submit(
             target_repositories,
             investigation_is_root,
             urls_dict,
+            file_transfer,
+            output,
+            data_file_paths,
         )
     except requests.RequestException as err:
         tb = sys.exc_info()[2]  # Traceback value
