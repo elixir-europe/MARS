@@ -37,7 +37,7 @@ public class BioSampleSubmissionController {
                   @ApiResponse(responseCode = "408", description = "Request Timeout"),
                   @ApiResponse(responseCode = "415", description = "Unsupported media type")
           })
-  @CrossOrigin(origins = "http://localhost:8000")
+//  @CrossOrigin(origins = "http://localhost:8000")
   @PostMapping(
           value = "/submit",
           consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE})
