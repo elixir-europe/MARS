@@ -3,7 +3,7 @@ import re
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
-    update_investigation,
+    update_isa_json,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
@@ -44,12 +44,12 @@ def test_reduce_isa_json_for_target_repo():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json.investigation, TargetRepository.ENA
+        good_isa_json, TargetRepository.ENA
     )
 
     good_isa_json_study = good_isa_json.investigation.studies[0]
 
-    filtered_isa_json_study = filtered_isa_json.studies[0]
+    filtered_isa_json_study = filtered_isa_json.investigation.studies[0]
 
     assert len(good_isa_json_study.assays) == 5
     assert len(filtered_isa_json_study.assays) == 1
@@ -61,10 +61,10 @@ def test_reduce_isa_json_for_biosamples():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json.investigation, TargetRepository.BIOSAMPLES
+        good_isa_json, TargetRepository.BIOSAMPLES
     )
 
-    assert len(filtered_isa_json.studies[0].assays) == 0
+    assert len(filtered_isa_json.investigation.studies[0].assays) == 0
 
 
 def test_data_type_validator():
@@ -186,21 +186,23 @@ def test_update_study_materials_no_accession_categories():
     respose_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
     repo_response = RepositoryResponse.from_json_file(respose_file_path)
 
-    updated_investigation = update_investigation(
-        validated_isa_json.investigation, repo_response
-    )
+    updated_isa_json = update_isa_json(validated_isa_json, repo_response)
 
     # Check the accession number of the source
-    # Accession characteristic is of type String
     assert (
-        updated_investigation.studies[0].materials.sources[0].characteristics[-1].value
+        updated_isa_json.investigation.studies[0]
+        .materials.sources[0]
+        .characteristics[-1]
+        .value.annotationValue
         == repo_response.accessions[0].value
     )
 
     # Check the accession number of the sample
-    # Accession characteristic is of type String
     assert (
-        updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
+        updated_isa_json.investigation.studies[0]
+        .materials.samples[0]
+        .characteristics[-1]
+        .value.annotationValue
         == repo_response.accessions[1].value
     )
 
@@ -213,16 +215,13 @@ def test_update_study_materials_with_accession_categories():
 
     validated_isa_json = IsaJson.model_validate(json_data)
 
-    respose_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
-    repo_response = RepositoryResponse.from_json_file(respose_file_path)
+    response_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
+    repo_response = RepositoryResponse.from_json_file(response_file_path)
 
-    updated_investigation = update_investigation(
-        validated_isa_json.investigation, repo_response
-    )
+    updated_isa_json = update_isa_json(validated_isa_json, repo_response)
     # Check the accession number of the source
-    # Accession characteristic is of type OntologyAnnotation
     assert (
-        updated_investigation.studies[0]
+        updated_isa_json.investigation.studies[0]
         .materials.sources[0]
         .characteristics[-1]
         .value.annotationValue
@@ -230,9 +229,11 @@ def test_update_study_materials_with_accession_categories():
     )
 
     # Check the accession number of the sample
-    # Accession characteristic is of type String
     assert (
-        updated_investigation.studies[0].materials.samples[0].characteristics[-1].value
+        updated_isa_json.investigation.studies[0]
+        .materials.samples[0]
+        .characteristics[-1]
+        .value.annotationValue
         == repo_response.accessions[1].value
     )
 
