@@ -54,13 +54,19 @@ public class MarsReceiptService extends MarsReceiptProvider {
         getAliasAccessionPairs(
             Study.Fields.title,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
-        getAliasAccessionPairs(Sample.Fields.id, receipt.getSamples()),
+        null,
         null,
         getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
         getAliasAccessionPairs(DataFile.Fields.id, receipt.getRuns()),
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
+  }
+
+  private static String getPreRandomizedAlias(ReceiptObject receiptObject) {
+    // Convert Arabidopsis thaliana-0.49105604184136276 -> Arabidopsis thaliana
+    String alias = receiptObject.getAlias();
+    return alias.substring(0, alias.lastIndexOf("-"));
   }
 
   private ReceiptAccessionsMap getAliasAccessionPairs(
@@ -73,7 +79,9 @@ public class MarsReceiptService extends MarsReceiptProvider {
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
                     .filter(item -> item != null)
                     .collect(
-                        Collectors.toMap(ReceiptObject::getAlias, ReceiptObject::getAccession)));
+                        Collectors.toMap(
+                            MarsReceiptService::getPreRandomizedAlias,
+                            ReceiptObject::getAccession)));
       }
     };
   }

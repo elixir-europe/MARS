@@ -19,4 +19,12 @@ public class ReceiptAccessionsMap {
             }
         };
     }
+
+    public String toString() {
+        String result = "ReceiptAccessionsMap:" + keyName + "\n";
+        for (String key: accessionMap.keySet()) {
+            result += key + ":" + accessionMap.get(key) + "\n";
+        }
+        return result;
+    }
 }
