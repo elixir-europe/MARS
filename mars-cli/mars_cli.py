@@ -206,6 +206,11 @@ def cli(ctx, development):
     type=click.BOOL,
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
+@click.option(
+    "--output",
+    type=click.STRING,
+    default=f"output_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+)
 @click.pass_context
 def submit(
     ctx,
@@ -218,6 +223,7 @@ def submit(
     submit_to_metabolights,
     investigation_is_root,
     file_transfer,
+    output,
     data_files,
 ):
     """Start a submission to the target repositories."""
@@ -250,6 +256,7 @@ def submit(
             investigation_is_root,
             urls_dict,
             file_transfer,
+            output,
             data_file_paths,
         )
     except requests.RequestException as err:

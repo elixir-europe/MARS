@@ -30,7 +30,7 @@ from typing import List
 
 
 def save_step_to_file(time_stamp: float, filename: str, isa_json: IsaJson):
-    dir_path = f"tmp/{str(time_stamp)}"
+    dir_path = f"tmp/{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
     os.makedirs(dir_path, exist_ok=True)
 
     with open(f"{dir_path}/{filename}.json", "w") as f:
@@ -49,8 +49,9 @@ def submission(
     investigation_is_root: bool,
     urls: dict[str, Any],
     file_transfer: str,
+    output: str,
     data_file_paths=None,
-):
+) -> None:
     # If credential manager info found:
     # Get password from the credential manager
     # Else:
@@ -150,8 +151,9 @@ def submission(
         )
         # TODO: Update `isa_json`, based on the receipt returned
 
-    # TODO: Return the updated ISA JSON
-    return isa_json
+    # Return the updated ISA JSON
+    with open(f"{output}.json", "w") as f:
+        f.write(isa_json.model_dump_json(by_alias=True, exclude_none=True))
 
 
 def submit_to_biosamples(
