@@ -2,15 +2,19 @@
 
 In order to test the metadata submission to BioSamples and ENA, two Java Spring web services can be deployed, using docker. There is no compilation step necessary prior to deployment.
 
-## Deployment
+## Prerequisites
 
-Change to the correct directory:
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed on your system.
+
+## Deployment - Running the Docker Containers
+
+1. **Navigate** to the `repository-services` directory in your cloned repository.
 
 ```sh
 cd repository-test-services
 ```
 
-Use docker compose to deploy both services simultaneously:
+2. **Start the Docker containers** to deploy both services simultaneously:
  
  ```sh
  docker compose up

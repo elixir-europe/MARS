@@ -107,6 +107,7 @@ Options:
 
 Commands:
   health-check       Check the health of the target repositories.
+  set-password       Store a password in the keyring.
   submit             Start a submission to the target repositories.
   validate-isa-json  Validate the ISA JSON file.
 ```
@@ -121,23 +122,28 @@ Output:
 
 ```
 ➜ mars-cli submit --help
-############# Welcome to the MARS CLI. #############
-Running in Production environment
-Usage: mars-cli submit [OPTIONS] CREDENTIALS_FILE ISA_JSON_FILE
+Usage: mars-cli submit [OPTIONS] ISA_JSON_FILE
 
   Start a submission to the target repositories.
 
 Options:
-  -d, --development  Boolean indicating the usage of the development
-                     environment of the target repositories. If not present,
-                     the production instances will be used.
-  --help             Show this message and exit.
-
-Commands:
-  health-check       Check the health of the target repositories.
-  set-password       Store a password in the keyring.
-  submit             Start a submission to the target repositories.
-  validate-isa-json  Validate the ISA JSON file.
+  --output TEXT
+  --investigation-is-root BOOLEAN
+                                  Boolean indicating if the investigation is
+                                  the root of the ISA JSON. Set this to True
+                                  if the ISA-JSON does not contain a
+                                  'investigation' field.
+  --submit-to-metabolights BOOLEAN
+                                  Submit to Metabolights.
+  --data-files FILENAME           Path of files to upload
+  --file-transfer TEXT            provide the name of a file transfer
+                                  solution, like ftp or aspera
+  --submit-to-ena BOOLEAN         Submit to ENA.
+  --submit-to-biosamples BOOLEAN  Submit to BioSamples.
+  --credentials-file FILENAME     Name of a credentials file
+  --username-credentials TEXT     Username from the keyring
+  --credential-service-name TEXT  service name from the keyring
+  --help                          Show this message and exit.
 ```
 
 ## Development
@@ -161,10 +167,9 @@ Output:
 ############# Welcome to the MARS CLI. #############
 Running in Production environment
 Checking the health of the target repositories.
-Checking production instances.
-Webin (https://www.ebi.ac.uk/ena/submit/webin/auth) is healthy.
-ENA (https://www.ebi.ac.uk/ena/submit/webin-v2/) is healthy.
-Biosamples (https://www.ebi.ac.uk/biosamples/samples/) is healthy.
+Service 'webin' healthy and ready to use!
+Service 'ena' healthy and ready to use!
+Service 'biosamples' healthy and ready to use!
 ```
 
 ## using the keychain
@@ -191,7 +196,7 @@ Options:
 
 ## Submitting to repository services
 
-TODO
+The MARS-CLI tool is a powerful interface for submitting metadata and associated files to various biological repository services like ENA, BioSamples, and MetaboLights. This command-line tool is useful for managing and validating metadata submissions in a isa-json, as well as for automating aspects of repository submissions. Below are command line options for submitting to each of these repository services.
 
 ### Options
 
@@ -199,6 +204,13 @@ TODO
 
 ```sh
 mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
+```
+
+- `--file-transfer`: Provide the name of a file transfer solution, like ftp or aspera
+
+- `--data-file`: Paths of files to upload.
+```sh
+mars-cli submit --file-transfer ftp --data-files ../data/file_to_upload.fastq.gz my-credentials my-isa-json.json
 ```
 
 - `--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
@@ -214,6 +226,12 @@ the flag `--investigation-is-root` to `True` in order to validate the ISA-JSON.
 
 ```sh
 mars-cli submit --investigation-is-root True my-credentials my-isa-json.json
+```
+
+`--output`: By default "output_{datetime.now()}", the name of the isa final output.
+
+```sh
+mars-cli submit --output my-credentials my-isa-json.json
 ```
 
 ## Validation of the ISA JSON
@@ -380,35 +398,11 @@ public class BiosamplesIntegration {
     }
 }
 ````
-# Testing BioSamples submission using the local docer converter instance or a remote converter instance
+## Deploy repository services
 
-## Getting Started
+[To set up and run the MARS tool locally using Docker, follow these steps](../repository-services/README.md)
 
-To set up and run the MARS tool locally using Docker, follow these steps:
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed on your system.
-
-### Running the Docker Containers
-
-1. **Navigate** to the `repository-services` directory in your cloned repository.
-
-2. **Start the Docker containers** by running the following command:
-
-   ```bash
-   docker compose up
-   ```
-
-3. **Check the BioSamples submission service** by visiting:
-
-   ```
-   http://localhost:8032/isabiosamples/swagger-ui/index.html
-   ```
-
-   This URL will indicate if the BioSamples submission Docker container is up and running.
-
-### Configuration
+## Configuration
 
 To configure MARS for submissions, modify the configuration file `settings.ini` located at `~/.mars/settings.ini`. Ensure the following content is set:
 
@@ -432,7 +426,7 @@ production-url = https://www.ebi.ac.uk/biosamples/samples/
 production-submission-url = https://www.ebi.ac.uk/biosamples/samples/
 ```
 
-### Running MARS Submission
+## Running MARS Submission
 
 After configuring the `settings.ini` file, you can run the MARS CLI tool to submit data:
 
