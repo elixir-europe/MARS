@@ -13,3 +13,7 @@ class TargetRepository(str, Enum):
     METABOLIGHTS = "metabolights"
     BIOSAMPLES = "biosamples"
     EVA = "eva"
+
+    @classmethod
+    def available_repositories(cls):
+        return {item.value for item in cls}

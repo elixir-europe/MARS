@@ -200,6 +200,12 @@ def cli(ctx, development):
     help="Name of a credentials file",
 )
 @click.argument("isa_json_file", type=click.File("r"))
+@click.option(
+    "--submit-to-biosamples",
+    type=click.BOOL,
+    default=True,
+    help="Submit to BioSamples.",
+)
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
 @click.option(
     "--file-transfer",
@@ -212,12 +218,6 @@ def cli(ctx, development):
     multiple=True,
     help="Path of files to upload",
 )
-# @click.option(
-#     "--data-submit-to-ena",
-#     type=click.BOOL,
-#     default=False,
-#     help="Submit data files to ENA.",
-# )
 @click.option(
     "--submit-to-metabolights",
     type=click.BOOL,
@@ -230,6 +230,11 @@ def cli(ctx, development):
     type=click.BOOL,
     help="Boolean indicating if the investigation is the root of the ISA JSON. Set this to True if the ISA-JSON does not contain a 'investigation' field.",
 )
+@click.option(
+    "--output",
+    type=click.STRING,
+    default=f"output_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+)
 @click.pass_context
 def submit(
     ctx,
@@ -237,22 +242,22 @@ def submit(
     username_credentials,
     credentials_file,
     isa_json_file,
+    submit_to_biosamples,
     submit_to_ena,
     submit_to_metabolights,
     investigation_is_root,
     file_transfer,
+    output,
     data_files,
 ):
     """Start a submission to the target repositories."""
-    target_repositories = [TargetRepository.BIOSAMPLES]
+    target_repositories = []
+
+    if submit_to_biosamples:
+        target_repositories.append(TargetRepository.BIOSAMPLES)
 
     if submit_to_ena:
         target_repositories.append(TargetRepository.ENA)
-        target_repositories.remove(TargetRepository.BIOSAMPLES)
-        print_and_log(
-            f"Skipping {TargetRepository.BIOSAMPLES} repository due to {TargetRepository.ENA} being present in the list of repositories",
-            level="debug",
-        )
 
     if submit_to_metabolights:
         target_repositories.append(TargetRepository.METABOLIGHTS)
@@ -275,6 +280,7 @@ def submit(
             investigation_is_root,
             urls_dict,
             file_transfer,
+            output,
             data_file_paths,
         )
     except requests.RequestException as err:

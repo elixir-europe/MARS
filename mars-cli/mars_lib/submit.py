@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 from io import TextIOWrapper
 import time
 import requests
@@ -12,8 +14,13 @@ from mars_lib.biosamples_external_references import (
     input_json_schema_filepath,
 )
 from mars_lib.credential import CredentialManager
-from mars_lib.isa_json import load_isa_json
+from mars_lib.isa_json import (
+    load_isa_json,
+    reduce_isa_json_for_target_repo,
+    update_isa_json,
+)
 from mars_lib.models.isa_json import IsaJson
+from mars_lib.models.repository_response import RepositoryResponse
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
 from pydantic import ValidationError
@@ -21,6 +28,17 @@ from pydantic import ValidationError
 from mars_lib.ftp_upload import FTPUploader
 from pathlib import Path
 from typing import List
+
+
+def save_step_to_file(time_stamp: float, filename: str, isa_json: IsaJson):
+    dir_path = f"tmp/{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
+    os.makedirs(dir_path, exist_ok=True)
+
+    with open(f"{dir_path}/{filename}.json", "w") as f:
+        f.write(isa_json.model_dump_json(by_alias=True, exclude_none=True))
+
+
+DEBUG = os.getenv("MARS_DEBUG") in ["1", 1]
 
 
 def submission(
@@ -32,8 +50,9 @@ def submission(
     investigation_is_root: bool,
     urls: dict[str, Any],
     file_transfer: str,
+    output: str,
     data_file_paths=None,
-):
+) -> None:
     # If credential manager info found:
     # Get password from the credential manager
     # Else:
@@ -60,30 +79,18 @@ def submission(
         f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
     )
 
-    if (
-        TargetRepository.ENA in target_repositories
-        and data_file_paths
-        and file_transfer
-    ):
-        upload_to_ena(
-            file_paths=data_file_paths,
-            user_credentials=user_credentials,
-            submission_url=urls["ENA"]["DATA-SUBMISSION"],
-            file_transfer=file_transfer,
-        )
-    elif TargetRepository.ENA in target_repositories:
-        # TODO: Filter out other assays
-        ena_result = submit_to_ena(
-            isa_json=isa_json,
-            user_credentials=user_credentials,
-            submission_url=urls["ENA"]["SUBMISSION"],
-        )
-        print_and_log(
-            f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
-        )
-        # TODO: Update `isa_json`, based on the receipt returned
+    time_stamp = datetime.timestamp(datetime.now())
 
-    elif TargetRepository.BIOSAMPLES in target_repositories:
+    if DEBUG:
+        save_step_to_file(time_stamp, "0_Initial_ISA_JSON_in_model", isa_json)
+
+    if all(
+        repo not in TargetRepository.available_repositories()
+        for repo in target_repositories
+    ):
+        raise ValueError("No target repository selected.")
+
+    if TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
@@ -95,8 +102,41 @@ def submission(
             f"Submission to {TargetRepository.BIOSAMPLES} was successful. Result:\n{biosamples_result.json()}",
             level="info",
         )
-        # TODO: Update `isa_json`, based on the receipt returned
-    elif TargetRepository.METABOLIGHTS in target_repositories:
+        # Update `isa_json`, based on the receipt returned
+        bs_mars_receipt = RepositoryResponse.model_validate(
+            json.loads(biosamples_result.content)
+        )
+        isa_json = update_isa_json(isa_json, bs_mars_receipt)
+        if DEBUG:
+            save_step_to_file(time_stamp, "1_after_biosamples", isa_json)
+
+    if TargetRepository.ENA in target_repositories:
+        # Step 1 : upload data if file paths are provided
+        if data_file_paths and file_transfer:
+            upload_to_ena(
+                file_paths=data_file_paths,
+                user_credentials=user_credentials,
+                submission_url=urls["ENA"]["DATA-SUBMISSION"],
+                file_transfer=file_transfer,
+            )
+
+        # Step 2 : submit isa-json to ena
+        ena_result = submit_to_ena(
+            isa_json=isa_json,
+            user_credentials=user_credentials,
+            submission_url=urls["ENA"]["SUBMISSION"],
+        )
+        print_and_log(
+            f"Submission to {TargetRepository.ENA} was successful. Result:\n{ena_result.json()}"
+        )
+        # Update `isa_json`, based on the receipt returned
+        ena_mars_receipt = RepositoryResponse.from_json(str(ena_result.content))
+        isa_json = update_isa_json(isa_json, ena_mars_receipt)
+        if DEBUG:
+            save_step_to_file(time_stamp, "2_after_ena", isa_json)
+
+    if TargetRepository.METABOLIGHTS in target_repositories:
+        # Submit to MetaboLights
         metabolights_result = upload_to_metabolights(
             file_paths=data_file_paths,
             file_transfer=file_transfer,
@@ -105,22 +145,27 @@ def submission(
             metabolights_url=urls["METABOLIGHTS"]["SUBMISSION"],
             metabolights_token_url=urls["METABOLIGHTS"]["TOKEN"],
         )
+        # TODO: Filter out other assays
         print_and_log(
-            f"Submission to {TargetRepository.METABOLIGHTS} was successful. Result:\n{metabolights_result}",
+            f"Submission to {TargetRepository.METABOLIGHTS} was successful. Result:\n{metabolights_result.json()}",
             level="info",
         )
-        # TODO: Update `isa_json`, based on the receipt returned
-    elif TargetRepository.EVA in target_repositories:
+        metabolights_receipt = RepositoryResponse.from_json(str(metabolights_result.content))
+        isa_json = update_isa_json(isa_json, metabolights_receipt)
+        if DEBUG:
+            save_step_to_file(time_stamp, "3_after_metabolights", isa_json)
+
+    if TargetRepository.EVA in target_repositories:
         # Submit to EVA
         # TODO: Filter out other assays
         print_and_log(
             f"Submission to {TargetRepository.EVA} was successful.", level="info"
         )
         # TODO: Update `isa_json`, based on the receipt returned
-    else:
-        raise ValueError("No target repository selected.")
 
-    # TODO: Return the updated ISA JSON
+    # Return the updated ISA JSON
+    with open(f"{output}.json", "w") as f:
+        f.write(isa_json.model_dump_json(by_alias=True, exclude_none=True))
 
 
 def submit_to_biosamples(
@@ -139,7 +184,9 @@ def submit_to_biosamples(
         biosamples_url,
         headers=headers,
         params=params,
-        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+        json=reduce_isa_json_for_target_repo(
+            isa_json, TargetRepository.BIOSAMPLES
+        ).model_dump(by_alias=True, exclude_none=True),
     )
 
     if result.status_code != 200:
@@ -212,9 +259,9 @@ def upload_to_metabolights(
         raise ValueError(f"Validation failed after {max_pool_count} iterations")
     
     if validation_status_response:
-        return validation_status_response.text  
+        return validation_status_response
         
-    return None
+    raise ValueError(f"Submission failed for MetaboLights")
 
 def find_value_in_info_section(key: str, info_section: list[Any], fail_gracefully: bool = False) -> Any:
     for info in info_section:
@@ -238,7 +285,9 @@ def submit_to_ena(
         submission_url,
         headers=headers,
         params=params,
-        json=isa_json.model_dump(by_alias=True, exclude_none=True),
+        json=reduce_isa_json_for_target_repo(isa_json, TargetRepository.ENA).model_dump(
+            by_alias=True, exclude_none=True
+        ),
     )
 
     if result.status_code != 200:
