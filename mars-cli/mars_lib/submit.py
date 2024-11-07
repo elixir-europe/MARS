@@ -118,9 +118,7 @@ def submission(
                 submission_url=urls["ENA"]["DATA-SUBMISSION"],
                 file_transfer=file_transfer,
             )
-        print_and_log(
-            f"Start submitting to {TargetRepository.ENA}.", level='debug'
-        )
+        print_and_log(f"Start submitting to {TargetRepository.ENA}.", level="debug")
 
         # Step 2 : submit isa-json to ena
         ena_result = submit_to_ena(
@@ -133,7 +131,8 @@ def submission(
         )
 
         print_and_log(
-            f"Update ISA-JSON based on receipt from {TargetRepository.ENA}.", level='debug'
+            f"Update ISA-JSON based on receipt from {TargetRepository.ENA}.",
+            level="debug",
         )
         ena_mars_receipt = RepositoryResponse.model_validate(
             json.loads(ena_result.content)
