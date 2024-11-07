@@ -974,7 +974,7 @@
             "dataFiles": [
               {
                 "@id": "#data/334",
-                "name": "fake2.bam",
+                "name": "ENA_TEST2.R2.fastq.gz",
                 "type": "Raw Data File",
                 "comments": [
                   {
