@@ -88,17 +88,6 @@ def submission(
     ):
         raise ValueError("No target repository selected.")
 
-    if (
-        TargetRepository.ENA in target_repositories
-        and data_file_paths
-        and file_transfer
-    ):
-        upload_to_ena(
-            file_paths=data_file_paths,
-            user_credentials=user_credentials,
-            submission_url=urls["ENA"]["DATA-SUBMISSION"],
-            file_transfer=file_transfer,
-        )
     if TargetRepository.BIOSAMPLES in target_repositories:
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
