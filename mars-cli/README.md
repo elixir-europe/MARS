@@ -203,7 +203,7 @@ The MARS-CLI tool is a powerful interface for submitting metadata and associated
 #### Biosamples submissions 
 `--submit-to-biosamples`: By default set to `True`. Will try submit ISA-JSON metadata towards Biosamples. Setting it to `False` will skip sending the ISA-JSON's metadata to Biosamples.
 
-Following command line will avoid submission to Biosamples repository:
+> **Note**: Following command line will avoid submission to Biosamples repository:
 ```sh
 mars-cli submit  --submit-to-biosamples False my-credentials my-isa-json.json
 ```
@@ -211,7 +211,7 @@ mars-cli submit  --submit-to-biosamples False my-credentials my-isa-json.json
 #### ENA submissions 
 `--submit-to-ena`: By default set to `True`. Will try submit ISA-JSON metadata towards ENA. Setting it to `False` will skip sending the ISA-JSON's metadata to ENA.
 
-Following command line will avoid submission to ENA repository:
+> **Note**: Following command line will avoid submission to ENA repository:
 ```sh
 mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
 ```
@@ -220,12 +220,14 @@ mars-cli submit --submit-to-ena False my-credentials my-isa-json.json
 
 `--data-file`: Paths of files to upload.
 
-Following command line will submit isa-file and data-file using FTP solution to Biosamples and  ENA:
+> **Note**: Following command line will submit isa-file and data-file using FTP solution to Biosamples and  ENA:
 ```sh
 mars-cli submit --submit-to-metabolights False --file-transfer ftp --data-files ../data/file_to_upload.fastq.gz my-credentials my-isa-json.json
 ```
 
-#### Metabolights submissions 
+#### Metabolights submissions
+> **Status**: 🚧 To Be Developed
+
 `--submit-to-metabolights`: By default set to `True`. Will try to submit ISA-JSON metadata towards Metabolights.
   Setting it to `False` will skip sending the ISA-JSON's metadata to Metabolights.
 
