@@ -1,3 +1,4 @@
+import io
 import os
 from datetime import datetime
 from io import TextIOWrapper
@@ -19,7 +20,7 @@ from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     update_isa_json,
 )
-from mars_lib.models.isa_json import IsaJson
+from mars_lib.models.isa_json import Comment, IsaJson
 from mars_lib.models.repository_response import RepositoryResponse
 from mars_lib.target_repo import TargetRepository
 from mars_lib.logging import print_and_log
@@ -145,13 +146,19 @@ def submission(
             metabolights_url=urls["METABOLIGHTS"]["SUBMISSION"],
             metabolights_token_url=urls["METABOLIGHTS"]["TOKEN"],
         )
-        # TODO: Filter out other assays
+        metabolights_receipt_obj = metabolights_result.json()
         print_and_log(
-            f"Submission to {TargetRepository.METABOLIGHTS} was successful. Result:\n{metabolights_result.json()}",
+            f"Submission to {TargetRepository.METABOLIGHTS} was successful. Result:\n{metabolights_receipt_obj}",
             level="info",
         )
-        metabolights_receipt = RepositoryResponse.from_json(str(metabolights_result.content))
-        isa_json = update_isa_json(isa_json, metabolights_receipt)
+        metabolights_receipt = RepositoryResponse.model_validate(metabolights_receipt_obj)
+        #TODO: MetaboLights creates accession number with errors. Errors are not handled.
+        isa_json.investigation.studies[0].comments.append(
+            Comment(
+                name="metabolights_accession",
+                value=metabolights_receipt.accessions[0].value
+            )
+        )
         if DEBUG:
             save_step_to_file(time_stamp, "3_after_metabolights", isa_json)
 
@@ -217,43 +224,60 @@ def upload_to_metabolights(
     token = get_metabolights_auth_token(
             metabolights_credentials, auth_url=metabolights_token_url
     )
-    headers = {"accept": "*/*", "Content-Type": "application/json", 'Authorization': f'Bearer {token}',}
-    result = requests.post(
-        metabolights_url,
-        headers=headers,
-        json=isa_json.model_dump(by_alias=True, exclude_none=True),
-    )
-    result.raise_for_status()
+    headers = {"accept": "application/json", 'Authorization': f'Bearer {token}',}
+    isa_json_str = isa_json.investigation.model_dump_json(by_alias=True, exclude_none=True)
+    json_file = io.StringIO(isa_json_str)
+
+    files = {
+        'isa_json_file': ('isa_json.json', json_file)
+    }
+    result = None
+    try:
+        submission_response = requests.post(
+            metabolights_url,
+            headers=headers,
+            files=files,
+            timeout=120,
+        )
+        submission_response.raise_for_status()
+        result = submission_response.json()
+    except Exception as exc:
+        raise exc
+    
     validation_url = find_value_in_info_section("validation-url", result["info"])
     validation_status_url = find_value_in_info_section("validation-status-url", result["info"])
     ftp_credentials_url = find_value_in_info_section("ftp-credentials-url", result["info"])
     
     if file_transfer == "ftp":
-        ftp_credentials_url = find_value_in_info_section("validation-url", result["info"])
         ftp_credentials_response = requests.get(ftp_credentials_url, headers=headers)
         ftp_credentials_response.raise_for_status()
         ftp_credentials = ftp_credentials_response.json()
         ftp_base_path = ftp_credentials["ftpPath"]
         uploader = FTPUploader(
             ftp_credentials["ftpHost"],
-            ftp_credentials["ftpUsername"],
+            ftp_credentials["ftpUser"],
             ftp_credentials["ftpPassword"],
         )
-        
-        uploader.upload(file_paths, target_location=ftp_base_path)
+        # TODO: Update after the uploader is implemented/tested
+        # uploader.upload(file_paths, target_location=ftp_base_path)
     
-    validation_response = requests.get(validation_url, headers=headers)
+    validation_response = requests.post(validation_url, headers=headers)
     validation_response.raise_for_status()
     pool_time_in_seconds = 10
     max_pool_count = 100
     validation_status_response = None
     for _ in range(max_pool_count):
-        validation_status_response = requests.get(validation_status_url, headers=headers)
-        validation_status_response.raise_for_status()
-        validation_status = validation_status_response.json()
-        validation_time = find_value_in_info_section("validation-time", validation_status["info"], fail_gracefully=True)
-        if validation_time:
-            break
+        timeout = False
+        try:
+            validation_status_response = requests.get(validation_status_url, headers=headers, timeout=30)
+            validation_status_response.raise_for_status()
+        except requests.exceptions.Timeout:
+            timeout = True
+        if not timeout:
+            validation_status = validation_status_response.json()
+            validation_time = find_value_in_info_section("validation-time", validation_status["info"], fail_gracefully=True)
+            if validation_time:
+                break
         time.sleep(pool_time_in_seconds)
     else:
         raise ValueError(f"Validation failed after {max_pool_count} iterations")

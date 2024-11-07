@@ -87,6 +87,11 @@ urls = {
                 "development-url",
                 fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
             ),
+            "SUBMISSION": config.get(
+                "metabolights",
+                "development-submission-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
+            ),
             "TOKEN": config.get(
                 "metabolights",
                 "development-token-url",
@@ -140,6 +145,11 @@ urls = {
             "SERVICE": config.get(
                 "metabolights",
                 "production-url",
+                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
+            ),
+            "SUBMISSION": config.get(
+                "metabolights",
+                "production-submission-url",
                 fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
             ),
             "TOKEN": config.get(
@@ -263,7 +273,7 @@ def submit(
         target_repositories.append(TargetRepository.METABOLIGHTS)
 
     print_and_log(
-        f"Staring submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
+        f"Starting submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."
     )
 
     urls_dict = ctx.obj["FILTERED_URLS"]
@@ -312,7 +322,7 @@ def health_check(ctx):
     print_and_log("Checking the health of the target repositories.")
 
     filtered_urls = ctx.obj["FILTERED_URLS"]
-    for repo in ["WEBIN", "ENA", "BIOSAMPLES"]:
+    for repo in ["WEBIN", "ENA", "BIOSAMPLES", "METABOLIGHTS"]:
         repo_url = filtered_urls[repo]["SERVICE"]
         try:
             health_response = requests.get(repo_url)

@@ -45,8 +45,8 @@ def get_webin_auth_token(
 
 def get_metabolights_auth_token(
     credentials_dict: dict[str, str],
-    headers: dict[str, str] = {"Content-Type": "application/json"},
-    auth_url: str = "https://www-test.ebi.ac.uk/metabolights/mars/auth/token",
+    headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"},
+    auth_url: str = "https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
 ) -> Optional[str]:
     """
     Obtain Webin authentication token.
@@ -59,21 +59,23 @@ def get_metabolights_auth_token(
     Returns:
     str: The obtained token.
     """
+    headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+    form_data = f'grant_type=password&username={credentials_dict["username"]}&password={credentials_dict["password"]}'
     try:
         response = requests.post(
             auth_url,
             headers=headers,
-            json={"username": credentials_dict["username"], "password": credentials_dict["password"]},
-            timeout=5,
+            data=form_data,
+            timeout=20,
         )
         response.raise_for_status()
 
     except Exception as ex:
         raise ex
     
-    response_content = response.content.decode("utf-8")
-    if response and "Jwt" in response.headers and response.headers["Jwt"]:
-        return response.headers["Jwt"]
+    response_content = response.json()
+    if response and "access_token" in response_content and response_content["access_token"]:
+        return response_content["access_token"]
     else:
         error_message = f"ERROR when generating token. See response's content below:\n{response_content}"
         raise Exception(error_message)
