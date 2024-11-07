@@ -14,12 +14,13 @@ public class WebinRunXmlCreator {
   public void createENARunSetElement(
       final Element webinElement,
       final List<Study> studies,
-      final Map<Integer, String> experimentSequenceMap,
+      final Map<String, String> experimentSequenceMap,
       final String randomSubmissionIdentifier) {
-    final String lastExperimentId =
-        experimentSequenceMap.get(
-            Collections.max(experimentSequenceMap.entrySet(), Map.Entry.comparingByValue())
-                .getKey());
+    final String lastExperimentKeyInRawFile =
+        Collections.max(experimentSequenceMap.entrySet(), Map.Entry.comparingByKey()).getKey();
+    final String lastExperimentIdGenerated =
+        Collections.max(experimentSequenceMap.entrySet(), Map.Entry.comparingByKey()).getValue();
+
     final Element runSetElement = webinElement.addElement("RUN_SET");
 
     studies.forEach(
@@ -37,7 +38,7 @@ public class WebinRunXmlCreator {
                       runElement.addElement("TITLE").addText(assayId);
                       runElement
                           .addElement("EXPERIMENT_REF")
-                          .addAttribute("refname", lastExperimentId);
+                          .addAttribute("refname", lastExperimentIdGenerated);
 
                       final AtomicReference<Output> dataFileOutput = new AtomicReference<>();
                       assay
@@ -48,7 +49,7 @@ public class WebinRunXmlCreator {
                                       .getInputs()
                                       .forEach(
                                           input -> {
-                                            if (input.getId().equals(lastExperimentId)) {
+                                            if (input.getId().equals(lastExperimentKeyInRawFile)) {
                                               dataFileOutput.set(
                                                   processSequence.getOutputs().get(0));
                                             }

@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class WebinHttpSubmissionService {
   final RestTemplate restTemplate = new RestTemplate();
   private static final String webinSubmissionUrl =
-      "https://wwwdev.ebi.ac.uk/ena/dev/submit/webin-v2/submit";
+      "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit";
 
   public String performWebinSubmission(
       final String submissionAccountId, final String webinXml, final String webinPassword) {
