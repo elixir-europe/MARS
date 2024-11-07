@@ -853,7 +853,7 @@
             "dataFiles": [
               {
                 "@id": "#data/334",
-                "name": "RD file 1b",
+                "name": "ENA_TEST2.R2.fastq.gz",
                 "type": "Raw Data File",
                 "comments": [
                   {

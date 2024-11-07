@@ -94,7 +94,9 @@ public class BioSamplesSubmitter {
     final BioSample bioSample = new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
         .withRelease(Instant.now())
         .withAttributes(
-            Collections.singletonList(Attribute.build("organism", parentSampleOrganism)))
+            List.of(Attribute.build("organism", parentSampleOrganism),
+                    Attribute.build("collection date", "not provided"),
+                    Attribute.build("geographic location (country and/or sea)", "not provided")))
         .build();
     try {
       final EntityModel<BioSample> persistedSampleEntity = this.createSampleInBioSamples(bioSample, webinToken);
@@ -147,7 +149,9 @@ public class BioSamplesSubmitter {
 
                   final BioSample sourceSample = new BioSample.Builder(source.getName())
                       .withRelease(Instant.now())
-                      .withAttributes(Collections.singleton(organismAttribute.get()))
+                      .withAttributes(List.of(organismAttribute.get(),
+                              Attribute.build("collection date", "not provided"),
+                              Attribute.build("geographic location (country and/or sea)", "not provided")))
                       .build();
                   final EntityModel<BioSample> persistedParentSampleEntity = this.createSampleInBioSamples(sourceSample,
                       webinToken);
