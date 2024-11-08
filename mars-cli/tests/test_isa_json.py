@@ -1,7 +1,5 @@
 import re
-from wsgiref.validate import assert_
 
-from black import assert_equivalent
 
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
@@ -244,13 +242,13 @@ def test_update_study_materials_with_accession_categories():
 
 def test_filename_validation():
     # ISA should have a filename that starts with 'x_'
-    with pytest.raises(ValidationError, match=f"'filename' should start with 'i_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 'i_'"):
         Investigation.model_validate({"@id": "1", "filename": "bad filename"})
 
-    with pytest.raises(ValidationError, match=f"'filename' should start with 's_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 's_'"):
         Study.model_validate({"@id": "2", "filename": "bad filename"})
 
-    with pytest.raises(ValidationError, match=f"'filename' should start with 'a_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 'a_'"):
         Assay.model_validate({"@id": "3", "filename": "bad filename"})
 
     assert re.match(r"^i_", "i_Good_file_name")

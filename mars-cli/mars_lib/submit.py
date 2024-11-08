@@ -5,7 +5,7 @@ from io import TextIOWrapper
 import time
 import requests
 import json
-from typing import Any
+from typing import Optional, Any
 from mars_lib.authentication import get_metabolights_auth_token, get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -19,6 +19,7 @@ from mars_lib.isa_json import (
     load_isa_json,
     reduce_isa_json_for_target_repo,
     update_isa_json,
+    map_data_files_to_repositories,
 )
 from mars_lib.models.isa_json import Comment, IsaJson
 from mars_lib.models.repository_response import RepositoryResponse
@@ -52,7 +53,7 @@ def submission(
     urls: dict[str, Any],
     file_transfer: str,
     output: str,
-    data_file_paths=None,
+        data_file_paths: Optional[List[TextIOWrapper]] = None,
 ) -> None:
     # If credential manager info found:
     # Get password from the credential manager
@@ -78,6 +79,11 @@ def submission(
 
     print_and_log(
         f"ISA JSON with investigation '{isa_json.investigation.title}' is valid."
+    )
+
+    # create data file map
+    data_file_map = map_data_files_to_repositories(
+        files=[str(dfp) for dfp in data_file_paths], isa_json=isa_json
     )
 
     time_stamp = datetime.timestamp(datetime.now())
@@ -115,7 +121,7 @@ def submission(
         # Step 1 : upload data if file paths are provided
         if data_file_paths and file_transfer:
             upload_to_ena(
-                file_paths=data_file_paths,
+                file_paths=[Path(df) for df in data_file_map[TargetRepository.ENA]],
                 user_credentials=user_credentials,
                 submission_url=urls["ENA"]["DATA-SUBMISSION"],
                 file_transfer=file_transfer,
@@ -146,7 +152,7 @@ def submission(
     if TargetRepository.METABOLIGHTS in target_repositories:
         # Submit to MetaboLights
         metabolights_result = upload_to_metabolights(
-            file_paths=data_file_paths,
+            file_paths=data_file_map[TargetRepository.ENA],
             file_transfer=file_transfer,
             isa_json=isa_json,
             metabolights_credentials=user_credentials,
