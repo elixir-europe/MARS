@@ -263,15 +263,11 @@ def test_map_data_files_to_repositories():
         file_path="../test-data/ISA-BH2024-ALL/isa-bh2024-all.json",
         investigation_is_root=True,
     )
-    data_files = [
+    exact_match_files = [
         "../test-data/ISA-BH2024-ALL/cnv-seq-data-0.fastq",
         "../test-data/ISA-BH2024-ALL/cnv-seq-data-1.fastq",
         "../test-data/ISA-BH2024-ALL/cnv-seq-data-2.fastq",
         "../test-data/ISA-BH2024-ALL/cnv-seq-data-3.fastq",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-0.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-1.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-2.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-3.vcf",
         "../test-data/ISA-BH2024-ALL/metpro-analysis.txt",
         "../test-data/ISA-BH2024-ALL/ms-data-metpro--1.mzml",
         "../test-data/ISA-BH2024-ALL/ms-data-metpro--2.mzml",
@@ -281,7 +277,6 @@ def test_map_data_files_to_repositories():
         "../test-data/ISA-BH2024-ALL/rna-seq-data-1.fastq",
         "../test-data/ISA-BH2024-ALL/rna-seq-data-2.fastq",
         "../test-data/ISA-BH2024-ALL/rna-seq-data-3.fastq",
-        "../test-data/ISA-BH2024-ALL/rna-seq-DEA.txt",
     ]
 
     check_map = dict(
@@ -307,32 +302,22 @@ def test_map_data_files_to_repositories():
             ],
         }
     )
-    print(
-        f"\n\ndata files map: {map_data_files_to_repositories(data_files, isa_json)}\n\n"
-    )
-    assert check_map == map_data_files_to_repositories(data_files, isa_json)
+    assert check_map == map_data_files_to_repositories(exact_match_files, isa_json)
 
-    bad_match_files = data_files = [
-        "../test-data/ISA-BH2024-ALL/cnv-seq-data-0.fastq",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-data-1.fastq",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-data-2.fastq",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-data-3.fastq",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-0.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-1.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-2.vcf",
-        "../test-data/ISA-BH2024-ALL/cnv-seq-derived-data-3.vcf",
-        "../test-data/ISA-BH2024-ALL/ms-data-metpro--1.mzml",
-        "../test-data/ISA-BH2024-ALL/ms-data-metpro--2.mzml",
-        "../test-data/ISA-BH2024-ALL/ms-data-metpro--3.mzml",
-        "../test-data/ISA-BH2024-ALL/ms-data-metpro--4.mzml",
-        "../test-data/ISA-BH2024-ALL/rna-seq-data-0.fastq",
-        "../test-data/ISA-BH2024-ALL/rna-seq-data-1.fastq",
-        "../test-data/ISA-BH2024-ALL/rna-seq-data-2.fastq",
-        "../test-data/ISA-BH2024-ALL/rna-seq-data-3.fastq",
-        "../test-data/ISA-BH2024-ALL/rna-seq-DEA.txt",
-    ]
+    not_enough_files = exact_match_files[:-1]
 
     with pytest.raises(
-        ValueError, match=r"Assay for repository 'metabolights' has encountered"
+        ValueError,
+        match=rf"Assay for repository '{TargetRepository.ARRAYEXPRESS}' has encountered",
     ):
-        map_data_files_to_repositories(bad_match_files, isa_json)
+        map_data_files_to_repositories(not_enough_files, isa_json)
+
+    too_many_files = exact_match_files
+    one_too_many = "../test-data/ISA-BH2024-ALL/one-too-many.fastq"
+    too_many_files.append(one_too_many)
+
+    result_maps = map_data_files_to_repositories(too_many_files, isa_json)
+
+    assert one_too_many not in [
+        value for key, value_list in result_maps.items() for value in value_list
+    ]

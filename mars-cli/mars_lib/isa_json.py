@@ -1,5 +1,7 @@
 import json
 from typing import Union, List, Any, Tuple, Optional, Dict
+
+from mars_lib.logging import print_and_log
 from mars_lib.models.isa_json import (
     Investigation,
     Assay,
@@ -432,6 +434,7 @@ def map_data_files_to_repositories(
     ]
 
     files_dicts = [{"full_name": f, "short_name": f.split("/")[-1]} for f in files]
+    remaining_files = files_dicts.copy()
     for assay in assays:
         target_repo_comment: Comment = detect_target_repo_comment(assay.comments)
         # This is an effect of everything being optional in the Comment model.
@@ -441,6 +444,9 @@ def map_data_files_to_repositories(
                 f"At least one assay in the ISA-JSON has no '{TARGET_REPO_KEY}' comment. Mapping not possible. Make sure all assays in the ISA-JSON have this comment!"
             )
         assay_data_files = [df.name for df in assay.dataFiles]
+
+        # Check if the files in the ISA-JSON are present in the command
+        # If not, raise an error
         for adf in assay_data_files:
             if adf not in [fd["short_name"] for fd in files_dicts]:
                 raise ValueError(
@@ -449,11 +455,23 @@ def map_data_files_to_repositories(
                 {files}
                 Please correct the mismatch!"""
                 )
+            else:
+                remaining_files.remove(
+                    next(fd for fd in files_dicts if fd["short_name"] == adf)
+                )
 
         df_map[target_repo_comment.value] = [
             fd["full_name"]
             for fd in files_dicts
             if fd["short_name"] in assay_data_files
         ]
+
+    [
+        print_and_log(
+            msg=f"File '{rf['short_name']}' could not be mapped to any data file in the ISA-JSON. For this reason, it will be skipped during submission!",
+            level="warning",
+        )
+        for rf in remaining_files
+    ]
 
     return df_map
