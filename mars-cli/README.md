@@ -351,6 +351,14 @@ python mars_cli.py --development submit --submit-to-metabolights False --submit-
 python mars_cli.py --credential-service-name biosamples  --username-credentials <username> --file-transfer ftp --data-files ../data/ENA_data.R1.fastq.gz --submit-to-metabolights False --output final-isa ../data/biosamples-input-isa.json
 ```
 
+### Submit data files and isa-json to Metabolights
+
+Work in progress, currently data transfer is not supported yet.
+
+```bash
+python mars_cli.py --credential-service-name metabolights  --username-credentials <username> --file-transfer ftp --data-files ../data/ISA-BH2024-ALL/metpro-analysis.txt <additional *.mzml data files> --submit-to-biosamples False --submit-to-ena False --output final-isa ../data/metabolights-input-isa.json
+```
+
 ## Deploy repository services
 
 [To set up and run the MARS tool locally using Docker, follow these steps](../repository-services/README.md)
