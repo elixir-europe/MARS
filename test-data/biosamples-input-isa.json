@@ -152,7 +152,7 @@
           {
             "@id": "#characteristic_category/collection_date_323",
             "characteristicType": {
-              "annotationValue": "collection_date",
+              "annotationValue": "collection date",
               "termAccession": "",
               "termSource": ""
             }

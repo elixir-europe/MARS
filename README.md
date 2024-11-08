@@ -96,7 +96,7 @@ Track the status of each repository here:
 | Repository | Programmatic submission | Development status | Deployed? | Source code |
 |---|---|---|---|---|
 | [BioSamples](https://www.ebi.ac.uk/biosamples/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-biosamples) |
-| [ENA](https://www.ebi.ac.uk/ena/browser/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-json) |
+| [ENA](https://www.ebi.ac.uk/ena/browser/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-ena) |
 | [MetaboLights](https://www.ebi.ac.uk/metabolights/) | NA | Not started | no |  |
 | [BioStudies/ArrayExpress](https://www.ebi.ac.uk/biostudies/arrayexpress) | yes, in dev | Not started | no |  |
 | [e!DAL-PGP](https://edal-pgp.ipk-gatersleben.de/) | NA | Not started | no |  |

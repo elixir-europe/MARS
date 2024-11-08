@@ -280,39 +280,18 @@ def submit(
 
     data_file_paths = [f.name for f in data_files] if file_transfer else []
 
-    try:
-        submission(
-            credential_service_name,
-            username_credentials,
-            credentials_file,
-            isa_json_file.name,
-            target_repositories,
-            investigation_is_root,
-            urls_dict,
-            file_transfer,
-            output,
-            data_file_paths,
-        )
-    except requests.RequestException as err:
-        tb = sys.exc_info()[2]  # Traceback value
-        print_and_log(
-            f"Request to repository could not be made.\n{err.with_traceback(tb)}",
-            level="error",
-        )
-
-    except ValidationError as err:
-        tb = sys.exc_info()[2]  # Traceback value
-        print_and_log(
-            f"A validation error occurred while reading the ISA JSON. Please correct the following mistakes:\n{err.with_traceback(tb)}",
-            level="error",
-        )
-
-    except Exception as err:
-        tb = sys.exc_info()[2]  # Traceback value
-        print_and_log(
-            f"Unexpected error occurred during submission.\n{err.with_traceback(tb)}",
-            level="error",
-        )
+    submission(
+        credential_service_name,
+        username_credentials,
+        credentials_file,
+        isa_json_file.name,
+        target_repositories,
+        investigation_is_root,
+        urls_dict,
+        file_transfer,
+        output,
+        data_file_paths,
+    )
 
 
 @cli.command()

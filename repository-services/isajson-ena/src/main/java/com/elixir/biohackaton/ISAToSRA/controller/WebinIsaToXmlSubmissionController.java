@@ -106,6 +106,8 @@ public class WebinIsaToXmlSubmissionController {
         webinHttpSubmissionService.performWebinSubmission(
             webinUserName, document.asXML(), webinPassword);
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
+    System.out.println(receiptXml);
+    System.out.println(receiptJson);
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 
     return marsReceiptService.convertMarsReceiptToJson(marsReceipt);
