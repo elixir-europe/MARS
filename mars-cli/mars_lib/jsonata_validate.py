@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Validate JSON data using JSONata expressions from a CSV file.')
     
     # Define command-line arguments
-    parser.add_argument('--filepath', type=str, required=True, help='Path to the JSON file to be validated.')
+    parser.add_argument('filepath', type=str, help='Path to the JSON file to be validated.')
     parser.add_argument('--table_url', type=str, required=False, help='URL of the CSV file containing JSONata expressions.', default='https://docs.google.com/spreadsheets/d/e/2PACX-1vQvgQoUByiJgGcJ4jtD8bG9AyQrh4TYVQE8aq7AqJRxLdfyLFATKspu_vkyqbVsTyEnNIBHqWtpgV6X/pub?gid=0&single=true&output=csv')
     
     # Parse the arguments
