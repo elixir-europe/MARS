@@ -5,7 +5,7 @@ from io import TextIOWrapper
 import time
 import requests
 import json
-from typing import Optional, Any
+from typing import Any
 from mars_lib.authentication import get_metabolights_auth_token, get_webin_auth_token
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -53,7 +53,7 @@ def submission(
     urls: dict[str, Any],
     file_transfer: str,
     output: str,
-        data_file_paths: Optional[List[TextIOWrapper]] = None,
+    data_file_paths: List[TextIOWrapper] = [],
 ) -> None:
     # If credential manager info found:
     # Get password from the credential manager
