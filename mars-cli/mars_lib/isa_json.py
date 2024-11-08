@@ -434,6 +434,17 @@ def map_data_files_to_repositories(
     for assay in assays:
         target_repo_comment: Comment = detect_target_repo_comment(assay.comments)
         assay_data_files = [df.name for df in assay.dataFiles]
-        df_map[target_repo_comment.value] = assay_data_files
+        for adf in assay_data_files:
+            if adf not in files:
+                raise ValueError(
+                    f"""Assay for repository '{target_repo_comment.value}' has encountered a mismatch while mapping the data files to the ISA-JSON.
+                Data File '{adf}' is missing in the data files passed in the command:
+                {files}
+                Please correct the mismatch!"""
+                )
+
+        df_map[target_repo_comment.value] = [
+            file for file in files if file in assay_data_files
+        ]
 
     return df_map

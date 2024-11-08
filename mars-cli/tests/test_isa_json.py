@@ -309,4 +309,30 @@ def test_map_data_files_to_repositories():
             ],
         }
     )
+    print(
+        f"\n\ndata files map: {map_data_files_to_repositories(data_files, isa_json)}\n\n"
+    )
     assert check_map == map_data_files_to_repositories(data_files, isa_json)
+
+    bad_match_files = data_files = [
+        "cnv-seq-data-0.fastq",
+        "cnv-seq-data-1.fastq",
+        "cnv-seq-data-2.fastq",
+        "cnv-seq-data-3.fastq",
+        "cnv-seq-derived-data-0.vcf",
+        "cnv-seq-derived-data-1.vcf",
+        "cnv-seq-derived-data-2.vcf",
+        "cnv-seq-derived-data-3.vcf",
+        "ms-data-metpro--1.mzml",
+        "ms-data-metpro--2.mzml",
+        "ms-data-metpro--3.mzml",
+        "ms-data-metpro--4.mzml",
+        "rna-seq-data-0.fastq",
+        "rna-seq-data-1.fastq",
+        "rna-seq-data-2.fastq",
+        "rna-seq-data-3.fastq",
+        "rna-seq-DEA.txt",
+    ]
+
+    with pytest.raises(ValueError, match=r"Assay for repository 'metabolights' has encountered"):
+        map_data_files_to_repositories(bad_match_files, isa_json)
