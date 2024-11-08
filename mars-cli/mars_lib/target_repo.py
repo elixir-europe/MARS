@@ -1,10 +1,10 @@
-from enum import StrEnum
+from enum import Enum
 
 
 TARGET_REPO_KEY = "target_repository"
 
 
-class TargetRepository(StrEnum):
+class TargetRepository(str, Enum):
     """
     Holds constants, tied to the target repositories.
     """
@@ -17,4 +17,4 @@ class TargetRepository(StrEnum):
 
     @classmethod
     def available_repositories(cls):
-        return {item for item in cls}
+        return {item.value for item in cls}
