@@ -1,9 +1,13 @@
 import re
+from wsgiref.validate import assert_
+
+from black import assert_equivalent
 
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
     update_isa_json,
+    map_data_files_to_repositories,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
@@ -254,3 +258,55 @@ def test_filename_validation():
     assert Investigation.model_validate({"@id": "4", "filename": "i_Good_File_Name"})
     assert Study.model_validate({"@id": "5", "filename": "s_Good_File_Name"})
     assert Assay.model_validate({"@id": "6", "filename": "a_Good_File_Name"})
+
+
+def test_map_data_files_to_repositories():
+    isa_json = load_isa_json(
+        file_path="../test-data/ISA-BH2024-ALL/isa-bh2024-all.json",
+        investigation_is_root=True,
+    )
+    data_files = [
+        "cnv-seq-data-0.fastq",
+        "cnv-seq-data-1.fastq",
+        "cnv-seq-data-2.fastq",
+        "cnv-seq-data-3.fastq",
+        "cnv-seq-derived-data-0.vcf",
+        "cnv-seq-derived-data-1.vcf",
+        "cnv-seq-derived-data-2.vcf",
+        "cnv-seq-derived-data-3.vcf",
+        "metpro-analysis.txt",
+        "ms-data-metpro--1.mzml",
+        "ms-data-metpro--2.mzml",
+        "ms-data-metpro--3.mzml",
+        "ms-data-metpro--4.mzml",
+        "rna-seq-data-0.fastq",
+        "rna-seq-data-1.fastq",
+        "rna-seq-data-2.fastq",
+        "rna-seq-data-3.fastq",
+        "rna-seq-DEA.txt",
+    ]
+
+    check_map = dict(
+        {
+            "metabolights": [
+                "metpro-analysis.txt",
+                "ms-data-metpro--1.mzml",
+                "ms-data-metpro--2.mzml",
+                "ms-data-metpro--3.mzml",
+                "ms-data-metpro--4.mzml",
+            ],
+            "arrayexpress": [
+                "rna-seq-data-0.fastq",
+                "rna-seq-data-1.fastq",
+                "rna-seq-data-2.fastq",
+                "rna-seq-data-3.fastq",
+            ],
+            "eva": [
+                "cnv-seq-data-0.fastq",
+                "cnv-seq-data-1.fastq",
+                "cnv-seq-data-2.fastq",
+                "cnv-seq-data-3.fastq",
+            ],
+        }
+    )
+    assert check_map == map_data_files_to_repositories(data_files, isa_json)

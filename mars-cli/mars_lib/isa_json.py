@@ -1,5 +1,5 @@
 import json
-from typing import Union, List, Any, Tuple, Optional
+from typing import Union, List, Any, Tuple, Optional, Dict
 from mars_lib.models.isa_json import (
     Investigation,
     Assay,
@@ -420,3 +420,20 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
 
     isa_json.investigation = investigation
     return isa_json
+
+
+def map_data_files_to_repositories(
+    files: List[str], isa_json: IsaJson
+) -> Dict[str, List[str]]:
+    # Note: This works well in
+    df_map: Dict[str, List[str]] = {}
+    assays: List[Assay] = [
+        assay for study in isa_json.investigation.studies for assay in study.assays
+    ]
+
+    for assay in assays:
+        target_repo_comment: Comment = detect_target_repo_comment(assay.comments)
+        assay_data_files = [df.name for df in assay.dataFiles]
+        df_map[target_repo_comment.value] = assay_data_files
+
+    return df_map
