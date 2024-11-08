@@ -46,7 +46,7 @@ def test_reduce_isa_json_for_target_repo():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.ENA
+        good_isa_json, TargetRepository.ENA.value
     )
 
     good_isa_json_study = good_isa_json.investigation.studies[0]
@@ -63,7 +63,7 @@ def test_reduce_isa_json_for_biosamples():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.BIOSAMPLES
+        good_isa_json, TargetRepository.BIOSAMPLES.value
     )
 
     assert len(filtered_isa_json.investigation.studies[0].assays) == 0
@@ -110,7 +110,7 @@ def test_target_repo_comment_validator():
             {
                 "@id": "comment_001",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.ENA,
+                "value": TargetRepository.ENA.value,
             }
         ],
     }
@@ -134,12 +134,12 @@ def test_target_repo_comment_validator():
             {
                 "@id": "comment_003",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.ENA,
+                "value": TargetRepository.ENA.value,
             },
             {
                 "@id": "comment_004",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.METABOLIGHTS,
+                "value": TargetRepository.METABOLIGHTS.value,
             },
         ],
     }
@@ -308,7 +308,7 @@ def test_map_data_files_to_repositories():
 
     with pytest.raises(
         ValueError,
-        match=rf"Assay for repository '{TargetRepository.ARRAYEXPRESS}' has encountered",
+        match=rf"Assay for repository '{TargetRepository.ARRAYEXPRESS.value}' has encountered",
     ):
         map_data_files_to_repositories(not_enough_files, isa_json)
 

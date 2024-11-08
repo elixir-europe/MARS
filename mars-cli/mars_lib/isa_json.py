@@ -40,7 +40,7 @@ def reduce_isa_json_for_target_repo(
     new_studies = []
     studies = filtered_isa_json.investigation.studies
     for study in studies:
-        if target_repo == TargetRepository.BIOSAMPLES:
+        if target_repo == TargetRepository.BIOSAMPLES.value:
             filtered_assays = []
         else:
             assays = study.assays
