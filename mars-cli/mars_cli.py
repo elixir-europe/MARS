@@ -10,7 +10,6 @@ from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log
 from mars_lib.validation import validate, CustomValidationException
 from logging.handlers import RotatingFileHandler
-from pydantic import ValidationError
 import requests
 import sys
 import os
