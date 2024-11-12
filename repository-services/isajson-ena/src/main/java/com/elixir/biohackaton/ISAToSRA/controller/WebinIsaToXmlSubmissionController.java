@@ -4,6 +4,7 @@ package com.elixir.biohackaton.ISAToSRA.controller;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
@@ -69,11 +70,11 @@ public class WebinIsaToXmlSubmissionController {
       @RequestParam(value = "webinPassword") String webinPassword) {
     try {
       if (webinUserName == null || webinUserName.isEmpty()) {
-        throw new Exception("Webin Authentication username is not provided");
+        throw new MarsReceiptException("Webin Authentication username is not provided");
       }
 
       if (webinPassword == null || webinPassword.isEmpty()) {
-        throw new Exception("Webin Authentication password is not provided");
+        throw new MarsReceiptException("Webin Authentication password is not provided");
       }
 
       final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
@@ -111,7 +112,11 @@ public class WebinIsaToXmlSubmissionController {
 
       return marsReceiptService.convertMarsReceiptToJson();
 
-    } catch (Exception e) {
+    } catch (final MarsReceiptException e) {
+      log.error("Mars receipt excption", e);
+      marsReceiptService.setMarsReceiptErrors(e.getReceiptErrorMessage());
+      return marsReceiptService.convertMarsReceiptToJson();
+    } catch (final Exception e) {
       log.error("Internal server error", e);
       marsReceiptService.setMarsReceiptErrors(e.getMessage());
       return marsReceiptService.convertMarsReceiptToJson();
@@ -122,23 +127,19 @@ public class WebinIsaToXmlSubmissionController {
     try {
       return isaJson.getInvestigation().getStudies();
     } catch (final Exception e) {
-      log.info("Failed to parse ISA JSON and get studies", e);
+      throw new MarsReceiptException("Failed to parse ISA JSON and get studies", e);
     }
-
-    return null;
   }
 
   public Investigation getInvestigation(final IsaJson isaJson) {
     try {
       return isaJson.getInvestigation();
     } catch (final Exception e) {
-      log.info("Failed to parse ISA JSON and get studies", e);
+      throw new MarsReceiptException("Failed to parse ISA JSON and get studies", e);
     }
-
-    return null;
   }
 
-  public Map<String, String> getBiosamples(List<Study> studies) {
+  public Map<String, String> getBiosamples(List<Study> studies) throws Exception {
     HashMap<String, String> biosamples = new HashMap<>();
     for (Study study : studies) {
       for (Source source : study.materials.sources) {
@@ -162,13 +163,11 @@ public class WebinIsaToXmlSubmissionController {
             .collect(Collectors.toList());
 
     if (filteredCharacteristics.isEmpty()) {
-      log.error("No accession found in the characteristics");
-      throw new RuntimeException("No accession found in the characteristics");
+      throw new MarsReceiptException("No accession found in the characteristics");
     }
 
     if (filteredCharacteristics.size() > 1) {
-      log.error("More than one accession found in the characteristics");
-      throw new RuntimeException("Too many accessions found in the characteristics");
+      throw new MarsReceiptException("Too many accessions found in the characteristics");
     }
     return filteredCharacteristics.get(0).value.annotationValue;
   }

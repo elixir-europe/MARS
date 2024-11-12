@@ -1,6 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +33,9 @@ public class WebinExperimentXmlCreator {
           typeToBioSamplesAccessionMap,
           randomSubmissionIdentifier);
     } catch (final Exception e) {
-      log.info("Failed to parse experiments from ISA Json file and create ENA Experiments");
+      throw new MarsReceiptException(
+          "Failed to parse experiments from ISA Json file and create ENA Experiments", e);
     }
-
-    return null;
   }
 
   private String populateProcessSequenceToParameterValuesMapAndGetExecutesProtocolId(

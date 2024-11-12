@@ -5,6 +5,7 @@ import com.elixir.biohackaton.ISAToSRA.biosamples.model.Attribute;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.Relationship;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 
@@ -80,7 +81,7 @@ public class BioSamplesSubmitter {
             });
       }
     } catch (final Exception e) {
-      throw new RuntimeException("Failed to parse ISA Json and create samples in BioSamples", e);
+      throw new MarsReceiptException("Failed to parse ISA Json and create samples in BioSamples", e);
     }
 
     return typeToBioSamplesAccessionMap;
@@ -122,7 +123,7 @@ public class BioSamplesSubmitter {
         return null;
       }
     } catch (final Exception e) {
-      throw new RuntimeException("Failed to handle child samples", e);
+      throw new MarsReceiptException("Failed to handle child samples", e);
     }
   }
 
@@ -165,7 +166,7 @@ public class BioSamplesSubmitter {
                     sourceCharacteristics.add(biosampleAccessionCharacteristic);
                     source.setCharacteristics(sourceCharacteristics);
                   } else {
-                    throw new RuntimeException("Failed to store source sample to BioSamples");
+                    throw new MarsReceiptException("Failed to store source sample to BioSamples");
                   }
                 }));
 
@@ -205,7 +206,7 @@ public class BioSamplesSubmitter {
           });
       return biosamplesResponse.getBody().getContent();
     } catch (final Exception ex) {
-      throw new RuntimeException("Failed to add relationships to child samples", ex);
+      throw new MarsReceiptException("Failed to add relationships to child samples", ex);
     }
   }
 
@@ -227,7 +228,7 @@ public class BioSamplesSubmitter {
 
       return biosamplesResponse.getBody();
     } catch (final Exception ex) {
-      throw new RuntimeException("Failed to create samples in BioSamples", ex);
+      throw new MarsReceiptException("Failed to create samples in BioSamples", ex);
     }
   }
 

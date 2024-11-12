@@ -48,7 +48,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     try {
       return jsonMapper.writeValueAsString(getMarsReceipt());
     } catch (Exception ex) {
-      throw new RuntimeException("receipt", ex);
+      throw new RuntimeException("Receipt", ex);
     }
   }
 
