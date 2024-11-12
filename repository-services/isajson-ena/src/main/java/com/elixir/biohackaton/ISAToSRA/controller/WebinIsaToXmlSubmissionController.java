@@ -5,7 +5,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptConversionService;
@@ -67,50 +66,56 @@ public class WebinIsaToXmlSubmissionController {
   public String performSubmissionToEna(
       @RequestBody final String submissionPayload,
       @RequestParam(value = "webinUserName") String webinUserName,
-      @RequestParam(value = "webinPassword") String webinPassword)
-      throws Exception {
-    if (webinUserName == null) {
-      throw new RuntimeException("Webin Authentication username is not provided");
+      @RequestParam(value = "webinPassword") String webinPassword) {
+    try {
+      if (webinUserName == null || webinUserName.isEmpty()) {
+        throw new Exception("Webin Authentication username is not provided");
+      }
+
+      if (webinPassword == null || webinPassword.isEmpty()) {
+        throw new Exception("Webin Authentication password is not provided");
+      }
+
+      final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
+
+      final Document document = DocumentHelper.createDocument();
+      final Element webinElement = startPreparingWebinV2SubmissionXml(document);
+      final String randomSubmissionIdentifier = String.valueOf(Math.random());
+
+      final List<Study> studies = getStudies(isaJson);
+      this.webinStudyXmlCreator.createENAStudySetElement(
+          webinElement, studies, randomSubmissionIdentifier);
+
+      final Map<String, String> typeToBioSamplesAccessionMap = getBiosamples(studies);
+      final Map<String, String> experimentSequenceMap =
+          this.webinExperimentXmlCreator.createENAExperimentSetElement(
+              typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
+
+      this.webinRunXmlCreator.createENARunSetElement(
+          webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
+      this.webinProjectXmlCreator.createENAProjectSetElement(
+          webinElement, getInvestigation(isaJson), randomSubmissionIdentifier);
+
+      final OutputFormat format = OutputFormat.createPrettyPrint();
+      final XMLWriter writer = new XMLWriter(System.out, format);
+
+      writer.write(document);
+
+      final String receiptXml =
+          webinHttpSubmissionService.performWebinSubmission(
+              webinUserName, document.asXML(), webinPassword);
+      log.info("ENA receipt", receiptXml);
+      final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
+      log.info("ENA receipt object", this.objectMapper.writeValueAsString(receiptJson));
+      marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
+
+      return marsReceiptService.convertMarsReceiptToJson();
+
+    } catch (Exception e) {
+      log.error("Internal server error", e);
+      marsReceiptService.setMarsReceiptErrors(e.getMessage());
+      return marsReceiptService.convertMarsReceiptToJson();
     }
-
-    if (webinPassword == null) {
-      throw new RuntimeException("Webin Authentication password is not provided");
-    }
-
-    final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
-
-    final Document document = DocumentHelper.createDocument();
-    final Element webinElement = startPreparingWebinV2SubmissionXml(document);
-    final String randomSubmissionIdentifier = String.valueOf(Math.random());
-
-    final List<Study> studies = getStudies(isaJson);
-    this.webinStudyXmlCreator.createENAStudySetElement(
-        webinElement, studies, randomSubmissionIdentifier);
-
-    final Map<String, String> typeToBioSamplesAccessionMap = getBiosamples(studies);
-    final Map<String, String> experimentSequenceMap =
-        this.webinExperimentXmlCreator.createENAExperimentSetElement(
-            typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
-
-    this.webinRunXmlCreator.createENARunSetElement(
-        webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
-    this.webinProjectXmlCreator.createENAProjectSetElement(
-        webinElement, getInvestigation(isaJson), randomSubmissionIdentifier);
-
-    final OutputFormat format = OutputFormat.createPrettyPrint();
-    final XMLWriter writer = new XMLWriter(System.out, format);
-
-    writer.write(document);
-
-    final String receiptXml =
-        webinHttpSubmissionService.performWebinSubmission(
-            webinUserName, document.asXML(), webinPassword);
-    final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
-    System.out.println(receiptXml);
-    System.out.println(receiptJson);
-    final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
-
-    return marsReceiptService.convertMarsReceiptToJson(marsReceipt);
   }
 
   public List<Study> getStudies(final IsaJson isaJson) {

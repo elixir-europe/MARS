@@ -15,10 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Service
-public class MarsReceiptService extends MarsReceiptProvider {
+public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
   private void setupJsonMapper() {
@@ -28,15 +31,29 @@ public class MarsReceiptService extends MarsReceiptProvider {
   }
 
   public MarsReceiptService() {
+    super("ena"); // TODO decide whether to use instead
+    // https://registry.identifiers.org/registry/ena.embl
     setupJsonMapper();
   }
 
-  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
+  // Reset MARS receipt per request
+  @Override
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+      throws Exception {
+    resetMarsReceipt();
+    return HandlerInterceptor.super.preHandle(request, response, handler);
+  }
+
+  public String convertMarsReceiptToJson() {
     try {
-      return jsonMapper.writeValueAsString(marsReceipt);
+      return jsonMapper.writeValueAsString(getMarsReceipt());
     } catch (Exception ex) {
       throw new RuntimeException("receipt", ex);
     }
+  }
+
+  public void setMarsReceiptErrors(String... errors) {
+    super.setMarsReceiptErrors(MarsErrorType.INTERNAL_SERVER_ERROR, errors);
   }
 
   /**
@@ -46,12 +63,9 @@ public class MarsReceiptService extends MarsReceiptProvider {
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param receipt {@link Receipt} Receipt from ENA
    * @param isaJson {@link IsaJson} Requested ISA-Json
-   * @return {@link MarsReceipt} Mars response data
    */
-  public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
-    return buildMarsReceipt(
-        "ena", // TODO decide whether to use instead
-        // https://registry.identifiers.org/registry/ena.embl
+  public void convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    buildMarsReceipt(
         getAliasAccessionPairs(
             Study.Fields.title,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
@@ -79,6 +93,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
             new HashMap<String, String>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
                     .filter(item -> item != null)
+                    .filter(item -> item.getAccession() != null)
                     .collect(
                         Collectors.toMap(
                             MarsReceiptService::getPreRandomizedAlias,
