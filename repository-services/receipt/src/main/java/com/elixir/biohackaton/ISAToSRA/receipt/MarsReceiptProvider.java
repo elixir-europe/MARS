@@ -69,8 +69,11 @@ public abstract class MarsReceiptProvider {
       final List<String> info,
       final List<String> errors,
       final IsaJson isaJson) {
-    setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors.toArray(String[]::new));
-    setMarsReceiptInfo(info.toArray(String[]::new));
+    final String[] errorArray = Optional.ofNullable(errors).orElse(new ArrayList<>()).toArray(String[]::new);
+    final String[] infoArray = Optional.ofNullable(info).orElse(new ArrayList<>()).toArray(String[]::new);
+
+    setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errorArray);
+    setMarsReceiptInfo(infoArray);
     setMarsAccessions(
         studiesAccessionsMap,
         samplesAccessionsMap,
@@ -122,7 +125,7 @@ public abstract class MarsReceiptProvider {
                 if (studyAccessionMap.accession != null) {
                   marsAccessions.add(getStudyMarsAccession(studyAccessionMap));
                 }
-                if (samplesAccessionsMap != null) {
+                if (samplesAccessionsMap != null && study.materials != null) {
                   Optional.ofNullable(study.materials.samples)
                       .orElse(new ArrayList<>())
                       .forEach(
@@ -134,7 +137,7 @@ public abstract class MarsReceiptProvider {
                             }
                           });
                 }
-                if (sourcesAccessionsMap != null) {
+                if (sourcesAccessionsMap != null && study.materials != null) {
                   Optional.ofNullable(study.materials.sources)
                       .orElse(new ArrayList<>())
                       .forEach(
@@ -151,7 +154,7 @@ public abstract class MarsReceiptProvider {
                       .orElse(new ArrayList<>())
                       .forEach(
                           assay -> {
-                            if (otherMaterialsAccessionsMap != null) {
+                            if (otherMaterialsAccessionsMap != null && assay.materials != null) {
                               Optional.ofNullable(assay.materials.otherMaterials)
                                   .orElse(new ArrayList<>())
                                   .forEach(
@@ -167,8 +170,7 @@ public abstract class MarsReceiptProvider {
                                       });
                             }
                             if (dataFilesAccessionsMap != null) {
-                              Optional.ofNullable(
-                                  assay.dataFiles)
+                              Optional.ofNullable(assay.dataFiles)
                                   .orElse(new ArrayList<>())
                                   .forEach(
                                       dataFile -> {

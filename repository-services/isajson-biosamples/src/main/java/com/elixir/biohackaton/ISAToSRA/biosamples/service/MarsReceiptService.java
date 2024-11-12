@@ -48,7 +48,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   public void setMarsReceiptErrors(String... errors) {
-    super.setMarsReceiptErrors(MarsErrorType.INTERNAL_SERVER_ERROR, errors);
+    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
   }
 
   /**

@@ -50,10 +50,7 @@ public class BioSampleSubmissionController {
       @RequestBody final String submissionPayload,
       @RequestParam(value = "webinjwt") String webinJwt) {
     try {
-      String webinToken;
-      if (webinJwt != null) {
-        webinToken = webinJwt;
-      } else {
+      if (webinJwt == null || webinJwt.isEmpty()) {
         throw new RuntimeException("Webin Authentication Token is not provided");
       }
 
@@ -62,7 +59,7 @@ public class BioSampleSubmissionController {
       final IsaJson isaJson = this.objectMapper.readValue(submissionPayload, IsaJson.class);
       final List<Study> studies = getStudies(isaJson);
 
-      final BiosampleAccessionsMap accessionsMap = this.bioSamplesSubmitter.createBioSamples(studies, webinToken);
+      final BiosampleAccessionsMap accessionsMap = this.bioSamplesSubmitter.createBioSamples(studies, webinJwt);
       marsReceiptService.convertReceiptToMars(accessionsMap, isaJson);
 
       return marsReceiptService.convertMarsReceiptToJson();
