@@ -1,9 +1,11 @@
 import re
 
+
 from mars_lib.isa_json import (
     reduce_isa_json_for_target_repo,
     load_isa_json,
     update_isa_json,
+    map_data_files_to_repositories,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
@@ -44,7 +46,7 @@ def test_reduce_isa_json_for_target_repo():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.ENA
+        good_isa_json, TargetRepository.ENA.value
     )
 
     good_isa_json_study = good_isa_json.investigation.studies[0]
@@ -61,7 +63,7 @@ def test_reduce_isa_json_for_biosamples():
     )
 
     filtered_isa_json = reduce_isa_json_for_target_repo(
-        good_isa_json, TargetRepository.BIOSAMPLES
+        good_isa_json, TargetRepository.BIOSAMPLES.value
     )
 
     assert len(filtered_isa_json.investigation.studies[0].assays) == 0
@@ -108,7 +110,7 @@ def test_target_repo_comment_validator():
             {
                 "@id": "comment_001",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.ENA,
+                "value": TargetRepository.ENA.value,
             }
         ],
     }
@@ -132,12 +134,12 @@ def test_target_repo_comment_validator():
             {
                 "@id": "comment_003",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.ENA,
+                "value": TargetRepository.ENA.value,
             },
             {
                 "@id": "comment_004",
                 "name": f"{TARGET_REPO_KEY}",
-                "value": TargetRepository.METABOLIGHTS,
+                "value": TargetRepository.METABOLIGHTS.value,
             },
         ],
     }
@@ -240,13 +242,13 @@ def test_update_study_materials_with_accession_categories():
 
 def test_filename_validation():
     # ISA should have a filename that starts with 'x_'
-    with pytest.raises(ValidationError, match=f"'filename' should start with 'i_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 'i_'"):
         Investigation.model_validate({"@id": "1", "filename": "bad filename"})
 
-    with pytest.raises(ValidationError, match=f"'filename' should start with 's_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 's_'"):
         Study.model_validate({"@id": "2", "filename": "bad filename"})
 
-    with pytest.raises(ValidationError, match=f"'filename' should start with 'a_'"):
+    with pytest.raises(ValidationError, match="'filename' should start with 'a_'"):
         Assay.model_validate({"@id": "3", "filename": "bad filename"})
 
     assert re.match(r"^i_", "i_Good_file_name")
@@ -254,3 +256,73 @@ def test_filename_validation():
     assert Investigation.model_validate({"@id": "4", "filename": "i_Good_File_Name"})
     assert Study.model_validate({"@id": "5", "filename": "s_Good_File_Name"})
     assert Assay.model_validate({"@id": "6", "filename": "a_Good_File_Name"})
+
+
+def test_map_data_files_to_repositories():
+    isa_json = load_isa_json(
+        file_path="../test-data/ISA-BH2024-ALL/isa-bh2024-all.json",
+        investigation_is_root=True,
+    )
+    exact_match_files = [
+        "../test-data/ISA-BH2024-ALL/cnv-seq-data-0.fastq",
+        "../test-data/ISA-BH2024-ALL/cnv-seq-data-1.fastq",
+        "../test-data/ISA-BH2024-ALL/cnv-seq-data-2.fastq",
+        "../test-data/ISA-BH2024-ALL/cnv-seq-data-3.fastq",
+        "../test-data/ISA-BH2024-ALL/metpro-analysis.txt",
+        "../test-data/ISA-BH2024-ALL/ms-data-metpro--1.mzml",
+        "../test-data/ISA-BH2024-ALL/ms-data-metpro--2.mzml",
+        "../test-data/ISA-BH2024-ALL/ms-data-metpro--3.mzml",
+        "../test-data/ISA-BH2024-ALL/ms-data-metpro--4.mzml",
+        "../test-data/ISA-BH2024-ALL/rna-seq-data-0.fastq",
+        "../test-data/ISA-BH2024-ALL/rna-seq-data-1.fastq",
+        "../test-data/ISA-BH2024-ALL/rna-seq-data-2.fastq",
+        "../test-data/ISA-BH2024-ALL/rna-seq-data-3.fastq",
+    ]
+
+    check_map = dict(
+        {
+            "metabolights": [
+                "../test-data/ISA-BH2024-ALL/metpro-analysis.txt",
+                "../test-data/ISA-BH2024-ALL/ms-data-metpro--1.mzml",
+                "../test-data/ISA-BH2024-ALL/ms-data-metpro--2.mzml",
+                "../test-data/ISA-BH2024-ALL/ms-data-metpro--3.mzml",
+                "../test-data/ISA-BH2024-ALL/ms-data-metpro--4.mzml",
+            ],
+            "arrayexpress": [
+                "../test-data/ISA-BH2024-ALL/rna-seq-data-0.fastq",
+                "../test-data/ISA-BH2024-ALL/rna-seq-data-1.fastq",
+                "../test-data/ISA-BH2024-ALL/rna-seq-data-2.fastq",
+                "../test-data/ISA-BH2024-ALL/rna-seq-data-3.fastq",
+            ],
+            "eva": [
+                "../test-data/ISA-BH2024-ALL/cnv-seq-data-0.fastq",
+                "../test-data/ISA-BH2024-ALL/cnv-seq-data-1.fastq",
+                "../test-data/ISA-BH2024-ALL/cnv-seq-data-2.fastq",
+                "../test-data/ISA-BH2024-ALL/cnv-seq-data-3.fastq",
+            ],
+        }
+    )
+    assert check_map == map_data_files_to_repositories(exact_match_files, isa_json)
+
+    not_enough_files = exact_match_files[:-1]
+
+    with pytest.raises(
+        ValueError,
+        match=rf"Assay for repository '{TargetRepository.ARRAYEXPRESS.value}' has encountered",
+    ):
+        map_data_files_to_repositories(not_enough_files, isa_json)
+
+    too_many_files = exact_match_files.copy()
+    one_too_many = "../test-data/ISA-BH2024-ALL/one-too-many.fastq"
+    too_many_files.append(one_too_many)
+
+    result_maps = map_data_files_to_repositories(too_many_files, isa_json)
+
+    assert one_too_many not in [
+        value for key, value_list in result_maps.items() for value in value_list
+    ]
+
+    duplicated_files = exact_match_files.copy()
+    duplicated_files.append(exact_match_files[-1])
+
+    map_data_files_to_repositories(duplicated_files, isa_json)

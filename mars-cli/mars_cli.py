@@ -10,7 +10,6 @@ from mars_lib.credential import CredentialManager
 from mars_lib.logging import print_and_log
 from mars_lib.validation import validate, CustomValidationException
 from logging.handlers import RotatingFileHandler
-from pydantic import ValidationError
 import requests
 import sys
 import os
@@ -264,13 +263,13 @@ def submit(
     target_repositories = []
 
     if submit_to_biosamples:
-        target_repositories.append(TargetRepository.BIOSAMPLES)
+        target_repositories.append(TargetRepository.BIOSAMPLES.value)
 
     if submit_to_ena:
-        target_repositories.append(TargetRepository.ENA)
+        target_repositories.append(TargetRepository.ENA.value)
 
     if submit_to_metabolights:
-        target_repositories.append(TargetRepository.METABOLIGHTS)
+        target_repositories.append(TargetRepository.METABOLIGHTS.value)
 
     print_and_log(
         f"Starting submission of the ISA JSON to the target repositories: {', '.join(target_repositories)}."

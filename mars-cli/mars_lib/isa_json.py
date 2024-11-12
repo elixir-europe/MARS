@@ -1,5 +1,7 @@
 import json
-from typing import Union, List, Any, Tuple, Optional
+from typing import Union, List, Any, Tuple, Optional, Dict
+
+from mars_lib.logging import print_and_log
 from mars_lib.models.isa_json import (
     Investigation,
     Assay,
@@ -38,7 +40,7 @@ def reduce_isa_json_for_target_repo(
     new_studies = []
     studies = filtered_isa_json.investigation.studies
     for study in studies:
-        if target_repo == TargetRepository.BIOSAMPLES:
+        if target_repo == TargetRepository.BIOSAMPLES.value:
             filtered_assays = []
         else:
             assays = study.assays
@@ -420,3 +422,56 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
 
     isa_json.investigation = investigation
     return isa_json
+
+
+def map_data_files_to_repositories(
+    files: List[str], isa_json: IsaJson
+) -> Dict[str, List[str]]:
+    # Note: This works well in
+    df_map: Dict[str, List[str]] = {}
+    assays: List[Assay] = [
+        assay for study in isa_json.investigation.studies for assay in study.assays
+    ]
+
+    files_dicts = [{"full_name": f, "short_name": f.split("/")[-1]} for f in files]
+    remaining_files = files_dicts.copy()
+    for assay in assays:
+        target_repo_comment: Comment = detect_target_repo_comment(assay.comments)
+        # This is an effect of everything being optional in the Comment model.
+        # Should we decide to make the value mandatory, this guard clause would not be necessary anymore.
+        if target_repo_comment.value is None:
+            raise ValueError(
+                f"At least one assay in the ISA-JSON has no '{TARGET_REPO_KEY}' comment. Mapping not possible. Make sure all assays in the ISA-JSON have this comment!"
+            )
+        assay_data_files = [df.name for df in assay.dataFiles]
+
+        # Check if the files in the ISA-JSON are present in the command
+        # If not, raise an error
+        for adf in assay_data_files:
+            if adf not in [fd["short_name"] for fd in files_dicts]:
+                raise ValueError(
+                    f"""Assay for repository '{target_repo_comment.value}' has encountered a mismatch while mapping the data files to the ISA-JSON.
+                Data File '{adf}' is missing in the data files passed in the command:
+                {files}
+                Please correct the mismatch!"""
+                )
+            else:
+                remaining_files = [
+                    fd for fd in remaining_files if fd["short_name"] != adf
+                ]
+
+        df_map[target_repo_comment.value] = [
+            fd["full_name"]
+            for fd in files_dicts
+            if fd["short_name"] in assay_data_files
+        ]
+
+    [
+        print_and_log(
+            msg=f"File '{rf['short_name']}' could not be mapped to any data file in the ISA-JSON. For this reason, it will be skipped during submission!",
+            level="warning",
+        )
+        for rf in remaining_files
+    ]
+
+    return df_map

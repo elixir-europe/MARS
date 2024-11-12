@@ -67,7 +67,7 @@ def test_validate_bs_accession():
         validate_bs_accession(invalid_accession)
 
     valid_accession = "SAMEA112654119"
-    assert validate_bs_accession(valid_accession) != ValueError
+    validate_bs_accession(valid_accession)
 
 
 def test_validate_json_against_schema():

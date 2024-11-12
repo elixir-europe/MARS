@@ -13,6 +13,7 @@ class TargetRepository(str, Enum):
     METABOLIGHTS = "metabolights"
     BIOSAMPLES = "biosamples"
     EVA = "eva"
+    ARRAYEXPRESS = "arrayexpress"
 
     @classmethod
     def available_repositories(cls):
