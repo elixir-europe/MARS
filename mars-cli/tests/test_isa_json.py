@@ -312,7 +312,7 @@ def test_map_data_files_to_repositories():
     ):
         map_data_files_to_repositories(not_enough_files, isa_json)
 
-    too_many_files = exact_match_files
+    too_many_files = exact_match_files.copy()
     one_too_many = "../test-data/ISA-BH2024-ALL/one-too-many.fastq"
     too_many_files.append(one_too_many)
 
@@ -321,3 +321,8 @@ def test_map_data_files_to_repositories():
     assert one_too_many not in [
         value for key, value_list in result_maps.items() for value in value_list
     ]
+
+    duplicated_files = exact_match_files.copy()
+    duplicated_files.append(exact_match_files[-1])
+
+    map_data_files_to_repositories(duplicated_files, isa_json)

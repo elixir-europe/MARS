@@ -456,9 +456,9 @@ def map_data_files_to_repositories(
                 Please correct the mismatch!"""
                 )
             else:
-                remaining_files.remove(
-                    next(fd for fd in files_dicts if fd["short_name"] == adf)
-                )
+                remaining_files = [
+                    fd for fd in remaining_files if fd["short_name"] != adf
+                ]
 
         df_map[target_repo_comment.value] = [
             fd["full_name"]
