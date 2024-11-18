@@ -78,7 +78,7 @@ As part of the BioHackathon Europe 2024, we here report the progress made on the
 
 Multimodality studies are a reality, with scientists commonly using several different data acquisition techniques to characterise biological systems under various experimental conditions. Yet, the deposition of such studies to public repositories remains a challenge for scientists who need familiarity with individual repositories to achieve these data publication requirements.
 
-During this Biohackathon project we produced a proof of concept for the implemetation of the MARS initiative. The proof of concept dispatches metadata and data to BioSamples, ENA and MetaboLights using the ISA-JSON format.
+During this Biohackathon project we produced a proof of concept for the implementation of the MARS initiative. The proof of concept dispatches metadata and data to BioSamples, ENA and MetaboLights using the ISA-JSON format.
 
 # Results
 
@@ -86,25 +86,25 @@ This document use Markdown and you can look at [this tutorial](https://www.markd
 
 Please keep sections to a maximum of only two levels.
 
-## BioSamples’ adaptor for MARS ISA-JSON
+## BioSamples' adaptor for MARS ISA-JSON
 
 As part of the MARS initiative, BioSamples created an adaptor to retrieve Study Sources, Study Samples, and their associated metadata attributes and values by reading the MARS ISA-JSON. The relationship between Sources and Samples is maintained through the parent-child hierarchy in BioSamples.
 
-In Investigation -> Studies -> Materials -> Sources, take ‘id’. 
+In Investigation -> Studies -> Materials -> Sources, take 'id'. 
 
-For each Source ‘id’ -> take ‘id’, name (e.g plant 1), -> characteristicsCategory -> take category ‘id’ (i.e name of metadata field) and value -> annotationValue = Parent BioSamples entry
+For each Source 'id' -> take 'id', name (e.g plant 1), -> characteristicsCategory -> take category 'id' (i.e name of metadata field) and value -> annotationValue = Parent BioSamples entry
 
-In Investigation -> Studies -> Materials -> Samples -> take ‘id’ (i.e id of the sample), name (i.e. leaf 1) & characteristicsCategory = Child BioSamples entry
+In Investigation -> Studies -> Materials -> Samples -> take 'id' (i.e id of the sample), name (i.e. leaf 1) & characteristicsCategory = Child BioSamples entry
 
-In Investigation -> Studies -> Materials -> Samples -> derivesFrom -> look for the same source ‘id’ as above.
+In Investigation -> Studies -> Materials -> Samples -> derivesFrom -> look for the same source 'id' as above.
 
-Add BioSamples Parent-Child relationship between ‘Sample id’ the ‘derived from’ ‘Source id’.
+Add BioSamples Parent-Child relationship between 'Sample id' the 'derived from' 'Source id'.
 
-## BioSamples’ receipt for MARS and ISA-JSON update
+## BioSamples' receipt for MARS and ISA-JSON update
 
 A BioSamples submission through MARS-CLI triggers a response in the form of a receipt, formatted according to the MARS specifications. This receipt includes the accession numbers of the BioSamples entries, along with the precise ISA-JSON paths pointing to the related Sources and Samples within the MARS ISA-JSON. This setup enables the ISA-JSON to be updated with the accession numbers provided by BioSamples, using MARS-CLI.
 
-## ENA’s adaptor for MARS ISA-JSON
+## ENA's adaptor for MARS ISA-JSON
 
 As part of the MARS initiative, ENA developed an adaptor to retrieve nucleic acid sequencing data along with their associated metadata and values by reading the MARS ISA-JSON.
 
@@ -123,26 +123,26 @@ JSONata:
 ```
 $.studies.assays.dataFiles[type=“Raw Data File*”]
 ```
-## ENA’s receipt for MARS and ISA-JSON update
+## ENA's receipt for MARS and ISA-JSON update
 xxxx
 
 # Discussion and future work
 
-## BioSamples’ adaptor for MARS ISA-JSON
+## BioSamples' adaptor for MARS ISA-JSON
 
-Additional features must be added to the BioSamples’ adaptor for MARS in order to be able to capture the complete set of metadata attributes which are stored in ISA-JSON as protocol parameter values.
+Additional features must be added to the BioSamples' adaptor for MARS in order to be able to capture the complete set of metadata attributes which are stored in ISA-JSON as protocol parameter values.
 
 Investigation -> Studies -> processSequence
 
-Look for “outputs = ‘id’ of the Samples”.
+Look for “outputs = 'id' of the Samples”.
 
 For each output id = Sample id, list the parameterValues and annotate the Samples.
 
 ## Receipt for MARS and ISA-JSON update
 
-Must be reviewed to formalise placing of accession numbers for study and how to store this information in ISA-JSON. Also the reporitory identifier must match what sent by ISA-JSON at the start.
+Must be reviewed to formalise placing of accession numbers for study and how to store this information in ISA-JSON. Also the repository identifier must match what sent by ISA-JSON at the start.
 
-## ENA’s adaptor for MARS ISA-JSON
+## ENA's adaptor for MARS ISA-JSON
 
 ### Review the capability to capture all data files comments.
 
@@ -157,17 +157,17 @@ $.studies.assays.dataFiles[type=“Raw Data File*”].comments[name=”checksum�
 ### Review the parameter values and link between libraries and data files relations. Edge cases.
 
 Pseudocode:  
-Assay → processSequence → look for “outputs = ‘id’ of the data file”
-For each “outputs = ‘id’ of the data file”, read input ‘id’
+Assay → processSequence → look for “outputs = 'id' of the data file”
+For each “outputs = 'id' of the data file”, read input 'id'
 
 For each input id → Material  =  characteristicsCategory=id= Library Name
 
 If Material =  characteristicsCategory=id= Library Name
-Go back to input id → Link outputs = ‘id’ of the data file & Library Name=input id
+Go back to input id → Link outputs = 'id' of the data file & Library Name=input id
 stop
 
 If Material ≠   characteristicsCategory=id= Library Name is Not found
-Go back to input id → look for “outputs = input ‘id’ ”
+Go back to input id → look for “outputs = input 'id' ”
 
 Repeat loop
 
@@ -200,7 +200,7 @@ Go back to output  id → Link outputs = Library Name & Sample Name= input id
 stop
 
 If Material Samples ≠  Sample Name
-Go back to input id → look for “outputs = input ‘id’ ”
+Go back to input id → look for “outputs = input 'id' ”
 Repeat loop
 
 
