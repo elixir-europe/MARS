@@ -34,7 +34,7 @@ public class WebinExperimentXmlCreator {
           randomSubmissionIdentifier);
     } catch (final Exception e) {
       throw new MarsReceiptException(
-          "Failed to parse experiments from ISA Json file and create ENA Experiments", e);
+          e, "Failed to parse experiments from ISA Json file and create ENA Experiments");
     }
   }
 
