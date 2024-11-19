@@ -1,6 +1,21 @@
 from typing import Optional
 import requests
 import json
+from enum import Enum
+
+
+class AuthProvider(Enum):
+    """
+    Holds constants, tied to the repository authentication providers.
+    """
+
+    WEBIN = "webin"
+    METABOLIGHTS_METADATA = "metabolights_metadata"
+    METABOLIGHTS_DATA = "metabolights_data"
+
+    @classmethod
+    def available_providers(cls):
+        return {item.value for item in cls}
 
 
 def get_webin_auth_token(
