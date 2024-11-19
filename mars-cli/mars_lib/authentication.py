@@ -60,7 +60,10 @@ def get_webin_auth_token(
 
 def get_metabolights_auth_token(
     credentials_dict: dict[str, str],
-    headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"},
+    headers: dict[str, str] = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+    },
     auth_url: str = "https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
 ) -> Optional[str]:
     """
@@ -74,10 +77,6 @@ def get_metabolights_auth_token(
     Returns:
     str: The obtained token.
     """
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
-    }
     form_data = f'grant_type=password&username={credentials_dict["username"]}&password={credentials_dict["password"]}'
     try:
         response = requests.post(
