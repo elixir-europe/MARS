@@ -3,6 +3,8 @@ package com.elixir.biohackaton.ISAToSRA.receipt;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
@@ -24,9 +26,9 @@ public abstract class MarsReceiptProvider {
   private final String targetRepository;
 
   private class ReceiptAccessionMap {
-    public String keyName;
-    public String isaKeyName;
-    public String keyValue;
+    public String isaItemName;
+    public String isaFieldKey;
+    public String isaFieldValue;
     public String accession;
   }
 
@@ -87,8 +89,20 @@ public abstract class MarsReceiptProvider {
         .info(marsMessage.info);
   }
 
+  protected void setMarsReceiptErrors(MarsErrorType type, final MarsError... errors) {
+    for (MarsError error : Optional.ofNullable(errors).filter(error -> error != null).get()) {
+      marsMessage.errors
+          .add(
+              MarsError.builder()
+                  .message(error.message)
+                  .path(error.path)
+                  .type(type)
+                  .build());
+    }
+  }
+
   protected void setMarsReceiptErrors(MarsErrorType type, final String... errors) {
-    for (String error : Optional.ofNullable(errors).orElse(new String[0])) {
+    for (String error : Optional.ofNullable(errors).orElse(new String[] { "Null message recieved" })) {
       marsMessage.errors
           .add(
               MarsError.builder()
@@ -190,26 +204,138 @@ public abstract class MarsReceiptProvider {
             });
   }
 
+  // -------------------------
+  // | Making Mars item path |
+  // -------------------------
+
+  public MarsPath[] getStudyMarsPath(final Entry<String, String> isaStudyKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(
+                MarsWhere.builder()
+                    .key(isaStudyKeyValue.getKey())
+                    .value(isaStudyKeyValue.getValue())
+                    .build())
+            .build()
+    };
+  }
+
+  public MarsPath[] getSampleMarsPath(
+      final Entry<String, String> isaStudyKeyValue,
+      final Entry<String, String> isaSampleKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(MarsWhere.builder()
+                .key(isaStudyKeyValue.getKey())
+                .value(isaStudyKeyValue.getValue())
+                .build())
+            .build(),
+        MarsPath.builder().key("materials").build(),
+        MarsPath.builder()
+            .key("samples")
+            .where(MarsWhere.builder()
+                .key(isaSampleKeyValue.getKey())
+                .value(isaSampleKeyValue.getValue())
+                .build())
+            .build(),
+    };
+  }
+
+  public MarsPath[] getSourceMarsPath(
+      final Entry<String, String> isaStudyKeyValue,
+      final Entry<String, String> isaSourceKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(MarsWhere.builder()
+                .key(isaStudyKeyValue.getKey())
+                .value(isaStudyKeyValue.getValue())
+                .build())
+            .build(),
+        MarsPath.builder().key("materials").build(),
+        MarsPath.builder()
+            .key("sources")
+            .where(MarsWhere.builder()
+                .key(isaSourceKeyValue.getKey())
+                .value(isaSourceKeyValue.getValue())
+                .build())
+            .build()
+    };
+  }
+
+  public MarsPath[] getOtherMaterialMarsPath(
+      final Entry<String, String> isaStudyKeyValue,
+      final String assayId,
+      final Entry<String, String> isaOtherMaterialKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(MarsWhere.builder()
+                .key(isaStudyKeyValue.getKey())
+                .value(isaStudyKeyValue.getValue())
+                .build())
+            .build(),
+        MarsPath.builder()
+            .key("assays")
+            .where(MarsWhere.builder()
+                .key("@id")
+                .value(assayId)
+                .build())
+            .build(),
+        MarsPath.builder().key("materials").build(),
+        MarsPath.builder()
+            .key("otherMaterials")
+            .where(MarsWhere.builder()
+                .key(isaOtherMaterialKeyValue.getKey())
+                .value(isaOtherMaterialKeyValue.getValue())
+                .build())
+            .build()
+    };
+  }
+
+  public MarsPath[] getDataFileMarsPath(
+      final Entry<String, String> isaStudyKeyValue,
+      final String assayId,
+      final Entry<String, String> isaDataFileKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(MarsWhere.builder()
+                .key(isaStudyKeyValue.getKey())
+                .value(isaStudyKeyValue.getValue())
+                .build())
+            .build(),
+        MarsPath.builder()
+            .key("assays")
+            .where(MarsWhere.builder()
+                .key("@id")
+                .value(assayId)
+                .build())
+            .build(),
+        MarsPath.builder()
+            .key("dataFiles")
+            .where(MarsWhere.builder()
+                .key(isaDataFileKeyValue.getKey())
+                .value(isaDataFileKeyValue.getValue())
+                .build())
+            .build()
+    };
+  }
+
   // ---------------------------------
   // | Making Mars accession objects |
   // ---------------------------------
 
   protected MarsAccession getStudyMarsAccession(final ReceiptAccessionMap studyAccessionMap) {
     return MarsAccession.builder()
-        .path(
-            new ArrayList<MarsPath>() {
-              {
-                add(MarsPath.builder().key("investigation").build());
-                add(MarsPath.builder()
-                    .key("studies")
-                    .where(
-                        MarsWhere.builder()
-                            .key(studyAccessionMap.isaKeyName)
-                            .value(studyAccessionMap.keyValue)
-                            .build())
-                    .build());
-              }
-            })
+        .path(List.of(getStudyMarsPath(Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue))))
         .value(studyAccessionMap.accession)
         .build();
   }
@@ -218,27 +344,8 @@ public abstract class MarsReceiptProvider {
       final ReceiptAccessionMap studyAccessionMap,
       final ReceiptAccessionMap sampleAccessionMap) {
     return MarsAccession.builder()
-        .path(
-            new ArrayList<MarsPath>() {
-              {
-                add(MarsPath.builder().key("investigation").build());
-                add(MarsPath.builder()
-                    .key("studies")
-                    .where(MarsWhere.builder()
-                        .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.keyValue)
-                        .build())
-                    .build());
-                add(MarsPath.builder().key("materials").build());
-                add(MarsPath.builder()
-                    .key("samples")
-                    .where(MarsWhere.builder()
-                        .key(sampleAccessionMap.isaKeyName)
-                        .value(sampleAccessionMap.keyValue)
-                        .build())
-                    .build());
-              }
-            })
+        .path(List.of(getSampleMarsPath(Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue),
+            Map.entry(sampleAccessionMap.isaFieldKey, sampleAccessionMap.isaFieldValue))))
         .value(sampleAccessionMap.accession)
         .build();
   }
@@ -247,27 +354,8 @@ public abstract class MarsReceiptProvider {
       final ReceiptAccessionMap studyAccessionMap,
       final ReceiptAccessionMap sourceAccessionMap) {
     return MarsAccession.builder()
-        .path(
-            new ArrayList<MarsPath>() {
-              {
-                add(MarsPath.builder().key("investigation").build());
-                add(MarsPath.builder()
-                    .key("studies")
-                    .where(MarsWhere.builder()
-                        .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.keyValue)
-                        .build())
-                    .build());
-                add(MarsPath.builder().key("materials").build());
-                add(MarsPath.builder()
-                    .key("sources")
-                    .where(MarsWhere.builder()
-                        .key(sourceAccessionMap.isaKeyName)
-                        .value(sourceAccessionMap.keyValue)
-                        .build())
-                    .build());
-              }
-            })
+        .path(List.of(getSourceMarsPath(Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue),
+            Map.entry(sourceAccessionMap.isaFieldKey, sourceAccessionMap.isaFieldValue))))
         .value(sourceAccessionMap.accession)
         .build();
   }
@@ -277,34 +365,10 @@ public abstract class MarsReceiptProvider {
       final String assayId,
       final ReceiptAccessionMap otherMaterialAccessionMap) {
     return MarsAccession.builder()
-        .path(
-            new ArrayList<MarsPath>() {
-              {
-                add(MarsPath.builder().key("investigation").build());
-                add(MarsPath.builder()
-                    .key("studies")
-                    .where(MarsWhere.builder()
-                        .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.keyValue)
-                        .build())
-                    .build());
-                add(MarsPath.builder()
-                    .key("assays")
-                    .where(MarsWhere.builder()
-                        .key("@id")
-                        .value(assayId)
-                        .build())
-                    .build());
-                add(MarsPath.builder().key("materials").build());
-                add(MarsPath.builder()
-                    .key("otherMaterials")
-                    .where(MarsWhere.builder()
-                        .key(otherMaterialAccessionMap.isaKeyName)
-                        .value(otherMaterialAccessionMap.keyValue)
-                        .build())
-                    .build());
-              }
-            })
+        .path(List.of(getOtherMaterialMarsPath(
+            Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue),
+            assayId,
+            Map.entry(otherMaterialAccessionMap.isaFieldKey, otherMaterialAccessionMap.isaFieldValue))))
         .value(otherMaterialAccessionMap.accession)
         .build();
   }
@@ -314,33 +378,9 @@ public abstract class MarsReceiptProvider {
       final String assayId,
       final ReceiptAccessionMap dataFileAccessionMap) {
     return MarsAccession.builder()
-        .path(
-            new ArrayList<MarsPath>() {
-              {
-                add(MarsPath.builder().key("investigation").build());
-                add(MarsPath.builder()
-                    .key("studies")
-                    .where(MarsWhere.builder()
-                        .key(studyAccessionMap.isaKeyName)
-                        .value(studyAccessionMap.keyValue)
-                        .build())
-                    .build());
-                add(MarsPath.builder()
-                    .key("assays")
-                    .where(MarsWhere.builder()
-                        .key("@id")
-                        .value(assayId)
-                        .build())
-                    .build());
-                add(MarsPath.builder()
-                    .key("dataFiles")
-                    .where(MarsWhere.builder()
-                        .key(dataFileAccessionMap.isaKeyName)
-                        .value(dataFileAccessionMap.keyValue)
-                        .build())
-                    .build());
-              }
-            })
+        .path(List.of(getDataFileMarsPath(Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue),
+            assayId,
+            Map.entry(dataFileAccessionMap.isaFieldKey, dataFileAccessionMap.isaFieldValue))))
         .value(dataFileAccessionMap.accession)
         .build();
   }
@@ -354,15 +394,15 @@ public abstract class MarsReceiptProvider {
     try {
       return new ReceiptAccessionMap() {
         {
-          Field field = item.getClass().getField(accessionsMap.keyName);
+          Field field = item.getClass().getField(accessionsMap.isaItemName);
           if (field.isAnnotationPresent(JsonProperty.class)) {
-            isaKeyName = field.getAnnotation(JsonProperty.class).value();
+            isaFieldKey = field.getAnnotation(JsonProperty.class).value();
           } else {
-            isaKeyName = accessionsMap.keyName;
+            isaFieldKey = accessionsMap.isaItemName;
           }
-          keyName = accessionsMap.keyName;
-          keyValue = field.get(item).toString();
-          accession = accessionsMap.accessionMap.get(keyValue);
+          isaItemName = accessionsMap.isaItemName;
+          isaFieldValue = field.get(item).toString();
+          accession = accessionsMap.accessionMap.get(isaFieldValue);
         }
       };
     } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -372,7 +412,7 @@ public abstract class MarsReceiptProvider {
                   .message(
                       String.format("Cannot find an item of %s with the key %s in the ISA-JSON input",
                           item.getClass().getSimpleName(),
-                          accessionsMap.keyName))
+                          accessionsMap.isaItemName))
                   .type(MarsErrorType.INVALID_METADATA)
                   .build());
       return new ReceiptAccessionMap();
