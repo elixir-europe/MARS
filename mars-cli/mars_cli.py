@@ -197,17 +197,22 @@ def cli(ctx, development):
 
 @cli.command()
 @click.option(
-    "--webin-username", type=click.STRING, help="Username for webin authentication"
+    "--webin-username",
+    type=click.STRING,
+    help="Username for webin authentication",
+    envvar="WEBIN_USERNAME",
 )
 @click.option(
     "--metabolights-username",
     type=click.STRING,
     help="Username for MetaboLights metadata submission",
+    envvar="METABOLIGHTS_USERNAME",
 )
 @click.option(
     "--metabolights-ftp-username",
     type=click.STRING,
     help="Username for MetaboLights data submission",
+    envvar="METABOLIGHTS_FTP_USERNAME",
 )
 @click.option(
     "--credentials-file",
@@ -288,8 +293,9 @@ def submit(
     data_file_paths = [f.name for f in data_files] if file_transfer else []
 
     submission(
-        credential_service_name,
-        username_credentials,
+        webin_username,
+        metabolights_username,
+        metabolights_ftp_username,
         credentials_file,
         isa_json_file.name,
         target_repositories,

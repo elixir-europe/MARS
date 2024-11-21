@@ -10,6 +10,7 @@ from mars_lib.authentication import (
     get_metabolights_auth_token,
     get_webin_auth_token,
     load_credentials,
+    AuthProvider,
 )
 from mars_lib.biosamples_external_references import (
     get_header,
@@ -48,8 +49,9 @@ DEBUG = os.getenv("MARS_DEBUG") in ["1", 1]
 
 
 def submission(
-    credential_service_name: str,
-    username_credentials: str,
+    webin_username: str,
+    metabolights_username: str,
+    metabolights_ftp_username: str,
     credentials_file: TextIOWrapper,
     isa_json_file: str,
     target_repositories: list[str],
@@ -63,11 +65,18 @@ def submission(
     # Get password from the credential manager
     # Else:
     # read credentials from file
-    if not (credential_service_name is None or username_credentials is None):
-        cm = CredentialManager(credential_service_name)
+    if all([webin_username, metabolights_username, metabolights_ftp_username]):
         user_credentials = {
-            "username": username_credentials,
-            "password": cm.get_password_keyring(username_credentials),
+            cred_pair[0]: {
+                "username": cred_pair[1],
+                "password": CredentialManager(cred_pair[0]).get_password_keyring(
+                    cred_pair[1]
+                ),
+            }
+            for cred_pair in zip(
+                AuthProvider.available_providers(),
+                [webin_username, metabolights_username, metabolights_ftp_username],
+            )
         }
     else:
         if credentials_file == "":
