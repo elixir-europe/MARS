@@ -376,11 +376,13 @@ def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
 @cli.command()
 @click.option(
     "--auth-provider",
-    type=click.Choice(['webin', 'metabolights_metadata', 'metabolights_data'], case_sensitive=False),
+    type=click.Choice(
+        ["webin", "metabolights_metadata", "metabolights_data"], case_sensitive=False
+    ),
     is_flag=False,
     flag_value="value",
     required=True,
-    help='',
+    help="",
 )
 @click.argument(
     "username",

@@ -114,7 +114,7 @@ def submission(
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
-            biosamples_credentials=user_credentials,
+            biosamples_credentials=user_credentials[TargetRepository.BIOSAMPLES.value],
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
@@ -137,7 +137,7 @@ def submission(
                 file_paths=[
                     Path(df) for df in data_file_map[TargetRepository.ENA.value]
                 ],
-                user_credentials=user_credentials,
+                user_credentials=user_credentials[TargetRepository.ENA.value],
                 submission_url=urls["ENA"]["DATA-SUBMISSION"],
                 file_transfer=file_transfer,
             )
@@ -148,7 +148,7 @@ def submission(
         # Step 2 : submit isa-json to ena
         ena_result = submit_to_ena(
             isa_json=isa_json,
-            user_credentials=user_credentials,
+            user_credentials=user_credentials[TargetRepository.ENA.value],
             submission_url=urls["ENA"]["SUBMISSION"],
         )
         print_and_log(
@@ -172,7 +172,9 @@ def submission(
             file_paths=data_file_map[TargetRepository.METABOLIGHTS.value],
             file_transfer=file_transfer,
             isa_json=isa_json,
-            metabolights_credentials=user_credentials,
+            metabolights_credentials=user_credentials[
+                TargetRepository.METABOLIGHTS.value
+            ],
             metabolights_url=urls["METABOLIGHTS"]["SUBMISSION"],
             metabolights_token_url=urls["METABOLIGHTS"]["TOKEN"],
         )

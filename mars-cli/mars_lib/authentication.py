@@ -38,10 +38,10 @@ def load_credentials(
     Returns:
     dict: The credentials.
     """
-    if type(credentials_file) == str:
+    if isinstance(credentials_file, str):
         with open(credentials_file, "r") as file:
             credentials = json.load(file)
-    elif type(credentials_file) == io.TextIOWrapper:
+    elif isinstance(credentials_file, io.TextIOWrapper):
         with open(credentials_file.name, "r") as file:
             credentials = json.load(file)
     else:
