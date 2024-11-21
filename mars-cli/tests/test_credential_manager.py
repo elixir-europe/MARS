@@ -14,6 +14,6 @@ def test_create_credentials_manager():
 
 
 def test_set_password_keyring():
-    cm = CredentialManager("mars-cli")
+    cm = CredentialManager("webin")
     cm.set_password_keyring("username", "password")
     assert cm.get_password_keyring("username") == "password"
