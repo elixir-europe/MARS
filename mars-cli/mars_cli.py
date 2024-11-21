@@ -197,10 +197,17 @@ def cli(ctx, development):
 
 @cli.command()
 @click.option(
-    "--credential-service-name", type=click.STRING, help="service name from the keyring"
+    "--webin-username", type=click.STRING, help="Username for webin authentication"
 )
 @click.option(
-    "--username-credentials", type=click.STRING, help="Username from the keyring"
+    "--metabolights-username",
+    type=click.STRING,
+    help="Username for MetaboLights metadata submission",
+)
+@click.option(
+    "--metabolights-ftp-username",
+    type=click.STRING,
+    help="Username for MetaboLights data submission",
 )
 @click.option(
     "--credentials-file",
@@ -247,8 +254,9 @@ def cli(ctx, development):
 @click.pass_context
 def submit(
     ctx,
-    credential_service_name,
-    username_credentials,
+    webin_username,
+    metabolights_username,
+    metabolights_ftp_username,
     credentials_file,
     isa_json_file,
     submit_to_biosamples,
