@@ -18,6 +18,10 @@ class AuthProvider(Enum):
     def available_providers(cls):
         return {item.value for item in cls}
 
+    @classmethod
+    def is_valid_provider(cls, provider: str):
+        return provider in cls.available_providers()
+
 
 def load_credentials(
     credentials_file: Union[io.TextIOWrapper, str]
