@@ -375,12 +375,12 @@ def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
 
 @cli.command()
 @click.option(
-    "--service-name",
-    type=click.STRING,
+    "--auth-provider",
+    type=click.Choice(['webin', 'metabolights_metadata', 'metabolights_data'], case_sensitive=False),
     is_flag=False,
     flag_value="value",
-    default=f"mars-cli_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
-    help='You are advised to include service name to match the credentials to. If empty, it defaults to "mars-cli_{DATESTAMP}"',
+    required=True,
+    help='',
 )
 @click.argument(
     "username",
@@ -394,9 +394,9 @@ def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
     confirmation_prompt=True,
     help="The password to store. Note: You are required to confirm the password.",
 )
-def set_password(service_name, username, password):
+def set_password(auth_provider, username, password):
     """Store a password in the keyring."""
-    CredentialManager(service_name).set_password_keyring(username, password)
+    CredentialManager(auth_provider).set_password_keyring(username, password)
 
 
 if __name__ == "__main__":
