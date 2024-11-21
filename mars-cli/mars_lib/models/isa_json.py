@@ -255,7 +255,7 @@ class MaterialAttribute(IsaBase):
 
 
 class Study(CommentedIsaBase):
-    id: str = Field(alias="@id", default=None)
+    id: str = Field(alias="@id")
     assays: List[Assay] = []
     characteristicCategories: List[MaterialAttribute] = []
     description: Optional[str] = None
@@ -284,7 +284,7 @@ class Study(CommentedIsaBase):
 
 
 class Investigation(CommentedIsaBase):
-    id: str = Field(alias="@id", default=None)
+    id: str = Field(alias="@id")
     description: Optional[str] = None
     filename: Optional[str] = None
     identifier: Optional[str] = None
