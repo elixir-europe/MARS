@@ -1,4 +1,5 @@
-from typing import Optional
+import io
+from typing import Optional, Union
 import requests
 import json
 from enum import Enum
@@ -16,6 +17,46 @@ class AuthProvider(Enum):
     @classmethod
     def available_providers(cls):
         return {item.value for item in cls}
+
+
+def load_credentials(
+    credentials_file: Union[io.TextIOWrapper, str]
+) -> dict[str, dict[str, str]]:
+    """
+    Validate the credentials.
+
+    Args:
+    credentials_file (_): The credentials in file formate.
+
+    Raises:
+    ValueError: If the credentials are not valid.
+
+    Returns:
+    dict: The credentials.
+    """
+    if type(credentials_file) == str:
+        with open(credentials_file, "r") as file:
+            credentials = json.load(file)
+    elif type(credentials_file) == io.TextIOWrapper:
+        with open(credentials_file.name, "r") as file:
+            credentials = json.load(file)
+    else:
+        raise TypeError("Credentials file must be of type str or io.TextIOWrapper.")
+
+    if not all(
+        repo in AuthProvider.available_providers() for repo in credentials.keys()
+    ):
+        raise ValueError("Credentials dictionary must have keys .")
+
+    if not all(
+        key in ["username", "password"]
+        for repo, creds in credentials.items()
+        for key in creds.keys()
+    ):
+        raise ValueError(
+            "Credentials dictionary must contain 'username' and 'password' keys."
+        )
+    return credentials
 
 
 def get_webin_auth_token(

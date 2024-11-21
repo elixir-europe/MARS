@@ -6,7 +6,11 @@ import time
 import requests
 import json
 from typing import Any
-from mars_lib.authentication import get_metabolights_auth_token, get_webin_auth_token
+from mars_lib.authentication import (
+    get_metabolights_auth_token,
+    get_webin_auth_token,
+    load_credentials,
+)
 from mars_lib.biosamples_external_references import (
     get_header,
     biosamples_endpoints,
@@ -69,7 +73,7 @@ def submission(
         if credentials_file == "":
             raise ValueError("No credentials found")
 
-        user_credentials = json.load(credentials_file)
+        user_credentials = load_credentials(credentials_file)
 
     isa_json = load_isa_json(isa_json_file, investigation_is_root)
 
@@ -252,9 +256,9 @@ def upload_to_metabolights(
         "accept": "application/json",
         "Authorization": f"Bearer {token}",
     }
-    isa_json_str = isa_json.investigation.model_dump_json(
-        by_alias=True, exclude_none=True
-    )
+    isa_json_str = reduce_isa_json_for_target_repo(
+        isa_json, TargetRepository.METABOLIGHTS
+    ).investigation.model_dump_json(by_alias=True, exclude_none=True)
     json_file = io.StringIO(isa_json_str)
 
     files = {"isa_json_file": ("isa_json.json", json_file)}
