@@ -65,7 +65,7 @@ public class BioSampleSubmissionController {
       return marsReceiptService.convertMarsReceiptToJson();
     } catch (final MarsReceiptException e) {
       log.error("Mars receipt excption", e);
-      marsReceiptService.setMarsReceiptErrors(e.getReceiptErrorMessage());
+      marsReceiptService.setMarsReceiptErrors(e.getError());
       return marsReceiptService.convertMarsReceiptToJson();
     } catch (final Exception e) {
       log.error("Internal server error", e);
@@ -78,7 +78,7 @@ public class BioSampleSubmissionController {
     try {
       return isaJson.getInvestigation().getStudies();
     } catch (final Exception e) {
-      throw new MarsReceiptException("Failed to parse ISA JSON and get studies", e);
+      throw new MarsReceiptException(e, "Failed to parse ISA JSON and get studies");
     }
   }
 }

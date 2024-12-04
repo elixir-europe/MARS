@@ -10,6 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,13 +52,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
   }
 
+  public void setMarsReceiptErrors(MarsError... errors) {
+    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
+  }
+
   /**
    * Converting BioSample receipt to Mars data format
    *
-   * @see
-   *      https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
-   * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from
-   *                               Biosample
+   * @see <a href='https://github.com/elixir-europe/MARS/blob/main/repository-services/repository-api.md#response'>Repository API Specification</a>
+   * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from Biosample
    * @param isaJson                {@link IsaJson} Requested ISA-Json
    */
   public void convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
