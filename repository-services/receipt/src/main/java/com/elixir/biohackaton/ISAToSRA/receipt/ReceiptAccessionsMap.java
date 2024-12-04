@@ -3,26 +3,36 @@ package com.elixir.biohackaton.ISAToSRA.receipt;
 import java.util.HashMap;
 
 public class ReceiptAccessionsMap {
+    /**
+     * Key and accession number of ISA-JSON item
+     */
     public HashMap<String, String> accessionMap;
 
-    public String keyName;
+    /**
+     * ISA-JSON item name
+     */
+    public String isaItemName;
 
     public ReceiptAccessionsMap() {
         accessionMap = new HashMap<>();
     }
 
-    public ReceiptAccessionsMap(String keyName, String keyValue) {
-        this.keyName = keyName;
+    /**
+     * @param itemName ISA-JSON key name
+     * @param key      ISA-JSON key value
+     */
+    public ReceiptAccessionsMap(String itemName, String key) {
+        this.isaItemName = itemName;
         this.accessionMap = new HashMap<>() {
             {
-                put(keyValue, null);
+                put(key, null);
             }
         };
     }
 
     public String toString() {
-        String result = "ReceiptAccessionsMap:" + keyName + "\n";
-        for (String key: accessionMap.keySet()) {
+        String result = "ReceiptAccessionsMap:" + isaItemName + "\n";
+        for (String key : accessionMap.keySet()) {
             result += key + ":" + accessionMap.get(key) + "\n";
         }
         return result;

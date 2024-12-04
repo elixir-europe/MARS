@@ -1,0 +1,58 @@
+{
+    "success": true,
+    "receiptDate": "2023-11-16T10:44:41.618Z",
+    "experiments": [
+        {
+            "alias": "#other_material/332-0.5578006304577448",
+            "accession": "ERX13332762",
+            "status": "PRIVATE"
+        },
+        {
+            "alias": "#other_material/333-0.5578006304577448",
+            "accession": "ERX13332763",
+            "status": "PRIVATE"
+        }
+    ],
+    "runs": [
+        {
+            "alias": "#assay/18_20_21-0.5578006304577448",
+            "accession": "ERR13930853",
+            "status": "PRIVATE"
+        }
+    ],
+    "studies":[
+        {
+            "alias":"Arabidopsis thaliana-0.5578006304577448",
+            "status":"PRIVATE",
+            "holdUntilDate": "2023-01-01Z",
+            "externalAccession": {
+                "id": "PRJEB82366",
+                "db": "Project"
+            }
+        }
+    ],
+    "projects": [
+        {
+            "alias": "Bob's investigation-0.5578006304577448",
+            "accession": "PRJEB82365",
+            "status": "PRIVATE",
+            "holdUntilDate": "2023-01-01Z",
+            "externalAccession": {
+                "id": "ERP166076",
+                "db": "study"
+            }
+        }
+    ],
+    "submission": {
+        "alias": "SUBMISSION-07-11-2024-17:00:52:797",
+        "accession": "ERA30928821"
+    },
+    "messages": {
+        "info": [
+            "All objects in this submission are set to private status (HOLD)."
+        ]
+    },
+    "actions": [
+        "ADD"
+    ]
+}

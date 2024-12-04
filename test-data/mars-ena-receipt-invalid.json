@@ -1,6 +1,11 @@
 {
     "targetRepository": "ena",
-    "errors": [],
+    "errors": [
+        {
+            "type": "INVALID_METADATA",
+            "message": "ENA receipt: Accession number of Arabidopsis thaliana-0.5578006304577448 is NULL"
+        }
+    ],
     "info": [
         {
             "message": "All objects in this submission are set to private status (HOLD)."
@@ -8,22 +13,7 @@
     ],
     "accessions": [
         {
-            "value": "PRJEB101337",
-            "path": [
-                {
-                    "key": "investigation"
-                },
-                {
-                    "key": "studies",
-                    "where": {
-                        "key": "title",
-                        "value": "Arabidopsis thaliana"
-                    }
-                }
-            ]
-        },
-        {
-            "value": "ERX9223136",
+            "value": "ERX13332762",
             "path": [
                 {
                     "key": "investigation"
@@ -55,7 +45,7 @@
             ]
         },
         {
-            "value": "ERR9669128",
+            "value": "ERX13332763",
             "path": [
                 {
                     "key": "investigation"
@@ -75,10 +65,13 @@
                     }
                 },
                 {
-                    "key": "dataFiles",
+                    "key": "materials"
+                },
+                {
+                    "key": "otherMaterials",
                     "where": {
                         "key": "@id",
-                        "value": "#data/334"
+                        "value": "#other_material/333"
                     }
                 }
             ]

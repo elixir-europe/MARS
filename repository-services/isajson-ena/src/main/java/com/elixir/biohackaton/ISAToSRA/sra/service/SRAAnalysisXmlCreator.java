@@ -1,6 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.List;
 import java.util.Objects;
@@ -75,7 +76,7 @@ public class SRAAnalysisXmlCreator {
             });
 
     if (Objects.isNull(checksum.get()) || Objects.isNull(checksumType.get())) {
-      log.error("Checksum and checksum type not found");
+      throw new MarsReceiptException("Checksum and checksum type not found");
     } else {
       Element fileElement = filesElement.addElement("FILE");
       fileElement.addAttribute("filename", filename);
