@@ -13,6 +13,6 @@ public class MarsReceiptServiceInterceptorConfig implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(marsReceiptService);
+    // registry.addInterceptor(marsReceiptService);
   }
 }
