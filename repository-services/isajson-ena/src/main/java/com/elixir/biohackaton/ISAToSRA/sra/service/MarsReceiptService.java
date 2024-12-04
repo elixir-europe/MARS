@@ -1,21 +1,6 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.HandlerInterceptor;
-
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
 import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
@@ -29,6 +14,18 @@ import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Service
 public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
