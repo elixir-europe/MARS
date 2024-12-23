@@ -197,10 +197,22 @@ def cli(ctx, development):
 
 @cli.command()
 @click.option(
-    "--credential-service-name", type=click.STRING, help="service name from the keyring"
+    "--webin-username",
+    type=click.STRING,
+    help="Username for webin authentication",
+    envvar="WEBIN_USERNAME",
 )
 @click.option(
-    "--username-credentials", type=click.STRING, help="Username from the keyring"
+    "--metabolights-username",
+    type=click.STRING,
+    help="Username for MetaboLights metadata submission",
+    envvar="METABOLIGHTS_USERNAME",
+)
+@click.option(
+    "--metabolights-ftp-username",
+    type=click.STRING,
+    help="Username for MetaboLights data submission",
+    envvar="METABOLIGHTS_FTP_USERNAME",
 )
 @click.option(
     "--credentials-file",
@@ -247,8 +259,9 @@ def cli(ctx, development):
 @click.pass_context
 def submit(
     ctx,
-    credential_service_name,
-    username_credentials,
+    webin_username,
+    metabolights_username,
+    metabolights_ftp_username,
     credentials_file,
     isa_json_file,
     submit_to_biosamples,
@@ -280,8 +293,9 @@ def submit(
     data_file_paths = [f.name for f in data_files] if file_transfer else []
 
     submission(
-        credential_service_name,
-        username_credentials,
+        webin_username,
+        metabolights_username,
+        metabolights_ftp_username,
         credentials_file,
         isa_json_file.name,
         target_repositories,
@@ -361,12 +375,14 @@ def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
 
 @cli.command()
 @click.option(
-    "--service-name",
-    type=click.STRING,
+    "--auth-provider",
+    type=click.Choice(
+        ["webin", "metabolights_metadata", "metabolights_data"], case_sensitive=False
+    ),
     is_flag=False,
     flag_value="value",
-    default=f"mars-cli_{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
-    help='You are advised to include service name to match the credentials to. If empty, it defaults to "mars-cli_{DATESTAMP}"',
+    required=True,
+    help="",
 )
 @click.argument(
     "username",
@@ -380,9 +396,9 @@ def validate_isa_json(isa_json_file, investigation_is_root, validation_schema):
     confirmation_prompt=True,
     help="The password to store. Note: You are required to confirm the password.",
 )
-def set_password(service_name, username, password):
+def set_password(auth_provider, username, password):
     """Store a password in the keyring."""
-    CredentialManager(service_name).set_password_keyring(username, password)
+    CredentialManager(auth_provider).set_password_keyring(username, password)
 
 
 if __name__ == "__main__":
