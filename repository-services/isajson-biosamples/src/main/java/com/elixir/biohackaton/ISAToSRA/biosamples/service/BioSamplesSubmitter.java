@@ -1,17 +1,14 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.biosamples.service;
 
-import com.elixir.biohackaton.ISAToSRA.biosamples.model.Attribute;
-import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.biosamples.model.Relationship;
-import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
-import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
-
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpEntity;
@@ -21,9 +18,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.elixir.biohackaton.ISAToSRA.biosamples.model.Attribute;
+import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
+import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
+import com.elixir.biohackaton.ISAToSRA.biosamples.model.Relationship;
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
+import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Category;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Sample;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Source;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Value;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Slf4j
 public class BioSamplesSubmitter {
+
+  @Autowired
+  private MarsReceiptService marsReceiptService;
 
   public BiosampleAccessionsMap createBioSamples(final List<Study> studies, final String webinToken) {
     final BiosampleAccessionsMap typeToBioSamplesAccessionMap = new BiosampleAccessionsMap();
@@ -38,7 +53,7 @@ public class BioSamplesSubmitter {
         }
       }
 
-      typeToBioSamplesAccessionMap.sourceAccessionsMap.keyName = Source.Fields.name;
+      typeToBioSamplesAccessionMap.sourceAccessionsMap.isaItemName = Source.Fields.name;
       typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
           sourceBioSample.getName(),
           sourceBioSample.getAccession());
@@ -51,36 +66,44 @@ public class BioSamplesSubmitter {
               typeToBioSamplesAccessionMap.studyAccessionsMap = new ReceiptAccessionsMap(
                   Study.Fields.title,
                   study.getTitle());
-
               study
                   .getMaterials()
                   .getSamples()
                   .forEach(
                       sample -> {
-                        final BioSample persistedChildSample = this.createAndUpdateChildSampleWithRelationship(
-                            sample,
-                            sourceBioSample.getAccession(),
-                            finalSourceBioSampleOrganismAttribute.getValue(),
-                            webinToken);
+                        try {
+                          final BioSample persistedChildSample = this.createAndUpdateChildSampleWithRelationship(
+                              sample,
+                              sourceBioSample.getAccession(),
+                              finalSourceBioSampleOrganismAttribute.getValue(),
+                              webinToken);
 
-                        if (persistedChildSample != null) {
-                          final Characteristic biosampleAccessionCharacteristic = getBioSampleAccessionCharacteristic(
-                              new AtomicReference<>(persistedChildSample));
-                          final ArrayList<Characteristic> sampleCharacteristics = sample.getCharacteristics() != null
-                              ? sample.getCharacteristics()
-                              : new ArrayList<>();
-                          sampleCharacteristics.add(biosampleAccessionCharacteristic);
+                          if (persistedChildSample != null) {
+                            final Characteristic biosampleAccessionCharacteristic = getBioSampleAccessionCharacteristic(
+                                new AtomicReference<>(persistedChildSample));
+                            final ArrayList<Characteristic> sampleCharacteristics = sample
+                                .getCharacteristics() != null
+                                    ? sample.getCharacteristics()
+                                    : new ArrayList<>();
+                            sampleCharacteristics.add(biosampleAccessionCharacteristic);
 
-                          typeToBioSamplesAccessionMap.sampleAccessionsMap.keyName = Sample.Fields.name;
-                          typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
-                              persistedChildSample.getName(),
-                              persistedChildSample.getAccession());
+                            typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName = Sample.Fields.name;
+                            typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
+                                persistedChildSample.getName(),
+                                persistedChildSample.getAccession());
+                          }
+                        } catch (Exception e) {
+                          throw new MarsReceiptException(e,
+                              "Failed to parse ISA Json and create samples in BioSamples (SAMPLE)",
+                              marsReceiptService.getSampleMarsPath(
+                                  Map.entry(Study.Fields.title, study.title),
+                                  Map.entry(Sample.Fields.id, sample.id)));
                         }
                       });
             });
       }
     } catch (final Exception e) {
-      throw new RuntimeException("Failed to parse ISA Json and create samples in BioSamples", e);
+      throw new MarsReceiptException(e, "Failed to parse ISA Json and create samples in BioSamples");
     }
 
     return typeToBioSamplesAccessionMap;
@@ -95,8 +118,8 @@ public class BioSamplesSubmitter {
         .withRelease(Instant.now())
         .withAttributes(
             List.of(Attribute.build("organism", parentSampleOrganism),
-                    Attribute.build("collection date", "not provided"),
-                    Attribute.build("geographic location (country and/or sea)", "not provided")))
+                Attribute.build("collection date", "not provided"),
+                Attribute.build("geographic location (country and/or sea)", "not provided")))
         .build();
     try {
       final EntityModel<BioSample> persistedSampleEntity = this.createSampleInBioSamples(bioSample, webinToken);
@@ -122,7 +145,7 @@ public class BioSamplesSubmitter {
         return null;
       }
     } catch (final Exception e) {
-      throw new RuntimeException("Failed to handle child samples", e);
+      throw new MarsReceiptException(e, "Failed to handle child samples");
     }
   }
 
@@ -150,8 +173,8 @@ public class BioSamplesSubmitter {
                   final BioSample sourceSample = new BioSample.Builder(source.getName())
                       .withRelease(Instant.now())
                       .withAttributes(List.of(organismAttribute.get(),
-                              Attribute.build("collection date", "not provided"),
-                              Attribute.build("geographic location (country and/or sea)", "not provided")))
+                          Attribute.build("collection date", "not provided"),
+                          Attribute.build("geographic location (country and/or sea)", "not provided")))
                       .build();
                   final EntityModel<BioSample> persistedParentSampleEntity = this.createSampleInBioSamples(sourceSample,
                       webinToken);
@@ -165,7 +188,7 @@ public class BioSamplesSubmitter {
                     sourceCharacteristics.add(biosampleAccessionCharacteristic);
                     source.setCharacteristics(sourceCharacteristics);
                   } else {
-                    throw new RuntimeException("Failed to store source sample to BioSamples");
+                    throw new MarsReceiptException("Failed to store source sample to BioSamples");
                   }
                 }));
 
@@ -204,8 +227,8 @@ public class BioSamplesSubmitter {
           new ParameterizedTypeReference<>() {
           });
       return biosamplesResponse.getBody().getContent();
-    } catch (final Exception ex) {
-      throw new RuntimeException("Failed to add relationships to child samples", ex);
+    } catch (final Exception e) {
+      throw new MarsReceiptException(e, "Failed to add relationships to child samples");
     }
   }
 
@@ -226,8 +249,8 @@ public class BioSamplesSubmitter {
           });
 
       return biosamplesResponse.getBody();
-    } catch (final Exception ex) {
-      throw new RuntimeException("Failed to create samples in BioSamples", ex);
+    } catch (final Exception e) {
+      throw new MarsReceiptException(e, "Failed to create samples in BioSamples");
     }
   }
 

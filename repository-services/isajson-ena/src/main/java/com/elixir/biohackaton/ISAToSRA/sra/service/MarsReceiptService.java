@@ -3,8 +3,12 @@ package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
 import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,11 +18,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Service
-public class MarsReceiptService extends MarsReceiptProvider {
+public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
+
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
   private void setupJsonMapper() {
@@ -28,30 +39,46 @@ public class MarsReceiptService extends MarsReceiptProvider {
   }
 
   public MarsReceiptService() {
+    super("ena"); // TODO decide whether to use instead
+    // https://registry.identifiers.org/registry/ena.embl
     setupJsonMapper();
   }
 
-  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
+  // Reset MARS receipt per request
+  @Override
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+      throws Exception {
+    resetMarsReceipt();
+    return HandlerInterceptor.super.preHandle(request, response, handler);
+  }
+
+  public String convertMarsReceiptToJson() {
     try {
-      return jsonMapper.writeValueAsString(marsReceipt);
+      return jsonMapper.writeValueAsString(getMarsReceipt());
     } catch (Exception ex) {
-      throw new RuntimeException("receipt", ex);
+      throw new RuntimeException("Receipt", ex);
     }
+  }
+
+  public void setMarsReceiptErrors(String... errors) {
+    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
+  }
+
+  public void setMarsReceiptErrors(MarsError... errors) {
+    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
   }
 
   /**
    * Converting ENA receipt to Mars data format
    *
-   * @see
-   *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param receipt {@link Receipt} Receipt from ENA
    * @param isaJson {@link IsaJson} Requested ISA-Json
-   * @return {@link MarsReceipt} Mars response data
+   * @see <a
+   *     href="https://github.com/elixir-europe/MARS/blob/main/repository-services/repository-api.md">Repository
+   *     API response</a>
    */
-  public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
-    return buildMarsReceipt(
-        "ena", // TODO decide whether to use instead
-        // https://registry.identifiers.org/registry/ena.embl
+  public void convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    buildMarsReceipt(
         getAliasAccessionPairs(
             Study.Fields.title,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
@@ -64,26 +91,47 @@ public class MarsReceiptService extends MarsReceiptProvider {
         isaJson);
   }
 
-  private static String getPreRandomizedAlias(ReceiptObject receiptObject) {
-    // Convert Arabidopsis thaliana-0.49105604184136276 -> Arabidopsis thaliana
-    String alias = receiptObject.getAlias();
-    return alias.substring(0, alias.lastIndexOf("-"));
-  }
-
   private ReceiptAccessionsMap getAliasAccessionPairs(
       String keyNameInput, final List<ReceiptObject> items) {
+    Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
+    Function<ReceiptObject, String> getPreRandomizedAliasFn = this::getPreRandomizedAlias;
+
     return new ReceiptAccessionsMap() {
       {
-        keyName = keyNameInput;
+        isaItemName = keyNameInput;
         accessionMap =
-            new HashMap<String, String>(
+            new HashMap<>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-                    .filter(item -> item != null)
+                    .filter(aliasAccessionPairValidateFn)
                     .collect(
-                        Collectors.toMap(
-                            MarsReceiptService::getPreRandomizedAlias,
-                            ReceiptObject::getAccession)));
+                        Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
       }
     };
+  }
+
+  private boolean aliasAccessionPairFilter(ReceiptObject item) {
+    if (item == null) {
+      setMarsReceiptErrors("ENA receipt: Item is NULL");
+      return false;
+    }
+    boolean valid = true;
+    if (item.getAlias() == null) {
+      setMarsReceiptErrors("ENA receipt: Alias is NULL");
+      valid = false;
+    }
+    if (item.getAccession() == null) {
+      setMarsReceiptErrors(
+          String.format("ENA receipt: Accession number of %s is NULL", item.getAlias()));
+      valid = false;
+    }
+    return valid;
+  }
+
+  private String getPreRandomizedAlias(@NotNull ReceiptObject receiptObject) {
+    // Convert Arabidopsis thaliana-0.49105604184136276 -> Arabidopsis thaliana
+    final String alias = receiptObject.getAlias();
+    final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
+    return alias.substring(
+        0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
   }
 }

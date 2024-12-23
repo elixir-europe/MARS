@@ -1,6 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class WebinStudyXmlCreator {
                     });
           });
     } catch (final Exception e) {
-      log.info("Failed to parse ISA JSON and create ENA study");
+      throw new MarsReceiptException("Failed to parse ISA JSON and create ENA study");
     }
   }
 }
