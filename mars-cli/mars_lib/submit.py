@@ -387,11 +387,8 @@ def upload_to_ena(
     submission_url: str,
     file_transfer: str,
 ):
-    ALLOWED_FILE_TRANSFER_SOLUTIONS = {"ftp", "aspera"}
     file_transfer = file_transfer.lower()
 
-    if file_transfer not in ALLOWED_FILE_TRANSFER_SOLUTIONS:
-        raise ValueError(f"Unsupported transfer protocol: {file_transfer}")
     if file_transfer == "ftp":
         uploader = FTPUploader(
             submission_url,

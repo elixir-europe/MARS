@@ -230,7 +230,8 @@ def cli(ctx, development):
 @click.option("--submit-to-ena", type=click.BOOL, default=True, help="Submit to ENA.")
 @click.option(
     "--file-transfer",
-    type=click.STRING,
+    type=click.Choice(["ftp", "aspera"], case_sensitive=False),
+    required=True,
     help="provide the name of a file transfer solution, like ftp or aspera",
 )
 @click.option(
