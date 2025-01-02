@@ -3,6 +3,8 @@ import os
 import getpass
 import keyring.util.platform_ as keyring_platform
 
+from mars_lib.authentication import AuthProvider
+
 """
 Credential Manager Module
 =========================
@@ -52,8 +54,11 @@ print(keyring.get_keyring())
 
 
 class CredentialManager:
-    def __init__(self, service_name: str) -> None:
-        self.service_name = service_name
+    def __init__(self, auth_provider: str) -> None:
+        if not AuthProvider.is_valid_provider(auth_provider):
+            raise ValueError(f"Invalid authentication provider: {auth_provider}")
+
+        self.service_name = auth_provider
 
     def get_credential_env(self, username: str) -> str:
         """

@@ -6,7 +6,12 @@ import time
 import requests
 import json
 from typing import Any
-from mars_lib.authentication import get_metabolights_auth_token, get_webin_auth_token
+from mars_lib.authentication import (
+    get_metabolights_auth_token,
+    get_webin_auth_token,
+    load_credentials,
+    AuthProvider,
+)
 from mars_lib.biosamples_external_references import (
     get_header,
     biosamples_endpoints,
@@ -44,8 +49,9 @@ DEBUG = os.getenv("MARS_DEBUG") in ["1", 1]
 
 
 def submission(
-    credential_service_name: str,
-    username_credentials: str,
+    webin_username: str,
+    metabolights_username: str,
+    metabolights_ftp_username: str,
     credentials_file: TextIOWrapper,
     isa_json_file: str,
     target_repositories: list[str],
@@ -59,17 +65,24 @@ def submission(
     # Get password from the credential manager
     # Else:
     # read credentials from file
-    if not (credential_service_name is None or username_credentials is None):
-        cm = CredentialManager(credential_service_name)
+    if all([webin_username, metabolights_username, metabolights_ftp_username]):
         user_credentials = {
-            "username": username_credentials,
-            "password": cm.get_password_keyring(username_credentials),
+            cred_pair[0]: {
+                "username": cred_pair[1],
+                "password": CredentialManager(cred_pair[0]).get_password_keyring(
+                    cred_pair[1]
+                ),
+            }
+            for cred_pair in zip(
+                AuthProvider.available_providers(),
+                [webin_username, metabolights_username, metabolights_ftp_username],
+            )
         }
     else:
         if credentials_file == "":
             raise ValueError("No credentials found")
 
-        user_credentials = json.load(credentials_file)
+        user_credentials = load_credentials(credentials_file)
 
     isa_json = load_isa_json(isa_json_file, investigation_is_root)
 
@@ -101,7 +114,7 @@ def submission(
         # Submit to Biosamples
         biosamples_result = submit_to_biosamples(
             isa_json=isa_json,
-            biosamples_credentials=user_credentials,
+            biosamples_credentials=user_credentials[AuthProvider.WEBIN.value],
             biosamples_url=urls["BIOSAMPLES"]["SUBMISSION"],
             webin_token_url=urls["WEBIN"]["TOKEN"],
         )
@@ -124,7 +137,7 @@ def submission(
                 file_paths=[
                     Path(df) for df in data_file_map[TargetRepository.ENA.value]
                 ],
-                user_credentials=user_credentials,
+                user_credentials=user_credentials[AuthProvider.WEBIN.value],
                 submission_url=urls["ENA"]["DATA-SUBMISSION"],
                 file_transfer=file_transfer,
             )
@@ -135,7 +148,7 @@ def submission(
         # Step 2 : submit isa-json to ena
         ena_result = submit_to_ena(
             isa_json=isa_json,
-            user_credentials=user_credentials,
+            user_credentials=user_credentials[AuthProvider.WEBIN.value],
             submission_url=urls["ENA"]["SUBMISSION"],
         )
         print_and_log(
@@ -159,7 +172,9 @@ def submission(
             file_paths=data_file_map[TargetRepository.METABOLIGHTS.value],
             file_transfer=file_transfer,
             isa_json=isa_json,
-            metabolights_credentials=user_credentials,
+            metabolights_credentials=user_credentials[
+                AuthProvider.METABOLIGHTS_METADATA.value
+            ],
             metabolights_url=urls["METABOLIGHTS"]["SUBMISSION"],
             metabolights_token_url=urls["METABOLIGHTS"]["TOKEN"],
         )
@@ -252,9 +267,9 @@ def upload_to_metabolights(
         "accept": "application/json",
         "Authorization": f"Bearer {token}",
     }
-    isa_json_str = isa_json.investigation.model_dump_json(
-        by_alias=True, exclude_none=True
-    )
+    isa_json_str = reduce_isa_json_for_target_repo(
+        isa_json, TargetRepository.METABOLIGHTS
+    ).investigation.model_dump_json(by_alias=True, exclude_none=True)
     json_file = io.StringIO(isa_json_str)
 
     files = {"isa_json_file": ("isa_json.json", json_file)}
@@ -360,7 +375,7 @@ def submit_to_ena(
             else result.request.body or ""
         )
         raise requests.HTTPError(
-            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
+            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{submission_url}\nParams: ['webinUserName': {params.get('webinUserName')}, 'webinPassword': ****]\nHeaders:{result.request.headers}\nBody:{body}"
         )
 
     return result
@@ -372,11 +387,8 @@ def upload_to_ena(
     submission_url: str,
     file_transfer: str,
 ):
-    ALLOWED_FILE_TRANSFER_SOLUTIONS = {"ftp", "aspera"}
     file_transfer = file_transfer.lower()
 
-    if file_transfer not in ALLOWED_FILE_TRANSFER_SOLUTIONS:
-        raise ValueError(f"Unsupported transfer protocol: {file_transfer}")
     if file_transfer == "ftp":
         uploader = FTPUploader(
             submission_url,

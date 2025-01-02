@@ -1,6 +1,68 @@
-from typing import Optional
+import io
+from typing import Optional, Union
 import requests
 import json
+from enum import Enum
+
+
+class AuthProvider(Enum):
+    """
+    Holds constants, tied to the repository authentication providers.
+    """
+
+    WEBIN = "webin"
+    METABOLIGHTS_METADATA = "metabolights_metadata"
+    METABOLIGHTS_DATA = "metabolights_data"
+
+    @classmethod
+    def available_providers(cls):
+        return {item.value for item in cls}
+
+    @classmethod
+    def is_valid_provider(cls, provider: str):
+        return provider in cls.available_providers()
+
+
+def load_credentials(
+    credentials_file: Union[io.TextIOWrapper, str]
+) -> dict[str, dict[str, str]]:
+    """
+    Validate the credentials.
+
+    Args:
+    credentials_file (_): The credentials in file formate.
+
+    Raises:
+    ValueError: If the credentials are not valid.
+
+    Returns:
+    dict: The credentials.
+    """
+    if isinstance(credentials_file, str):
+        with open(credentials_file, "r") as file:
+            credentials = json.load(file)
+    elif isinstance(credentials_file, io.TextIOWrapper):
+        with open(credentials_file.name, "r") as file:
+            credentials = json.load(file)
+    else:
+        raise TypeError("Credentials file must be of type str or io.TextIOWrapper.")
+
+    if not all(
+        repo in AuthProvider.available_providers() for repo in credentials.keys()
+    ):
+        raise ValueError(
+            f"Credentials dictionary must have valid keys. Valid keys are:\n{AuthProvider.available_providers()}"
+        )
+
+    if not all(
+        key in ["username", "password"]
+        for repo, creds in credentials.items()
+        for key in creds.keys()
+    ):
+        raise ValueError(
+            "Credentials dictionary must contain 'username' and 'password' keys."
+        )
+    return credentials
 
 
 def get_webin_auth_token(
@@ -45,7 +107,10 @@ def get_webin_auth_token(
 
 def get_metabolights_auth_token(
     credentials_dict: dict[str, str],
-    headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"},
+    headers: dict[str, str] = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+    },
     auth_url: str = "https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
 ) -> Optional[str]:
     """
@@ -59,10 +124,6 @@ def get_metabolights_auth_token(
     Returns:
     str: The obtained token.
     """
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
-    }
     form_data = f'grant_type=password&username={credentials_dict["username"]}&password={credentials_dict["password"]}'
     try:
         response = requests.post(
