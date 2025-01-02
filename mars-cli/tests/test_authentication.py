@@ -61,5 +61,7 @@ def test_valid_credentials_file():
     _min_credentials = load_credentials("tests/fixtures/min_credentials_file.json")
 
     # Test with a credentials file that has an invalid provider
-    with pytest.raises(ValueError, match="Credentials dictionary must have valid keys."):
+    with pytest.raises(
+        ValueError, match="Credentials dictionary must have valid keys."
+    ):
         load_credentials("tests/fixtures/bad_credentials_file.json")
