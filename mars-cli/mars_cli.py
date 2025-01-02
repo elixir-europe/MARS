@@ -232,7 +232,8 @@ def cli(ctx, development):
     "--file-transfer",
     type=click.Choice(["ftp", "aspera"], case_sensitive=False),
     required=True,
-    help="provide the name of a file transfer solution, like ftp or aspera",
+    default="ftp",
+    help="provide the name of a file transfer solution, like ftp or aspera. The default is ftp.",
 )
 @click.option(
     "--data-files",
