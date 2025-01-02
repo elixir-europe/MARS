@@ -48,6 +48,9 @@ jobs:
         run: ruff check mars_lib/
         working-directory: ${{ env.working-directory }}
 
+      - name: Create mypy cache directory
+        run: mkdir -p /tmp/mypy_cache
+
       - name: Type checking
-        run: mypy --install-types --non-interactive mars_lib/
+        run: mypy --install-types --non-interactive --cache-dir /tmp/mypy_cache mars_lib/
         working-directory: ${{ env.working-directory }}
