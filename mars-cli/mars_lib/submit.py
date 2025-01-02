@@ -375,7 +375,7 @@ def submit_to_ena(
             else result.request.body or ""
         )
         raise requests.HTTPError(
-            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
+            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{submission_url}\nParams: {{'webinUserName': {params.get("webinUserName")}, 'webinPassword': ****}}\nHeaders:{result.request.headers}\nBody:{body}"
         )
 
     return result
