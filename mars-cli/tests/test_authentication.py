@@ -51,3 +51,15 @@ def test_get_metabolights_auth_token():
     # This should be updated to return a more informative error message.
     with pytest.raises(HTTPError):
         get_metabolights_auth_token(fake_credentials_dict["metabolights_metadata"])
+
+
+def test_valid_credentials_file():
+    # Test with a full valid credentials file (all providers)
+    _max_credentials = load_credentials("tests/fixtures/max_credentials_file.json")
+
+    # Test with a partial valid credentials file
+    _min_credentials = load_credentials("tests/fixtures/min_credentials_file.json")
+
+    # Test with a credentials file that has an invalid provider
+    with pytest.raises(ValueError, match="Credentials dictionary must have valid keys."):
+        load_credentials("tests/fixtures/bad_credentials_file.json")

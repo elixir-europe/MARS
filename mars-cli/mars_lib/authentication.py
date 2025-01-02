@@ -50,7 +50,8 @@ def load_credentials(
     if not all(
         repo in AuthProvider.available_providers() for repo in credentials.keys()
     ):
-        raise ValueError("Credentials dictionary must have keys .")
+        raise ValueError(
+            f"Credentials dictionary must have valid keys. Valid keys are:\n{AuthProvider.available_providers()}")
 
     if not all(
         key in ["username", "password"]
