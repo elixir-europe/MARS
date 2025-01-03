@@ -185,27 +185,29 @@ def test_update_study_materials_no_accession_categories():
 
     validated_isa_json = IsaJson.model_validate(json_data)
 
-    respose_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
-    repo_response = RepositoryResponse.from_json_file(respose_file_path)
+    response_file_path = "tests/fixtures/mars_receipts/biosamples_success_response.json"
+    repo_response = RepositoryResponse.from_json_file(response_file_path)
 
     updated_isa_json = update_isa_json(validated_isa_json, repo_response)
 
     # Check the accession number of the source
+    source_accession = "SAMEA131504583"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.sources[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[0].value
+        == source_accession
     )
 
     # Check the accession number of the sample
+    sample_accession = "SAMEA131504584"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.samples[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[1].value
+        == sample_accession
     )
 
 
@@ -217,26 +219,31 @@ def test_update_study_materials_with_accession_categories():
 
     validated_isa_json = IsaJson.model_validate(json_data)
 
-    response_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
+    response_file_path = "tests/fixtures/mars_receipts/biosamples_success_response.json"
     repo_response = RepositoryResponse.from_json_file(response_file_path)
 
     updated_isa_json = update_isa_json(validated_isa_json, repo_response)
     # Check the accession number of the source
+    source_accession = "SAMEA131504583"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.sources[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[0].value
+        == source_accession
     )
 
     # Check the accession number of the sample
+    sample_accession = "SAMEA131504584"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.samples[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[1].value
+        == sample_accession
+    )
+
+
     )
 
 
