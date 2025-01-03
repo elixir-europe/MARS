@@ -38,7 +38,9 @@ class FTPUploader:
         with PatchFTP_TLS() as ftps:
             ftps.context.set_ciphers("HIGH:!DH:!aNULL")
             ftps.connect(self.ftp_host, port=21, timeout=timeout)
+            print_and_log(f"Connected to {self.ftp_host}", "debug")
             ftps.login(self.username, self.password)
+            print_and_log(f"User '{self.username}' successfully logged in to {self.ftp_host}", "debug")
             ftps.prot_p()
 
             ftps.cwd(target_location)
