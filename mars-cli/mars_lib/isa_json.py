@@ -473,6 +473,11 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
             )
         elif has_data_files_in_path:
             data_file_filter = get_filter_for_accession_key(accession, "dataFiles")
+            if not data_file_filter:
+                raise ValueError(
+                    f"Data file filter is not present in {accession.path}."
+                )
+
             updated_node = apply_filter(data_file_filter, updated_node.dataFiles)
             if not accession_data_file_comment_present(updated_node):
                 create_accession_data_file_comment(updated_node)
