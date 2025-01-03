@@ -1,25 +1,23 @@
 import click
-import logging
-import pathlib
-from configparser import ConfigParser
 from datetime import datetime
 from mars_lib.target_repo import TargetRepository
 from mars_lib.models.isa_json import IsaJson
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
-from mars_lib.logging import print_and_log
+from mars_lib.logging import print_and_log, init_logging
 from mars_lib.validation import validate, CustomValidationException
-from logging.handlers import RotatingFileHandler
 import requests
 import sys
-import os
 import json
+from pathlib import Path
+import os
+from configparser import ConfigParser
 
 # Load CLI configuration
 home_dir = (
-    pathlib.Path(str(os.getenv("MARS_SETTINGS_DIR")))
+    Path(str(os.getenv("MARS_SETTINGS_DIR")))
     if os.getenv("MARS_SETTINGS_DIR")
-    else pathlib.Path.home()
+    else Path.home()
 )
 
 config_file = home_dir / ".mars" / "settings.ini"
@@ -28,149 +26,11 @@ fallback_log_file = home_dir / ".mars" / "app.log"
 config = ConfigParser()
 config.read(config_file)
 
-# Logging configuration
-log_level = config.get("logging", "log_level", fallback="ERROR")
-log_file = config.get("logging", "log_file", fallback=fallback_log_file)
-log_max_size = int(
-    config.get("logging", "log_max_size", fallback="1024")
-)  # in kilobytes. 1 MB by default.
-log_max_files = int(
-    config.get("logging", "log_max_files", fallback="5")
-)  # number of backup files. 5 by default.
-
-handler = RotatingFileHandler(
-    log_file, maxBytes=log_max_size * 1024, backupCount=log_max_files
-)
-handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-
-logging.basicConfig(
-    handlers=[handler],
-    level=log_level,
-)
+# Load logging configuration
+init_logging(config, fallback_log_file)
 
 # Read in all the URLs from the config file
-urls = {
-    "DEV": {
-        "ENA": {
-            "SERVICE": config.get(
-                "ena",
-                "development-url",
-                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples",
-            ),
-            "SUBMISSION": config.get(
-                "ena",
-                "development-submission-url",
-                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/submit",
-            ),
-            "DATA-SUBMISSION": config.get(
-                "ena",
-                "development-data-submission-url",
-                fallback="webin2.ebi.ac.uk",
-            ),
-        },
-        "WEBIN": {
-            "SERVICE": config.get(
-                "webin",
-                "development-url",
-                fallback="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth",
-            ),
-            "TOKEN": config.get(
-                "webin",
-                "development-token-url",
-                fallback="https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token",
-            ),
-        },
-        "METABOLIGHTS": {
-            "SERVICE": config.get(
-                "metabolights",
-                "development-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
-            ),
-            "SUBMISSION": config.get(
-                "metabolights",
-                "development-submission-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
-            ),
-            "TOKEN": config.get(
-                "metabolights",
-                "development-token-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
-            ),
-        },
-        "BIOSAMPLES": {
-            "SERVICE": config.get(
-                "biosamples",
-                "development-url",
-                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
-            ),
-            "SUBMISSION": config.get(
-                "biosamples",
-                "development-submission-url",
-                fallback="https://wwwdev.ebi.ac.uk/biosamples/samples/",
-            ),
-        },
-    },
-    "PROD": {
-        "ENA": {
-            "SERVICE": config.get(
-                "ena",
-                "production-url",
-                fallback="https://www.ebi.ac.uk/ena/submit/webin-v2/",
-            ),
-            "SUBMISSION": config.get(
-                "ena",
-                "production-submission-url",
-                fallback="https://www.ebi.ac.uk/ena/submit/drop-box/submit/?auth=ENA",
-            ),
-            "DATA-SUBMISSION": config.get(
-                "ena",
-                "development-data-submission-url",
-                fallback="webin2.ebi.ac.uk",
-            ),
-        },
-        "WEBIN": {
-            "SERVICE": config.get(
-                "webin",
-                "production-url",
-                fallback="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth",
-            ),
-            "TOKEN": config.get(
-                "webin",
-                "production-token-url",
-                fallback="https://wwwdev.ebi.ac.uk/ena/dev/submit/webin/auth/token",
-            ),
-        },
-        "METABOLIGHTS": {
-            "SERVICE": config.get(
-                "metabolights",
-                "production-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
-            ),
-            "SUBMISSION": config.get(
-                "metabolights",
-                "production-submission-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/submissions/",
-            ),
-            "TOKEN": config.get(
-                "metabolights",
-                "production-token-url",
-                fallback="https://www-test.ebi.ac.uk/metabolights/mars/ws3/auth/token",
-            ),
-        },
-        "BIOSAMPLES": {
-            "SERVICE": config.get(
-                "biosamples",
-                "production-url",
-                fallback="https://www.ebi.ac.uk/biosamples/samples/",
-            ),
-            "SUBMISSION": config.get(
-                "biosamples",
-                "production-submission-url",
-                fallback="https://www.ebi.ac.uk/biosamples/samples/",
-            ),
-        },
-    },
-}
+urls = TargetRepository.get_repository_urls_from_config(config)
 
 
 @click.group()
@@ -183,6 +43,10 @@ urls = {
 @click.pass_context
 def cli(ctx, development):
     print_and_log("############# Welcome to the MARS CLI. #############")
+    print_and_log(
+        "Sensitive information might be dumped in the log files when setting the 'log_level' to DEBUG in the config file. Logging in debug mode should only be used for developing purpose a can implicate security issues if used in a production environment!",
+        "debug",
+    )
     print_and_log(
         f"Running in {'Development environment' if development else 'Production environment'}"
     )
