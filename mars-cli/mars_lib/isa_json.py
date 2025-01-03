@@ -269,7 +269,6 @@ def add_accession_to_node(
     updated_material_accession_characteristic.value = accession_ontology_annotation
 
     updated_material.characteristics.append(updated_material_accession_characteristic)
-    print(f"{updated_material.id}: {updated_material_accession_characteristic.value}.")
 
 
 def create_accession_characteristic_category(
@@ -364,6 +363,7 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
     Returns:
         IsaJson: The updated ISA JSON.
     """
+    # TODO: Modify to include datafile related accessions as well. E.G: ENA's run accessions.
     investigation = isa_json.investigation
     for accession in repo_response.accessions:
 
