@@ -259,6 +259,23 @@ def test_update_study_with_ena_study_accession_comment():
     assert next(accession_comment).value == ena_study_accession_number
 
 
+def test_update_datafile_comment_with_accession_comment_present():
+    json_path = "tests/fixtures/isa_jsons/1_after_biosamples.json"
+    isa_json = load_isa_json(json_path, False)
+    response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
+    ena_response = RepositoryResponse.from_json_file(response_file_path)
+    data_file_accession_number = "ERN00000001"
+
+    updated_isa_json = update_isa_json(isa_json, ena_response)
+    data_file_comments = (
+        updated_isa_json.investigation.studies[0].assays[0].dataFiles[0].comments
+    )
+    accession_comment = filter(lambda x: x.name == "accession", data_file_comments)
+    assert next(accession_comment).value == data_file_accession_number
+
+
+def test_update_datafile_comment_without_accession_comment_present():
+    pass
 
 
 def test_filename_validation():
