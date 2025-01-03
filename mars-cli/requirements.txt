@@ -4,3 +4,4 @@ keyring
 pydantic
 click
 retry
+colorlog

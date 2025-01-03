@@ -1,25 +1,23 @@
 import click
-import logging
-import pathlib
-from configparser import ConfigParser
 from datetime import datetime
 from mars_lib.target_repo import TargetRepository
 from mars_lib.models.isa_json import IsaJson
 from mars_lib.submit import submission
 from mars_lib.credential import CredentialManager
-from mars_lib.logging import print_and_log
+from mars_lib.logging import print_and_log, init_logging
 from mars_lib.validation import validate, CustomValidationException
-from logging.handlers import RotatingFileHandler
 import requests
 import sys
-import os
 import json
+from pathlib import Path
+import os
+from configparser import ConfigParser
 
 # Load CLI configuration
 home_dir = (
-    pathlib.Path(str(os.getenv("MARS_SETTINGS_DIR")))
+    Path(str(os.getenv("MARS_SETTINGS_DIR")))
     if os.getenv("MARS_SETTINGS_DIR")
-    else pathlib.Path.home()
+    else Path.home()
 )
 
 config_file = home_dir / ".mars" / "settings.ini"
@@ -28,25 +26,8 @@ fallback_log_file = home_dir / ".mars" / "app.log"
 config = ConfigParser()
 config.read(config_file)
 
-# Logging configuration
-log_level = config.get("logging", "log_level", fallback="ERROR")
-log_file = config.get("logging", "log_file", fallback=fallback_log_file)
-log_max_size = int(
-    config.get("logging", "log_max_size", fallback="1024")
-)  # in kilobytes. 1 MB by default.
-log_max_files = int(
-    config.get("logging", "log_max_files", fallback="5")
-)  # number of backup files. 5 by default.
-
-handler = RotatingFileHandler(
-    log_file, maxBytes=log_max_size * 1024, backupCount=log_max_files
-)
-handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-
-logging.basicConfig(
-    handlers=[handler],
-    level=log_level,
-)
+# Load logging configuration
+init_logging(config, fallback_log_file)
 
 # Read in all the URLs from the config file
 urls = TargetRepository.get_repository_urls_from_config(config)
@@ -62,6 +43,10 @@ urls = TargetRepository.get_repository_urls_from_config(config)
 @click.pass_context
 def cli(ctx, development):
     print_and_log("############# Welcome to the MARS CLI. #############")
+    print_and_log(
+        "Sensitive information might be dumped in the log files when setting the 'log_level' to DEBUG in the config file. Logging in debug mode should only be used for developing purpose a can implicate security issues if used in a production environment!",
+        "debug",
+    )
     print_and_log(
         f"Running in {'Development environment' if development else 'Production environment'}"
     )
