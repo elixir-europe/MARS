@@ -264,7 +264,7 @@ def test_update_datafile_comment_with_accession_comment_present():
     isa_json = load_isa_json(json_path, False)
     response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
     ena_response = RepositoryResponse.from_json_file(response_file_path)
-    data_file_accession_number = "ERN00000001"
+    data_file_accession_number = "ERR00000001"
 
     updated_isa_json = update_isa_json(isa_json, ena_response)
     data_file_comments = (
