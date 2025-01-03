@@ -244,7 +244,21 @@ def test_update_study_materials_with_accession_categories():
     )
 
 
+def test_update_study_with_ena_study_accession_comment():
+    json_path = "tests/fixtures/isa_jsons/1_after_biosamples.json"
+    isa_json = load_isa_json(json_path, False)
+    response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
+    ena_response = RepositoryResponse.from_json_file(response_file_path)
+    ena_study_accession_number = "ERP167466"
+
+    updated_isa_json = update_isa_json(isa_json, ena_response)
+    study_comments = updated_isa_json.investigation.studies[0].comments
+    accession_comment = filter(
+        lambda x: x.name == "ena_study_accession", study_comments
     )
+    assert next(accession_comment).value == ena_study_accession_number
+
+
 
 
 def test_filename_validation():

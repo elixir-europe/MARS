@@ -365,6 +365,7 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
     """
     # TODO: Modify to include datafile related accessions as well. E.G: ENA's run accessions.
     investigation = isa_json.investigation
+    target_repository = repo_response.target_repository
     for accession in repo_response.accessions:
 
         has_assay_in_path = len([p for p in accession.path if p.key == "assays"]) > 0
@@ -416,7 +417,8 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
             updated_study = apply_filter(study_filter, investigation.studies)
 
             study_accession_comment: Comment = Comment(
-                name="accession", value=accession.value
+                name=f"{target_repository}_{target_level}_accession",
+                value=accession.value,
             )
             updated_study.comments.append(study_accession_comment)
 
