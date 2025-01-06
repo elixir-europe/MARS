@@ -6,6 +6,7 @@ from mars_lib.isa_json import (
     load_isa_json,
     update_isa_json,
     map_data_files_to_repositories,
+    is_assay_for_target_repo,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
@@ -244,7 +245,7 @@ def test_update_study_materials_with_accession_categories():
     )
 
 
-def test_update_study_with_ena_study_accession_comment():
+def test_update_study_and_assay_with_ena_study_accession_comment():
     json_path = "tests/fixtures/isa_jsons/1_after_biosamples.json"
     isa_json = load_isa_json(json_path, False)
     response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
@@ -255,6 +256,19 @@ def test_update_study_with_ena_study_accession_comment():
     study_comments = updated_isa_json.investigation.studies[0].comments
     accession_comment = filter(
         lambda x: x.name == "ena_study_accession", study_comments
+    )
+    assert next(accession_comment).value == ena_study_accession_number
+
+    ena_assay = next(
+        filter(
+            lambda assay: is_assay_for_target_repo(assay, "ena"),
+            updated_isa_json.investigation.studies[0].assays,
+        ),
+        None,
+    )
+    assay_comments = ena_assay.comments
+    accession_comment = filter(
+        lambda x: x.name == "ena_study_accession", assay_comments
     )
     assert next(accession_comment).value == ena_study_accession_number
 

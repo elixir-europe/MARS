@@ -74,10 +74,10 @@ def detect_target_repo_comment(comments: List[Comment]) -> Comment:
 
 def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
     """
-    Defines whether the assays is meant for the target repository.
+    Defines whether the assays are meant for the target repository.
 
     Args:
-        assay_dict (Dict[str, str]): Dictionary representation of an assay.
+        assay (Assay): Assay model.
         target_repo (TargetRepository): Target repository as a constant.
 
     Returns:
@@ -484,6 +484,7 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
 
             add_accession_to_data_file_node(updated_node, accession.value)
         else:
+            # Add study accession to study comments
             updated_study = apply_filter(study_filter, investigation.studies)
 
             study_accession_comment: Comment = Comment(
@@ -492,6 +493,20 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
             )
             updated_study.comments.append(study_accession_comment)
 
+            # Add study accession to assay comments
+            updated_assay = next(
+                filter(
+                    lambda assay: is_assay_for_target_repo(assay, target_repository),
+                    updated_study.assays,
+                ),
+                None,
+            )
+            if updated_assay:
+                assay_accession_comment: Comment = Comment(
+                    name=f"{target_repository}_{target_level}_accession",
+                    value=accession.value,
+                )
+                updated_assay.comments.append(assay_accession_comment)
     isa_json.investigation = investigation
     return isa_json
 
