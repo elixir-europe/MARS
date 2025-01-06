@@ -288,10 +288,6 @@ def test_update_datafile_comment_with_accession_comment_present():
     assert next(accession_comment).value == data_file_accession_number
 
 
-def test_update_datafile_comment_without_accession_comment_present():
-    pass
-
-
 def test_filename_validation():
     # ISA should have a filename that starts with 'x_'
     with pytest.raises(ValidationError, match="'filename' should start with 'i_'"):
