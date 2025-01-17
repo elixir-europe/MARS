@@ -11,6 +11,7 @@ from mars_lib.models.isa_json import (
     MaterialAttributeValue,
     Study,
     OntologyAnnotation,
+    Data as DataFile,
 )
 from pydantic import ValidationError
 from mars_lib.target_repo import TARGET_REPO_KEY, TargetRepository
@@ -73,10 +74,10 @@ def detect_target_repo_comment(comments: List[Comment]) -> Comment:
 
 def is_assay_for_target_repo(assay: Assay, target_repo: str) -> bool:
     """
-    Defines whether the assays is meant for the target repository.
+    Defines whether the assays are meant for the target repository.
 
     Args:
-        assay_dict (Dict[str, str]): Dictionary representation of an assay.
+        assay (Assay): Assay model.
         target_repo (TargetRepository): Target repository as a constant.
 
     Returns:
@@ -141,6 +142,20 @@ def apply_filter(filter: Filter, nodes: Union[List[Study], List[Assay]]) -> Any:
     return next(
         (node for node in nodes if getattr(node, filter_key) == filter.value), None
     )
+
+
+def accession_data_file_comment_present(node: DataFile) -> bool:
+    accession_data_file_comments = [
+        comment for comment in node.comments if comment.name == "accession"
+    ]
+    if len(accession_data_file_comments) > 1:
+        raise AttributeError(
+            "There should not be more than 1 data file comment with the name 'accession'."
+        )
+    elif len(accession_data_file_comments) > 0:
+        return True
+    else:
+        return False
 
 
 def accession_characteristic_category_present(node: Union[Study, Assay]) -> bool:
@@ -212,7 +227,7 @@ def accession_characteristic_present(
         return False
 
 
-def add_accession_to_node(
+def add_accession_to_material_node(
     node: Any, accession_number: str, material_type_path: Path
 ) -> None:
     """
@@ -231,7 +246,7 @@ def add_accession_to_node(
         updated_material = apply_filter(material_type_path.where, node_materials)
     else:
         raise ValueError(
-            f"'where' atribute is missing in path {material_type_path.key}."
+            f"'where' attribute is missing in path {material_type_path.key}."
         )
 
     accession_characteristics_category = next(
@@ -269,7 +284,23 @@ def add_accession_to_node(
     updated_material_accession_characteristic.value = accession_ontology_annotation
 
     updated_material.characteristics.append(updated_material_accession_characteristic)
-    print(f"{updated_material.id}: {updated_material_accession_characteristic.value}.")
+
+
+def add_accession_to_data_file_node(node: DataFile, accession_number: str) -> None:
+    accession_comment = next(
+        (
+            comment
+            for comment in node.comments
+            if comment.name and comment.name.lower() == "accession"
+        ),
+        None,
+    )
+    if not accession_comment:
+        raise ValueError(
+            f"Accession comment not found in data file'{node.id} - {node.name}'."
+        )
+
+    accession_comment.value = accession_number
 
 
 def create_accession_characteristic_category(
@@ -293,7 +324,27 @@ def create_accession_characteristic_category(
     category.characteristicType = OntologyAnnotation(annotationValue="accession")
     node.characteristicCategories.append(category)
 
-    return (accession_id, category)
+    return accession_id, category
+
+
+def create_accession_data_file_comment(node: DataFile) -> Comment:
+    comment = Comment()
+    accession_id = str(uuid.uuid4())
+    comment.id = f"#comment/accession_{accession_id}"
+    comment.name = "accession"
+    node.comments.append(comment)
+    return comment
+
+
+def fetch_existing_accession_data_file_comment(node: DataFile) -> Comment:
+    accession_comment = next(
+        comment
+        for comment in node.comments
+        if comment.name and comment.name.lower() == "accession"
+    )
+    if not accession_comment:
+        raise ValueError(f"Accession comment not found in {node.id}.")
+    return accession_comment
 
 
 def fetch_existing_characteristic_category(
@@ -364,12 +415,17 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
     Returns:
         IsaJson: The updated ISA JSON.
     """
+    # TODO: Modify to include datafile related accessions as well. E.G: ENA's run accessions.
     investigation = isa_json.investigation
+    target_repository = repo_response.target_repository
     for accession in repo_response.accessions:
 
         has_assay_in_path = len([p for p in accession.path if p.key == "assays"]) > 0
         has_materials_in_path = (
             len([p for p in accession.path if p.key == "materials"]) > 0
+        )
+        has_data_files_in_path = (
+            len([p for p in accession.path if p.key == "dataFiles"]) > 0
         )
         target_level = "assay" if has_assay_in_path else "study"
 
@@ -377,23 +433,24 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
         if not study_filter:
             raise ValueError(f"Study filter is not present in {accession.path}.")
 
+        ################################################################################################################
+        # Filter the study or assay based on the filter
+        ################################################################################################################
+        updated_node = apply_filter(study_filter, investigation.studies)
+        if target_level == "assay":
+            assay_filter = get_filter_for_accession_key(accession, "assays")
+            if not assay_filter:
+                raise ValueError(f"Assay filter is not present in {accession.path}.")
+
+            updated_node = apply_filter(assay_filter, updated_node.assays)
+        ################################################################################################################
+
         if has_materials_in_path:
             material_type_path = next(
                 p
                 for p in accession.path
                 if p.key in ["sources", "samples", "otherMaterials"]
             )
-
-            updated_node = apply_filter(study_filter, investigation.studies)
-
-            if target_level == "assay":
-                assay_filter = get_filter_for_accession_key(accession, "assays")
-                if not assay_filter:
-                    raise ValueError(
-                        f"Assay filter is not present in {accession.path}."
-                    )
-
-                updated_node = apply_filter(assay_filter, updated_node.assays)
 
             if not updated_node:
                 raise ValueError(f"Node not found for {accession.value}.")
@@ -411,15 +468,45 @@ def update_isa_json(isa_json: IsaJson, repo_response: RepositoryResponse) -> Isa
                     updated_node, material_type_path, category, accession_id
                 )
 
-            add_accession_to_node(updated_node, accession.value, material_type_path)
+            add_accession_to_material_node(
+                updated_node, accession.value, material_type_path
+            )
+        elif has_data_files_in_path:
+            data_file_filter = get_filter_for_accession_key(accession, "dataFiles")
+            if not data_file_filter:
+                raise ValueError(
+                    f"Data file filter is not present in {accession.path}."
+                )
+
+            updated_node = apply_filter(data_file_filter, updated_node.dataFiles)
+            if not accession_data_file_comment_present(updated_node):
+                create_accession_data_file_comment(updated_node)
+
+            add_accession_to_data_file_node(updated_node, accession.value)
         else:
+            # Add study accession to study comments
             updated_study = apply_filter(study_filter, investigation.studies)
 
             study_accession_comment: Comment = Comment(
-                name="accession", value=accession.value
+                name=f"{target_repository}_{target_level}_accession",
+                value=accession.value,
             )
             updated_study.comments.append(study_accession_comment)
 
+            # Add study accession to assay comments
+            updated_assay = next(
+                filter(
+                    lambda assay: is_assay_for_target_repo(assay, target_repository),
+                    updated_study.assays,
+                ),
+                None,
+            )
+            if updated_assay:
+                assay_accession_comment: Comment = Comment(
+                    name=f"{target_repository}_{target_level}_accession",
+                    value=accession.value,
+                )
+                updated_assay.comments.append(assay_accession_comment)
     isa_json.investigation = investigation
     return isa_json
 

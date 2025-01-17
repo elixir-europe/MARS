@@ -6,6 +6,7 @@ from mars_lib.isa_json import (
     load_isa_json,
     update_isa_json,
     map_data_files_to_repositories,
+    is_assay_for_target_repo,
 )
 from mars_lib.target_repo import TargetRepository, TARGET_REPO_KEY
 import pytest
@@ -185,27 +186,29 @@ def test_update_study_materials_no_accession_categories():
 
     validated_isa_json = IsaJson.model_validate(json_data)
 
-    respose_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
-    repo_response = RepositoryResponse.from_json_file(respose_file_path)
+    response_file_path = "tests/fixtures/mars_receipts/biosamples_success_response.json"
+    repo_response = RepositoryResponse.from_json_file(response_file_path)
 
     updated_isa_json = update_isa_json(validated_isa_json, repo_response)
 
     # Check the accession number of the source
+    source_accession = "SAMEA131504583"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.sources[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[0].value
+        == source_accession
     )
 
     # Check the accession number of the sample
+    sample_accession = "SAMEA131504584"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.samples[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[1].value
+        == sample_accession
     )
 
 
@@ -217,27 +220,72 @@ def test_update_study_materials_with_accession_categories():
 
     validated_isa_json = IsaJson.model_validate(json_data)
 
-    response_file_path = "tests/fixtures/json_responses/biosamples_success_reponse.json"
+    response_file_path = "tests/fixtures/mars_receipts/biosamples_success_response.json"
     repo_response = RepositoryResponse.from_json_file(response_file_path)
 
     updated_isa_json = update_isa_json(validated_isa_json, repo_response)
     # Check the accession number of the source
+    source_accession = "SAMEA131504583"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.sources[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[0].value
+        == source_accession
     )
 
     # Check the accession number of the sample
+    sample_accession = "SAMEA131504584"
     assert (
         updated_isa_json.investigation.studies[0]
         .materials.samples[0]
         .characteristics[-1]
         .value.annotationValue
-        == repo_response.accessions[1].value
+        == sample_accession
     )
+
+
+def test_update_study_and_assay_with_ena_study_accession_comment():
+    json_path = "tests/fixtures/isa_jsons/1_after_biosamples.json"
+    isa_json = load_isa_json(json_path, False)
+    response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
+    ena_response = RepositoryResponse.from_json_file(response_file_path)
+    ena_study_accession_number = "ERP167466"
+
+    updated_isa_json = update_isa_json(isa_json, ena_response)
+    study_comments = updated_isa_json.investigation.studies[0].comments
+    accession_comment = filter(
+        lambda x: x.name == "ena_study_accession", study_comments
+    )
+    assert next(accession_comment).value == ena_study_accession_number
+
+    ena_assay = next(
+        filter(
+            lambda assay: is_assay_for_target_repo(assay, "ena"),
+            updated_isa_json.investigation.studies[0].assays,
+        ),
+        None,
+    )
+    assay_comments = ena_assay.comments
+    accession_comment = filter(
+        lambda x: x.name == "ena_study_accession", assay_comments
+    )
+    assert next(accession_comment).value == ena_study_accession_number
+
+
+def test_update_datafile_comment_with_accession_comment_present():
+    json_path = "tests/fixtures/isa_jsons/1_after_biosamples.json"
+    isa_json = load_isa_json(json_path, False)
+    response_file_path = "tests/fixtures/mars_receipts/ena_success_response.json"
+    ena_response = RepositoryResponse.from_json_file(response_file_path)
+    data_file_accession_number = "ERR00000001"
+
+    updated_isa_json = update_isa_json(isa_json, ena_response)
+    data_file_comments = (
+        updated_isa_json.investigation.studies[0].assays[0].dataFiles[0].comments
+    )
+    accession_comment = filter(lambda x: x.name == "accession", data_file_comments)
+    assert next(accession_comment).value == data_file_accession_number
 
 
 def test_filename_validation():
