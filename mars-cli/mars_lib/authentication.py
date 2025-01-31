@@ -24,7 +24,7 @@ class AuthProvider(Enum):
 
 
 def load_credentials(
-    credentials_file: Union[io.TextIOWrapper, str]
+    credentials_file: Union[io.TextIOWrapper, str],
 ) -> dict[str, dict[str, str]]:
     """
     Validate the credentials.
