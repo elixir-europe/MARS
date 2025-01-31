@@ -230,7 +230,7 @@ def submit_to_biosamples(
         ).model_dump(by_alias=True, exclude_none=True),
     )
 
-    if result.status_code == 200 and not result.json().get('errors', []):
+    if result.status_code == 200 and not result.json().get("errors", []):
         return result
 
     body = (
@@ -241,7 +241,6 @@ def submit_to_biosamples(
     raise requests.HTTPError(
         f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
     )
-
 
 
 def upload_to_metabolights(
@@ -283,7 +282,7 @@ def upload_to_metabolights(
             timeout=120,
         )
         submission_response.raise_for_status()
-        if submission_response.json().get('errors', []):
+        if submission_response.json().get("errors", []):
             raise requests.HTTPError(
                 f"Request towards MetaboLights failed!\nRequest:\nMethod:{submission_response.request.method}\nStatus:{submission_response.status_code}\nURL:{submission_response.request.url}\nHeaders:{submission_response.request.headers}\nBody:{submission_response.request.body}"
             )
@@ -374,7 +373,7 @@ def submit_to_ena(
         ).model_dump(by_alias=True, exclude_none=True),
     )
 
-    if result.status_code == 200 and not result.json().get('errors', []):
+    if result.status_code == 200 and not result.json().get("errors", []):
         return result
 
     body = (
