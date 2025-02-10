@@ -285,7 +285,7 @@ def upload_to_metabolights(
         if submission_response.json().get("errors", []):
             response_body = submission_response.request.body
             if isinstance(response_body, bytes):
-               response_body = response_body.decode("utf-8")
+                response_body = response_body.decode("utf-8")
             raise requests.HTTPError(
                 f"Request towards MetaboLights failed!\nRequest:\nMethod:{submission_response.request.method}\nStatus:{submission_response.status_code}\nURL:{submission_response.request.url}\nHeaders:{submission_response.request.headers}\nBody:{response_body}"
             )
