@@ -13,7 +13,6 @@ MARS is comprised of multiple stakeholders: the end-user, the platform that gene
 
 ## Components
 
-
 ![MARS overview](/MARS_overview.svg)
 
 
@@ -97,7 +96,7 @@ Track the status of each repository here:
 |---|---|---|---|---|
 | [BioSamples](https://www.ebi.ac.uk/biosamples/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-biosamples) |
 | [ENA](https://www.ebi.ac.uk/ena/browser/) | yes | Ready to be tested | no | [GitHub](repository-services/isajson-ena) |
-| [MetaboLights](https://www.ebi.ac.uk/metabolights/) | NA | Not started | no |  |
+| [MetaboLights](https://www.ebi.ac.uk/metabolights/) | yes | Proof of concept | no |  |
 | [BioStudies/ArrayExpress](https://www.ebi.ac.uk/biostudies/arrayexpress) | yes, in dev | Not started | no |  |
 | [e!DAL-PGP](https://edal-pgp.ipk-gatersleben.de/) | NA | Not started | no |  |
 | Your repository here? Join MARS!  |
