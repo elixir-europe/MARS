@@ -230,17 +230,17 @@ def submit_to_biosamples(
         ).model_dump(by_alias=True, exclude_none=True),
     )
 
-    if result.status_code != 200:
-        body = (
-            result.request.body.decode()
-            if isinstance(result.request.body, bytes)
-            else result.request.body or ""
-        )
-        raise requests.HTTPError(
-            f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
-        )
+    if result.status_code == 200 and not result.json().get("errors", []):
+        return result
 
-    return result
+    body = (
+        result.request.body.decode()
+        if isinstance(result.request.body, bytes)
+        else result.request.body or ""
+    )
+    raise requests.HTTPError(
+        f"Request towards BioSamples failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{result.request.url}\nHeaders:{result.request.headers}\nBody:{body}"
+    )
 
 
 def upload_to_metabolights(
@@ -282,6 +282,14 @@ def upload_to_metabolights(
             timeout=120,
         )
         submission_response.raise_for_status()
+        if submission_response.json().get("errors", []):
+            response_body = submission_response.request.body
+            if isinstance(response_body, bytes):
+                response_body = response_body.decode("utf-8")
+            raise requests.HTTPError(
+                f"Request towards MetaboLights failed!\nRequest:\nMethod:{submission_response.request.method}\nStatus:{submission_response.status_code}\nURL:{submission_response.request.url}\nHeaders:{submission_response.request.headers}\nBody:{response_body}"
+            )
+
         result = submission_response.json()
     except Exception as exc:
         raise exc
@@ -368,17 +376,17 @@ def submit_to_ena(
         ).model_dump(by_alias=True, exclude_none=True),
     )
 
-    if result.status_code != 200:
-        body = (
-            result.request.body.decode()
-            if isinstance(result.request.body, bytes)
-            else result.request.body or ""
-        )
-        raise requests.HTTPError(
-            f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{submission_url}\nParams: ['webinUserName': {params.get('webinUserName')}, 'webinPassword': ****]\nHeaders:{result.request.headers}\nBody:{body}"
-        )
+    if result.status_code == 200 and not result.json().get("errors", []):
+        return result
 
-    return result
+    body = (
+        result.request.body.decode()
+        if isinstance(result.request.body, bytes)
+        else result.request.body or ""
+    )
+    raise requests.HTTPError(
+        f"Request towards ENA failed!\nRequest:\nMethod:{result.request.method}\nStatus:{result.status_code}\nURL:{submission_url}\nParams: ['webinUserName': {params.get('webinUserName')}, 'webinPassword': ****]\nHeaders:{result.request.headers}\nBody:{body}"
+    )
 
 
 def upload_to_ena(

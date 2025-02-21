@@ -38,7 +38,7 @@ setup(
     extras_require={
         "test": [
             # Dependencies for testing only
-            "black",
+            "black == 25.1.*",
             "ruff",
             "pytest",
             "pytest-cov",

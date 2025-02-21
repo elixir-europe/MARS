@@ -304,7 +304,7 @@ def add_accession_to_data_file_node(node: DataFile, accession_number: str) -> No
 
 
 def create_accession_characteristic_category(
-    node: Union[Study, Assay]
+    node: Union[Study, Assay],
 ) -> Tuple[str, MaterialAttribute]:
     """
     creates a new characteristic category for the accession number.
@@ -348,7 +348,7 @@ def fetch_existing_accession_data_file_comment(node: DataFile) -> Comment:
 
 
 def fetch_existing_characteristic_category(
-    node: Union[Study, Assay]
+    node: Union[Study, Assay],
 ) -> Tuple[str, MaterialAttribute]:
     """
     Fetches the existing characteristic category for the accession number.
