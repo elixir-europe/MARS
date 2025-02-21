@@ -2,7 +2,7 @@
 
 ## Introduction
 
-MARS is a data brokering initiative designed to facilitate the submission of multi-omics life sciences studies to multiple specialized repositories. Built as a modular system, MARS enables seamless data exchange between producers and repositories using the standardized ISA-JSON format.
+MARS is a data brokering initiative designed to facilitate the submission of multi-omics life sciences studies to multiple specialized repositories. Built as a modular system, MARS enables seamless data exchange between data producers and repositories using the standardized ISA-JSON format.
 
 Unlike centralized platforms, MARS functions as a common framework for decentralized data submissions while ensuring consistent interpretation and validation of ISA-JSON metadata across various repositories. This approach preserves important links between multi-omics datasets derived from the same biological source, ensuring mutual understanding and accurate data interpretation.
 
