@@ -97,7 +97,7 @@ MARS-CLI is not to be used as a platform to host data and will not store the dat
 
 ### ISA-JSON support by repositories
 
-ISA-JSON API services are being developed and deployed by the repositories that are part of the MARS initiative. This includes programmatic submission, the ingestion of ISA-JSON in order to register the metadata objects and the creation of a receipt according to the MARS [repository-api](/repository-services/repository-api.md) standard.
+ISA-JSON API services, also known as adapters, are being developed and deployed by the repositories that are part of the MARS initiative. This includes programmatic submission, the ingestion of ISA-JSON in order to register the metadata objects and the creation of a receipt according to the MARS [repository-api](/repository-services/repository-api.md) standard.
 
 Track the status of each repository here:
 
