@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MARS: Multi-omics Adapter for Repository Submissions">
+  <meta name="keywords" content="MARS,">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    .center {
+      position: relative;
+      text-align: center;
+    }
+
+
+
+    .uploadarea {
+
+      padding: 6px;
+      border: 4px solid #4fb3d9;
+      border-style: outset;
+      border-radius: 5px;
+      -khtml-opacity: 0.5;
+      -moz-opacity: 0.5;
+      opacity: 0.5;
+      height: 20vh;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234fb3d9' class='bi bi-cloud-upload' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383'/><path fill-rule='evenodd' d='M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708z'/></svg>");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 64px 64px;
+
+    }
+
+    td {
+      overflow-wrap: break-all;
+      word-break: break-all;
+    }
+
+    datalist {
+      display: flex;
+      justify-content: space-between;
+      color: #4fb3d9;
+      width: 100%;
+    }
+
+    .uploadarea:hover,
+    .uploadarea.dragging,
+    .uploadarea.uploading {
+      filter: alpha(opacity=100);
+      -khtml-opacity: 1;
+      -moz-opacity: 1;
+      opacity: 1;
+    }
+
+    .uploadarea input {
+      margin: auto;
+      width: 100%;
+      height: 100%;
+
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .uploadarea input:focus {
+      outline: none;
+    }
+
+    span.json {
+      display: inline-block;
+
+      margin: 4px;
+      padding: 6px;
+      border: 4px solid #4fb3d9;
+      border-style: solid;
+      border-radius: 5px;
+    }
+
+    *[title]:hover:after {
+      background-color: #4fb3d9;
+      content: attr(name) '\A' attr(description);
+      z-index: 1;
+      position: absolute;
+
+    }
+
+    span.studies {
+      background-color: #fff9e6;
+
+    }
+
+    span.collapsed {
+      font-weight: bold;
+      border: 4px #4fb3d9;
+      border-style: inset;
+      box-shadow: 0 8px 6px -6px #4fb3d9;
+      cursor: pointer;
+    }
+
+    span.missingKey {
+      font-weight: bold;
+      border: 4px #b005ad;
+      border-style: dotted;
+      box-shadow: 0 8px 6px -6px #c50070;
+    }
+
+    span.collapsed::before {
+      content: "+";
+      color: #4fb3d9;
+    }
+
+    span.assays {
+      background-color: #F8E8EB;
+
+    }
+
+    .form-range {
+      appearance: auto !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+
+      height: 15px;
+      width: 15px;
+      background-color: #fff;
+      border-radius: 50%;
+      border: 2px solid #4fb3d9;
+
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      height: 15px;
+      width: 15px;
+      background-color: #fff;
+      border-radius: 50%;
+      border: 1px solid #4fb3d9;
+
+
+    }
+
+    input[type="range"]::-moz-range-track {
+      padding: 0 10px;
+      background: repeating-linear-gradient(to right,
+          #ccc,
+          #ccc 10%,
+          #000 10%,
+          #000 11%,
+          #ccc 11%,
+          #ccc 20%);
+    }
+
+    .scrollTable{
+      max-height : 200px;
+      overflow-y: scroll;
+      max-width: 80vw;
+    }
+  </style>
+
+  <!--<script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>-->
+  <link href="./css/bootstrap.min.css" rel="stylesheet">
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <link href="./css/custom0220.css" rel="stylesheet" />
+  <link href="./css/bs5-intro-tour.css" rel="stylesheet" />
+  <script src="./js/bs5-intro-tour.js" type="text/javascript" charset="utf-8"></script>
+  <!--script src="js/example.js" type="text/javascript" charset="utf-8"></script-->
+  <script src="./js/test_json_dataplant_no_investigation_small.js"></script>
+  <script src="./js/test_json_datahub.js"></script>
+  <script src="./js/dataplant_biosamples_returned_json.js"></script>
+  <script src="./js/datahub_biosamples_returned_json.js"></script>
+  <script src="./js/git.js"></script>
+  <script src="./js/main060924.js" type="text/javascript"></script>
+  <script src="./js/jsonata.min.js"></script>
+  <script type="module">
+    import http from './js/http.js'
+    window.http = http;
+    window.googleJSON = await fetchGoogleCSV();
+    // window.fs = new LightningFS('fs')
+    // window.pfs = window.fs.promises
+  </script>
+
+
+</head>
+
+<body>
+  <div class="col-12" style="background: rgb(45, 62, 80); height: 3.25rem; margin: 0 0 0 0px; padding: 0 0 0 0; ">
+    <a class="" href="https://nfdi4plants.org/" style="">
+      <img src="images/logo.png" alt="Logo" width="32" height="32"
+        style="position: absolute; margin: 8px 12px 8px 12px; left: 0px; padding-top: 4px;" />
+    </a>
+    <div class="justify-content-center row d-flex align-items-center"
+      style="margin: 0 0 0 0; ; padding: 0 0 0 0; height: 3.25rem;  ">
+
+
+      <div class="btn-group d-md-none g-0 dropdown col-auto d-flex align-items-center" style="">
+        <button type="button" class="btn rounded-0 border-0 g-0 btn-nav " data-bs-toggle="dropdown"
+          aria-expanded="false" id="menu">
+          Menu &nbsp;
+          <a
+            style="display: inline-block; color: rgb(79, 179, 217); letter-spacing: 2px; font-size: 1em; transform: scaleX(2); transform-origin: 1 0;">
+            ∨ </a>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <button id="convertershort" class="dropdown-item d-none" onclick=''>Converter</button>
+          </li>
+          <li>
+            <a id="ghlinkshort" class="dropdown-item" href="https://github.com/elixir-europe/MARS">GitHub</a>
+          </li>
+          <li>
+            <a id="specshort" class="dropdown-item" onclick='dlText(JSON.stringify(googleJSON), "ISA-JSON_Specification_MARS")'>Download Specification</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="btn-group d-none g-0 d-md-block dropdown col-auto">
+
+       
+        <button type="button" onclick="location.href=location.href.split('#')[0]+'#isacheck'" class="btn  btn-nav"
+          id="isacheckNavBtn">
+          ISA Check &nbsp;
+        </button>
+       
+        <button type="button" class="btn border-0 rounded-0 g-0 btn-nav" data-bs-toggle="dropdown" aria-expanded="false"
+          id="conversion_tools">
+          Menu &nbsp;
+
+          <a
+            style="display: inline-block; color: rgb(79, 179, 217); letter-spacing: 2px; font-size: 1em; transform: scaleX(2); transform-origin: 1 0;">
+            ∨ </a>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <button id="converterlong" class="dropdown-item d-none" onclick=''>Converter</button>
+          </li>
+          <li>
+            <a id="ghlinklong" class="dropdown-item" href="https://github.com/elixir-europe/MARS">GitHub</a>
+          </li>
+          <li>
+            <a id="speclong" class="dropdown-item" onclick='dlText(JSON.stringify(googleJSON), "ISA-JSON_Specification_MARS")'>Download Specification</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div name="tab" class=" col-12 justify-content-center nav-link text-center" id="introTab">
+     
+      <a href="#isacheck">
+        <h1>Checks, validate and auto complete of ISA-JSON </h1>
+      </a>
+     
+    </div>
+
+    <div name="tab" class="row justify-content-center d-none" id="submissionTab">
+      <h1 class="center">MARS: Multi-omics Adapter for Repository Submissions </h1>
+
+
+      <form id="authForm" class="row justify-content-center">
+        <div class="mb-3 col-2">
+          <label for="username" class="form-label">ENA Username</label>
+          <input type="text" class="form-control" id="username" aria-describedby="usernameHelp">
+          <div id="usernameHelp" class="form-text d-none">The user name and password are used for token generation.
+          </div>
+        </div>
+        <div class="mb-3 col-2">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password">
+        </div>
+        <div class="mb-3 form-check d-none">
+          <input type="checkbox" class="form-check-input " id="passwordCheck">
+          <label class="form-check-label" for="passwordCheck">Check me out</label>
+        </div>
+        <div class="mb-3 col-2 d-none">
+          <label id="tokenHelp" class="form-text">Only collect token if you need.</label>
+          <br>
+          <button type="submit" id="formSubmit" class="btn btn-primary" aria-describedby="tokenHelp">Collect
+            Token</button>
+        </div>
+      </form>
+      <div class="col-6 m-auto">
+
+      
+      </div>
+      <div class="row justify-content-center m-3">
+        <!-- <div class="col-2">
+        <button class="btn btn-primary" style="display:inline" data-bs-toggle="modal" data-bs-target="#cModal"
+        id="cModalButton"> Start Submissions </button>
+      </div> -->
+      </div>
+      
+    </div>
+
+    <div name="tab" class=" col-12 d-none" id="ARC2JSONTab">
+      <div class="" style="height: 50vh; overflow-y: scroll">
+
+        <table class="table table-striped table-hover" style="table-layout:auto ; width:100%; ">
+          <thead>
+            <tr>
+              <th scope="col">Number</th>
+              <th scope="col">User/Group</th>
+              <th scope="col">Repo Name</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="datahubTable">
+          </tbody>
+        </table>
+      </div>
+      <div class="row m-3">
+        <div class="col-5">
+          <h4> Imported ARCs </h4>
+          <table class="table table-striped table-hover" style="table-layout:auto ; width:100%; ">
+            <thead>
+              <tr>
+                <th scope="col">ARC Name</th>
+                <th scope="col">Import Time</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="importedARCTable">
+            </tbody>
+          </table>
+        </div>
+        <div class="col-7">
+
+          <form class="">
+            <div class="row g-3 align-items-center">
+              <div class="col-3 text-end">
+                <label for="repoURL" class="col-form-label">ARC gitlab URL</label>
+              </div>
+              <div class="col-5">
+                <input type="text" id="repoURL"
+                  value='https://git.nfdi4plants.org/ai.krueger/2024_GrowthCoupledHemeBiosensor.git'
+                  class="form-control" aria-describedby="repoURLLabel" required>
+              </div>
+              <div class="col-4">
+                <span id="repoURLLabel" class="form-text">
+                  ARC Repository URL can be copied from the "Clone with HTTPS" section under code. It should start with
+                  "https://" and end with ".git"
+                </span>
+              </div>
+            </div>
+
+
+            <div class="row g-3 align-items-center d-none">
+              <div class="col-3 text-end">
+                <label for="gitusername" class="col-form-label">Username</label>
+              </div>
+              <div class="col-5">
+                <input type="Gitusername" id="gitusername" class="form-control" aria-describedby="UsernameHelpInline">
+              </div>
+              <div class="col-4">
+                <span id="UsernameHelpInline" class="form-text">
+                  The username or of DataHUB
+                </span>
+              </div>
+            </div>
+
+            <div class="row g-3 align-items-center">
+              <div class="col-3 text-end">
+                <label for="gitpassword" class="col-form-label">Access Token</label>
+              </div>
+              <div class="col-5">
+                <input type="Gitpassword" placeholder="can be left empty" id="gitpassword" class="form-control"
+                  aria-describedby="passwordHelpInline">
+              </div>
+              <div class="col-4">
+                <span id="passwordHelpInline" class="form-text">
+                  The personal access token can be left empty if the repository is publicly accessible.
+                </span>
+              </div>
+            </div>
+            <div class="col-3 m-auto align-items-center">
+              <br>
+              <button class="btn btn-primary" id="submitURL" onclick="event.preventDefault(); cloneARC()">Export
+                ARC-JSON</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div id="ARCInfo" class="row m-auto">
+
+      </div>
+
+
+    </div>
+    <div name="tab" class=" col-8 d-none align-items-center m-auto" id="isacheckTab">
+
+      <!-- <div class=" area uploadarea my-3" id="importArea" ondragenter="this.className='area uploadarea dragging'"
+        ondrop=";DragAndDrop(event)" style=" width:100%">
+
+
+        <input type="file" id="import" multiple>
+      </div> -->
+      <div class="text-center m-auto">
+        <button class="text btn btn-primary d-none" id="toSubmit" onclick="location.href=location.href.split('#')[0]+'#submit'" > 
+          Start Submission
+        </button>
+      </div>
+      <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+          <!-- <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleTest" aria-expanded="true" aria-controls="exampleTest">
+              Use prepared ISA-JSON example to test the basic functions
+            </button>
+          </h2> -->
+          <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              <div class="center">
+                DataPLANT test JSON  <a href="#" onclick="isaVis(dataplant_json)">here</a>
+                <br>
+                DataHub test JSON  <a href="#" onclick="isaVis(datahub_json)">here</a> <br>
+                
+                <br>
+                <input class="btn btn-primary d-inline d-none" type="file" id="input_json" name="json" multiple />
+                <br>
+
+                <div class="d-flex justify-content-center d-none" id="waiting">
+                  <div class="spinner-grow btn-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <br>
+                    <span class="sr-only d-none">Loading...</span>
+                  </div>
+                </div>
+                <div class="m-auto" id="xml_output">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="row m-3"></div>
+        <div class="col-12">
+          <h4> MARS ISA-JSON Specification </h4>
+          <table class="table table-striped table-hover" style="table-layout:auto ; width:100%; ">
+            <thead>
+              <tr>
+                <th scope="col">Human Readable Location</th>
+                <th scope="col">Cardinality</th>
+                <th scope="col">Machine Readable</th>
+                <!-- <th scope="col">Check Passed</th> -->
+              </tr>
+            </thead>
+            <tbody id="marsTable">
+            </tbody>
+          </table>
+        </div>
+      <!-- <div id="alertPlace"> </div>
+      <h4> ISA JSON Visualization: </h4>
+      <label for="jsonRange" class="form-label">Chose the level of details by slides (larger number = more details). The
+        blocks can collapsed or explanded by clicks and the values will show when the blocks are hovered.
+
+      </label>
+
+      <input type="range" class="form-range" id="jsonRange" min="2" max="2" onchange="setRange(this)" list="steplist">
+      <datalist id="steplist">
+
+      </datalist>
+      <div class="col-12 m-auto">
+        <span id="jsonVisualize" class="json m-auto">
+
+
+        </span>
+
+      </div> -->
+    </div>
+  </div>
+  <button type="button" class="btn btn-primary d-none" id="loadingModalBtn" data-bs-toggle="modal"
+    data-bs-target="#loadingModal">
+    Launch loading modal
+  </button>
+  <div class="modal" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="#loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="loadingModalLabel">Processing</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+
+
+          </div>
+          <span id="pbarLabel"> </span>
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="pbarModal" role="progressbar"
+              aria-label="Animated striped example" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"
+              style="width: 1%">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    var v_list, csv_content, cleanend_global, token, ena_return = 0, biosamples_return = 0;
+    var input_json = "test_input";
+    var log_backup = console.log;
+    var fs = FS.fs;
+    var alert_place_holder = document.getElementById('alertPlace');
+    var log_messages = [];
+    var current_file;
+    
+    var steps = [{
+      title: "Converter and validators",
+      content: '<p> Welcome! Our converter can convert an ISA-JSON file to multiple endpoint repositories such as ENA, Metabolites, EGA, EVA'
+      //
+    }
+    ];
+    // addEventListener("load", (event) => 
+    // {
+    //   // try{var repoList;
+    
+    //   // fetch('https://git.nfdi4plants.org/api/v4/projects')
+    //   // .then(data => {
+    //   //   if (data.status >= 400 && data.status < 600) {
+    //   // throw alert("Bad response from server, please check the availability of the server");
+    //   //   }
+    //   //   return data.json();
+    //   // })
+    //   // .then(post => {
+    //   //   window.repoList = post;
+    //   //   var tableHTML = '';
+    //   //   let newIndex = 0;
+    //   //   post.forEach((element, index) => {
+    //   //     if (element.description !== null) {
+
+
+    //   //       const pathName = element.path_with_namespace.split("/");
+    //   //       newIndex += 1;
+    //   //       tableHTML += `
+    //   //   <tr>
+    //   //     <th scope="row">`+ newIndex + ` </th>
+    //   //     <td>
+    //   //     `+ pathName[0] + `
+    //   //       </td>
+    //   //        <td>
+    //   //     <a href="`+ element.web_url + `" target="_blank">` + pathName[1] + `</a>
+    //   //       </td>
+    //   //        <td>
+    //   //         <div class="btn-group" role="group" aria-label="Basic example">
+    //   //     <button type="button" onclick="document.getElementById('repoURL').value='`+ element.http_url_to_repo + `'; cloneARC()" class="btn btn-primary">Import and Get ISA-JSON</button>
+    //   //     <button type="button" onclick="document.getElementById('repoURL').value='`+ element.http_url_to_repo + `'; cloneARC(false)" class="btn btn-secondary">Only Import</button>  
+    //   //     </div>
+    //   //     </td>
+    //   //   </tr>
+    //   //   `
+    //   //     }
+    //   //   }), document.getElementById("datahubTable").innerHTML = tableHTML;
+    //   // }).catch((error) => {
+    //   //     // Your error is here!
+    //   //     alert(error)
+    //   //   });}catch(e){
+    //   //   alert(e);
+    //   // }
+      
+
+    
+    // });
+    
+
+    var checklist_biosamples = [
+      {
+        "description" : "To check if investigation exists as a wraper",
+        "key": "investigation",
+        "jsonata": "$.$keys()",
+        "error": "element.key + \" can not be found in\" element.jsonata",
+        "fixfunction": '{"investigation":$}'
+      },
+      {
+        "description" : "To check if studies exsits",
+        "key": "studies",
+        "jsonata": "$.investigation.$keys()",
+        "error": "element.key + \" can not be found in\" element.jsonata",
+        "fixfunction": '$~>| $.investigation| {"studies":"missing_key"} |'
+      },
+      // {
+      //   "description" : "To check if assays exsits",
+      //   "key": "assays",
+      //   "jsonata": "$.investigation.studies[0].$keys()",
+      //   "error": "element.key + \" can not be found in\" element.jsonata",
+      //   "fixfunction": '$assert($.investigation.studies.$keys(), "error, no assays in studies")'
+      // },
+      
+      {
+        "description" : "check if organisms are added to the $.investigation.studies.materials.sources.characteristics ",
+        "jsonata" : '$assert($boolean($.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%.category."@id".$not($contains("organism"))).$not(), "error. Organism is not found" )',
+        "fixfunction" : '$~> |$.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%|   {"category":{"@id": "#MaterialAttribute/organism/OBI:0100026" }} |'
+      },
+      {
+        "description" : "To check if organisms exists in the ids in characteristicCategories",
+        "jsonata" : '$assert($boolean($.**.`@id`.$contains("#MaterialAttribute/OBI:0100026")).$not() , "error, no organisms in characteristicCategories")',
+        "fixfunction" : '$~>| $.**[`@id`="#MaterialAttribute/OBI:0100026"]|  {"@id":"#MaterialAttribute/organism/OBI:0100026"}  |'
+      },
+      {
+        "description" : "To check if there are multiple studies exist. Only the first will be slected if there is not submission specifications",
+        "jsonata" : '$assert ($count($.investigation.studies)=1, "error. More than one studies are found" )',
+        "fixfunction" : '$~> |$.investigation | {"studies" : [$.studies[0]]} |'
+      },
+      
+      {
+        "description": "To check if all investigation.studies.materials.sources have at least one characteristics",
+        "jsonata": '$assert($count($.investigation.studies.materials.sources[$lookup("characteristics")]) = $count($.investigation.studies.materials.sources), "Not all sources in materials have characteristics ")',
+        "fixfunction": '$~>|  $.investigation.studies.materials| {"sources" : sources[$lookup("characteristics")] }  |'
+
+      },{
+        "description" : "To evaluate the type of \"value\" key, try auto fix if the value is numbers or strings",
+        "jsonata" : '$assert(($nopeople := $ ~> |$.investigation.studies[0]| {"people":[]} |; $not($exists($nopeople.investigation.studies.**[($type(value) = "string") or ($type(value) = "number")]))), "error, the strings or numbers type of value exist in the values")',
+        "error": "string and number values exist in the 'value' keys",
+        "fixfunction" : '($people := $.investigation.studies.people ;$c1 := $ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }| ;  $c1 ~> | $.investigation.studies| {"people" : $people} | )'
+      },{
+        "description": "To check if all investigation.studies.materials.sources.characteristics.category has correct format",
+        "jsonata" : '($p := $.investigation.studies.materials.sources.characteristics; $assert( $count($p) = $count($p.category) , "Some characteristics do not have categories" ))',
+        "fixfunction" :'($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : category}; $getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"category": `@id`.$getvalue($) }| )'
+      },
+      {
+        "description": "To check investigation.studies.materials.sources.characteristics.value ",
+        "jsonata" : '($p := $.investigation.studies.materials.sources.characteristics[[$contains(`@id`, "Empty" ).$not()]]; $assert( $count($p) = $count($p.value) , "Some characteristics do not have values" ))',
+        "fixfunction" :'($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : value};$getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"value": `@id`.$getvalue($) }| )'
+      }
+    ]
+
+
+
+
+    var checklist_ena = [
+    {
+        "description" : "evaluate the type of \"value\" key, try auto fix if the value is ",
+        "jsonata" : '$assert($.studies.**[($type(value) = "string") or ($type(value) = "number")], "error")',
+        "error": "string and number values exist in the 'value' keys",
+        "fixfunction" : '$ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }|'
+      }
+
+
+    ]
+
+    function csvJSON(csv){
+
+      var lines=csv.split("\n");
+
+      var result = [];
+      var headers=lines[1].split(",");
+
+      for(var i=2;i<lines.length;i++){
+
+          var obj = {};
+          var currentline=lines[i].split(",");
+
+          for(var j=0;j<headers.length;j++){
+              obj[headers[j]] = currentline[j];
+          }
+
+          result.push(obj);
+
+      }
+
+      //return result; //JavaScript object
+      return JSON.stringify(result); //JSON
+      }
+
+    async function fetchGoogleCSV(){
+        try {
+          //read .csv file on a server
+          const target = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQvgQoUByiJgGcJ4jtD8bG9AyQrh4TYVQE8aq7AqJRxLdfyLFATKspu_vkyqbVsTyEnNIBHqWtpgV6X/pub?gid=0&single=true&output=csv`;
+
+          const res = await fetch(target, {
+          
+              method: 'get',
+              headers: {
+                
+                  'content-type': 'text/csv;charset=UTF-8',
+              }
+          });
+
+          if (res.status === 200) {
+              const data = await res.text();
+              const result = JSON.parse(csvJSON(data));
+              showSpecs(result);
+              return result;
+              //document.getElementById("submission").disabled = false;
+              
+          } else {
+              console.log(`Error code ${res.status}`);
+          }
+        } catch (err) {
+          console.log(err)
+      }
+
+    }
+
+    async function updateTable( ISAJSON ){
+      //googleJSON = await fetchGoogleCSV();
+      let tableHTML = "";
+      for (const [index, e] of Object.entries(googleJSON)){
+        if (e["Obligation-MARS"].replace(" ", "") == "Mandatory"){
+          const eva = e["JSONata_MARS_evaluation"];
+          const human = e.ISAjson;
+          const jsonataExp = "$assert('"+eva+", '"+human +"')"
+          let result;
+          
+          try {
+            result = await jsonata(jsonataExp).evaluate(ISAJSON);
+            result = "Passed";
+          } catch (error) {
+            result = "<span class='text-danger'> failed " + error.message+"</span>";
+          }
+          
+          console.log(human +" the eval result is"+result);
+          tableHTML += `
+                <tr>
+                <td>
+              `+ human + `
+                </td>
+                <td>
+             `+ e["Obligation-MARS"] + `
+                </td>
+                <td>  
+              `+ jsonataExp + `
+                </td>
+                <td id=marsTableRow`+ index + `>  
+                `+result+`
+                </td>
+            </tr>
+            `
+        }
+        }
+
+      
+
+        document.getElementById("marsTable").innerHTML = tableHTML;
+
+    }
+
+    function showSpecs(result){
+      
+      let tableHTML = "";
+      for (const [index, e] of Object.entries(result)){
+        if (e["Obligation-MARS"].replace(" ", "") == "Mandatory"){
+          const eva = e["JSONata_MARS_evaluation"];
+          const human = e.ISAjson;
+          const jsonataExp = "$assert('"+eva+", '"+human +"')"
+          
+          tableHTML += `
+                <tr>
+                <td>
+              `+ human + `
+                </td>
+                <td>
+             `+ e["Obligation-MARS"] + `
+                </td>
+                <td>  
+              `+ jsonataExp + `
+                </td>
+            </tr>
+            `
+          }
+        }
+        document.getElementById("marsTable").innerHTML = tableHTML;
+
+    }
+
+
+
+    async function checkJSONata(googleJSON, ){
+
+
+
+    }
+
+
+
+
+
+
+    const loading = new bootstrap.Modal(document.getElementById('loadingModal'), {
+      keyboard: true, show: false
+    });
+    function setRange(ele) {
+      loading.show()
+      const order = Number(ele.value);
+      const max = Number(ele.max);
+      const id = order - 1;
+      //const preid = order-2;
+
+      document.querySelectorAll('[data-order="' + id + '"]').forEach(e => { if (e.firstElementChild != null) { e.classList.add('collapsed'); } })
+      for (let i = 1; i < order - 1; i++) {
+        document.querySelectorAll('[data-order="' + i + '"]').forEach(e => { if (e.firstElementChild != null) { e.classList.remove('collapsed'); } })
+      }
+      for (let i = 1; i < order; i++) {
+        document.querySelectorAll('[data-order="' + i + '"]').forEach(e => {
+
+          e.classList.remove('d-none');
+        }
+
+        );
+      }
+      for (let i = order; i <= max; i++) {
+        document.querySelectorAll('[data-order="' + i + '"]').forEach(e => {
+          if (e.firstElementChild != null) {
+            e.classList.add('collapsed');
+
+          }
+          e.classList.add('d-none');
+        }
+
+        );
+      }
+      loading.hide();
+    }
+
+
+
+    const bootAlert = (message, type) => {
+      const wrapper = document.createElement('div')
+      wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        '</div>'
+      ].join('')
+
+      alert_place_holder.append(wrapper)
+    }
+    function checkHas(key, location, error) {
+      const expression = "$assert('" + key + "' in " + location + ", '" + error + "')";
+      return expression;
+    }
+    async function jCheck(json, expression) {
+      var result = await jsonata(expression).evaluate(json);
+      return result;
+    }
+    async function checkall(checklist, isa) {
+      window.alert_place_holder.innerHTML = "";
+      var passed = 0;
+      for (const [index, element] of Object.entries(checklist,)) {
+        try { if(element.key){
+              await jCheck(isa, checkHas(element.key, element.jsonata, element.key + " can not be found in " + element.jsonata));
+              passed += 1;
+              bootAlert(element.description +". [Test passed]", "success")
+
+            } else {
+              await jCheck(isa, element.jsonata);
+              passed += 1;
+              bootAlert(element.description +". [Test passed]", "success")
+            } 
+        } catch (e) {
+          try {
+            isa = await jCheck(isa, element.fixfunction);
+            jCheck(isa, element.jsonata)
+            .catch(e =>{
+              bootAlert(e.message +". \n Validation failed and automatic patch is not successful. \n ", "danger");
+              return Promise.reject()
+            } 
+)
+            .then(e => 
+            {
+              passed += 1;
+              bootAlert(element.description +". \n Validation failed but automatic patching has been successfully done", "warning");
+              
+              if (passed == checklist.length){
+                //document.getElementById("toSubmit").classList.remove("d-none");
+                console.log("all test passed");
+              }else{
+                //document.getElementById("toSubmit").classList.add("d-none");
+              }
+            }
+              
+            );
+
+          } catch (e) {
+            bootAlert(e.message, "danger")
+          };
+        }
+
+      };
+      
+      //console.log("returned isa is: " + JSON.stringify(isa));
+      return isa;
+    }
+    window.id = 0;
+    window.orderMax = 0;
+    function traverse(json, parentNode, order) {
+      if (typeof json !== 'object' || json === null) return;
+      order += 1;
+      window.orderMax = Math.max(order, window.orderMax)
+      document.getElementById("jsonRange").setAttribute("max", window.orderMax);
+      Object.entries(json).forEach(([key, value]) => {
+        const keyAttribute = key.replace("@", "at");
+
+        if (typeof (value) == 'string') {
+          try {
+            //parentNode.setAttribute(keyAttribute,value);
+            let childNode = document.createElement("span");
+            childNode.classList.add("json");
+            childNode.classList.add(key);
+            childNode.innerText = key;
+            childNode.setAttribute("title", value);
+            childNode.setAttribute("data-order", order);
+            value=="missing_key"? childNode.classList.add("missingKey") : {} ;
+            parentNode.appendChild(childNode);
+          } catch (error) {
+            alert(e);
+          };
+
+          if ((key == '@id') || (key == 'name')) {
+            //parentNode.innerText += key+ " "+ value+ " ";
+
+            //parentNode.classList.add(value);
+          };
+          
+        } else if (typeof (value) == 'object') {
+          let childNode = document.createElement("span");
+          childNode.classList.add("json");
+          childNode.classList.add(key);
+          if ((Object.prototype.toString.call(json) === '[object Array]')) {
+            childNode.innerText = Number(key) + 1;
+          } else {
+            childNode.innerText = key;
+          }
+
+          childNode.setAttribute("data-order", order);
+          window.id += 1;
+          try {
+            childNode.setAttribute("id", "jsonId" + window.id);
+          } catch (error) {
+            alert(e);
+          }
+
+          childNode.setAttribute("name", key);
+          window.orderMax = Math.max(order, window.orderMax);
+          const nextOrder = order + 1;
+          document.getElementById("jsonRange").setAttribute("max", window.orderMax);
+          childNode.setAttribute("onclick", "event.stopPropagation();this.classList.toggle('collapsed');  +1;this.querySelectorAll('span[data-order=\"" + nextOrder + "\"]').forEach(e=> e.classList.toggle('d-none'))");
+          parentNode.appendChild(childNode);
+          traverse(value, childNode, order);
+
+        }
+        ;
+      });
+    };
+
+    async function isaVis(json) {
+      json = await checkall(checklist_biosamples, json);
+      await updateTable( json );
+      window.orderMax = 0;
+      window.path = 0;
+      let ele1 = document.getElementById("jsonVisualize");
+      ele1.innerHTML = "";
+      var order = 0;
+      try {
+        traverse(json, ele1, order),
+          setTimeout(e => { loading.hide() }, 100);
+      } catch (error) {
+        alert(error);
+      }
+      let stepListText = "";
+      let jsonRange = document.getElementById("jsonRange");
+      for (let i = 2; i <= Number(jsonRange.max); i++) {
+        stepListText += "<option value=" + i + " label=" + i + " >" + i + "</option>"
+      }
+      document.getElementById("steplist").innerHTML = stepListText;
+      jsonRange.value = 3;
+      jsonRange.onchange()
+    }
+
+
+
+    function updateLabel(phrase) {
+      document.getElementById("pbarLabel").innerHTML = phrase;
+    }
+    function updateProgressBar(progress) {
+
+      const pbar = document.getElementById("pbarModal");
+      pbar.setAttribute("style", 'width:' + progress + '%;')
+      pbar.setAttribute("aria-valuenow", progress)
+    }
+    function updateIndeterminateProgressBar(progress) {
+
+      const pbar = document.getElementById("pbarModal");
+      pbar.setAttribute("style", 'width:' + progress + '%;')
+      pbar.setAttribute("aria-valuenow", progress)
+    }
+
+
+
+    async function cloneARC(convert = true) {
+      // try {
+      //   document.getElementById("loadingModalBtn").click();
+      //   var url;
+      //   const token = document.getElementById("gitpassword").value;
+      //   if (!token) {
+      //     url = document.getElementById("repoURL").value;
+      //     console.log(url)
+      //   } else {
+      //     [begin, end] = document.getElementById("repoURL").value.split("//")
+      //     url = begin + "//oath2:" + token + "@" + end;
+      //     console.log(url);
+      //   }
+      //   let date = Date().replaceAll(" ", "_").replaceAll(":", "-").split("(")[0];
+      //   let dir = "/" + url.split("/").slice(-1)[0] + date
+      //   FS.mkdirSync(dir);
+      //   window.current_file = dir;
+      //   const res = await git.clone({
+      //     fs,
+      //     http,
+      //     dir,
+      //     corsProxy: 'https://cors.isomorphic-git.org',
+      //     url: url,
+      //     ref: 'main',
+      //     singleBranch: true,
+      //     depth: 1,
+      //     force: true,
+      //     onProgress: event => {
+      //       updateLabel(event.phase)
+      //       if (event.total) {
+      //         updateProgressBar(event.loaded / event.total)
+      //       } else {
+      //         updateIndeterminateProgressBar(event.loaded)
+      //       }
+      //     }
+      //   });
+      //   let tableHTML="";
+      //   const fileList = fs.readdirSync("/");
+      //   fileList.forEach((element, index) => {
+      //     if (!element.endsWith(".json")){
+      //       const fileName = element.split(".git");
+      //     tableHTML += `
+      //           <tr>
+      //           <td>
+      //         `+ fileName[0] + `
+      //           </td>
+      //           <td>
+      //        `+ fileName[1] + `
+      //           </td>
+      //           <td>  
+      //         <button type="button" onclick=" runARC2JSON('`+ element + `')" class="btn btn-primary">Get ISA-JSON</button>
+      //         </td>
+      //       </tr>
+      //       `
+      //     }
+          
+      //   });
+      //   document.getElementById("importedARCTable").innerHTML= tableHTML;
+      //   if (convert) {
+      //     runARC2JSON(dir)
+      //   }
+      // } catch (error) {
+      //   document.getElementById("a2jNavBtn").click();
+      //   throw alert(error),
+      //   console.error(error);
+      // }
+
+      // loading.hide();
+
+    }
+
+    async function runARC2JSON(dir){
+      try {
+        const ele = document.getElementById("ARCInfo");
+          //ele.innerHTML= "Downloading ARC successful, files are "+ (FS.readdirSync(dir));
+          const dec = new TextDecoder;
+          var jsonText;
+          let fileName = dir + "exported.json";
+          await ARC2JSON(dir, fileName);
+          jsonText = dec.decode(FS.readFileSync(fileName));
+
+
+          ele.innerHTML += jsonText;
+          dlText(jsonText, fileName);
+          dataplant_json = JSON.parse(jsonText);
+
+          await isaVis(dataplant_json);
+
+          return document.getElementById("isacheckNavBtn").click()
+        
+      } catch (error) {
+        alert(error);
+      }
+      
+    }
+
+    function dlText(text, Name) {
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(text);
+      var dl = document.createElement('a');
+      dl.setAttribute("href", dataStr);
+      dl.setAttribute("download", Name + ".json");
+      document.body.appendChild(dl);
+      dl.click();
+      dl.remove();
+    }
+
+
+    var tour = new Tour(steps); // initialize the guided tour
+    //tour.show();
+
+    let output_div = document.getElementById("xml_output");
+    function DragAndDrop(e) {
+      e.preventDefault();
+      let ele = document.getElementById("import");
+      ele.files = e.dataTransfer.files;
+      var reader = new FileReader(); // File reader to read the file 
+      // This event listener will happen when the reader has read the file
+      reader.addEventListener('load', function () {
+        var result = JSON.parse(reader.result); // Parse the result into an object 
+        isaVis(result);
+        //console.log("result is : " + result);
+
+      });
+
+      reader.readAsText(ele.files[0]); // Read the uploaded file
+
+    }
+    function softRoute() {
+      const urlRoute = window.location.href.split("#");
+      const para = urlRoute.slice(-1)[0];
+      switch (para) {
+        case "submit":
+          document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "submissionTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          }
+
+          )
+          break;
+        case "a2j":
+          document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "ARC2JSONTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          }
+
+          )
+          break;
+        case "isacheck":
+          document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "isacheckTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          }
+
+          )
+          break;
+         case "":
+          document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "isacheckTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          });
+          showSpecs();
+          break; 
+        default:
+        document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "isacheckTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          });
+          showSpecs();
+          break; 
+        
+      }
+
+    }
+
+    console.log = function () {
+      //log_messages.push.apply(log_messages, arguments);
+      log_backup.apply(console, arguments);
+      output_div.innerText = log_messages.join('\r\n');
+    };
+    // const input1 = document.getElementById("import");
+    // input1.addEventListener("change", handleFiles1, false);
+
+    
+
+    function handleFiles1() {
+
+      if (this.files.length > 0) {
+        loading.show();
+        var reader = new FileReader(); // File reader to read the file 
+        // This event listener will happen when the reader has read the file
+        reader.addEventListener('load', function () {
+          var result = JSON.parse(reader.result); // Parse the result into an object 
+          isaVis(result);
+        });
+        reader.readAsText(this.files[0]); // Read the uploaded file
+      } else {
+        window.alert("no file is selected to import");
+      };
+    }
+
+
+    function bstest(testJSON) {
+      loading.show();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Construct the request body
+      var requestBody = {
+        authRealms: ['ENA'],
+        password: password,
+        username: username
+      };
+
+      // Send the POST request using Fetch API
+      fetch('https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      })
+        .then((response) => response.text())
+        .then(text => {
+          console.log('Response:', text);
+          token = text;
+          document.getElementById("tokenText").innerText = token;
+          document.getElementById("tokenStatus").innerText = "Returned";
+          bsSubmit(testJSON);
+          //document.getElementById("status_modal_button").click();
+          // Handle the response here
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Handle errors here
+        });
+      
+    }
+
+    window.addEventListener("load", (event) => {
+      softRoute();
+      
+    });
+
+
+    function enatest(testJSON) {
+      loading.show();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      enaSubmit(username, password, testJSON);
+
+    }
+
+    function enaSubmit(name, password, json) {
+      json =
+        fetch('https://ena.cplantbox.com/isaena/submit?webinUserName=' + name + '&webinPassword=' + password, {
+          method: 'POST',
+          //mode: 'cors',
+          headers: {
+
+            'Content-Type': 'application/json',
+            'accept': '*/*'
+          },
+          body: JSON.stringify(json)
+        })
+          .then((response) => response.text())
+          .then(data => {
+            console.log('Success: ', data);
+            ena_return = data;
+            document.getElementById("enaStatus").innerText = "Returned";
+            document.getElementById("enaText").innerText = ena_return;
+            document.getElementById("status_modal_button").click();
+
+          })
+          .catch(error => {
+            alert("ENA submission failed, error is " + error + ". It might be caused by the incorrect login or the incorrect data transformation, please inform the developers.");
+            console.error('Error:', error);
+
+          });
+
+    };
+
+    // function trim_dataplant(input) {
+
+    //   const invinput = { "investigation": input };
+    //   const jsText = JSON.stringify(invinput);
+    //   const replacedText1 = jsText.replaceAll(/(\"value\"\:)(\"\w+\")/gm, '$1{ "@id": "", "annotationValue" :$2, "termAccession":"","termSource":"" }')
+    //   const replacedText2 = replacedText1.replaceAll(/(\"value\"\:)(\d+(\d+|[.])\d+)[,]/gm, '$1{ "@id": "", "annotationValue" :"$2", "termAccession":"","termSource":"" },')
+
+    //   const replacedText3 = replacedText2.replaceAll(/(\"value\"\:)(\d+)/gm, '$1{ "@id": "", "annotationValue" :"$2", "termAccession":"","termSource":"" }')
+
+    //   const replacedText4 = replacedText3.replaceAll(/(\#MaterialAttribute\/)(OBI\:0100026)/gm, '$1organism/$2')
+    //   let finalJSON = JSON.parse(replacedText4);
+    //   finalJSON["investigation"]["studies"] = [finalJSON["investigation"]["studies"][0]]
+    //   return finalJSON;
+    // }
+
+
+    function bsSubmit(json) {
+
+      const fulltoken = "https://biosamples.cplantbox.com/isabiosamples/submit?webinjwt=" + token;
+      fetch(fulltoken, {
+        method: 'POST',
+        //mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*'
+        },
+        body: JSON.stringify(json)
+      })
+        .then((response) => response.text())
+        .then(data => {
+          console.log('Success: ', data);
+          biosamples_return = JSON.parse(data);
+          document.getElementById("biosamplesStatus").innerText = "Returned";
+          document.getElementById("biosamplesText").innerText = JSON.stringify(biosamples_return);
+          document.getElementById("status_modal_button").click();
+
+        })
+        .catch(error => {
+          alert("BioSamples submission failed, error is " + error + ". Please check your jwt token");
+          console.error('Error:', error);
+        });
+
+    };
+
+    function enaModify(preJSON, otherMaterial="123") {
+      Boolean(preJSON.investigation.studies[0].name) ? {} : preJSON.investigation.studies[0]["name"] = "Multi-omics study";
+      Boolean(preJSON.investigation.studies[0].title) ? {} : preJSON.investigation.studies[0]["title"] = "Multi-omics study";
+      preJSON.investigation.studies[0].protocols.push(addStudyProcessSequence("abc"));
+      preJSON.investigation.studies[0].assays.splice(-2);
+      preJSON.investigation.studies[0].assays[0].processSequence.push(addAssayProcessSequence("abc", "aasa", otherMaterial));
+      preJSON.investigation.studies[0].assays[0].materials["otherMaterials"] = addOtherMatial(otherMaterial, "aaa")["otherMaterials"];
+
+      return preJSON;
+
+    }
+
+    function addOtherMatial(otherMaterialId, derivesFromId) {
+      var otherMaterial = {
+        "otherMaterials": [
+          {
+            "name": "library 1",
+            "@id": "#" + otherMaterialId,
+            //"id" : "Multi-omics study",
+            "type": "Library Name",
+            "derivesFrom": [
+              {
+                "@id": "#" + derivesFromId
+              }
+            ]
+          }
+        ]
+      }
+      return otherMaterial;
+    }
+
+    function addStudyProcessSequence(protocolID) {
+      var StudyProcessSequence = {
+        "name": "library construction",
+        "protocolType": {
+          "annotationValue": "library construction",
+          "termAccession": "",
+          "termSource": ""
+        },
+        "description": "",
+        "uri": "",
+        "version": "",
+        "parameters": [{
+          "parameterName": {
+            "annotationValue": "library_construction_protocol",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/349"
+        }, {
+          "parameterName": {
+            "annotationValue": "design_description",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/351"
+        }, {
+          "parameterName": {
+            "annotationValue": "library source",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/352"
+        }, {
+          "parameterName": {
+            "annotationValue": "library strategy",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/353"
+        }, {
+          "parameterName": {
+            "annotationValue": "library selection",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/354"
+        }, {
+          "parameterName": {
+            "annotationValue": "library layout",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/355"
+        }, {
+          "parameterName": {
+            "annotationValue": "insert size",
+            "termAccession": "",
+            "termSource": ""
+          },
+          "@id": "#parameter/356"
+        }],
+        "components": [{
+          "componentName": "",
+          "componentType": {
+            "annotationValue": "",
+            "termSource": "",
+            "termAccession": ""
+          }
+        }],
+        "@id": "#" + protocolID
+      };
+      return StudyProcessSequence;
+    }
+    function addAssayProcessSequence(protocolID, inputID, outputID) {
+      var assayProcessSequence = {
+        "name": "",
+        "executesProtocol": {
+          "@id": "#" + protocolID
+        },
+        "parameterValues": [
+          {
+            "category": {
+              "@id": "#parameter/349"
+            },
+            "value": {
+              "annotationValue": "lib prep",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/351"
+            },
+            "value": {
+              "annotationValue": "Test",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/352"
+            },
+            "value": {
+              "annotationValue": "OTHER",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/353"
+            },
+            "value": {
+              "annotationValue": "RNA-Seq",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/354"
+            },
+            "value": {
+              "annotationValue": "other",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/355"
+            },
+            "value": {
+              "annotationValue": "SINGLE",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }, {
+            "category": {
+              "@id": "#parameter/356"
+            },
+            "value": {
+              "annotationValue": "100",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "unit": {
+              "termSource": "",
+              "termAccession": "",
+              "comments": []
+            }
+          }],
+        "inputs": [{
+          "@id": "#" + inputID
+        }],
+        "outputs": [{
+          "@id": "#" + outputID
+        }],
+        "performer": "",
+        "date": "",
+        "@id": "#additionalProcess",
+      }
+      return assayProcessSequence;
+    }
+    
+    addEventListener("hashchange", (event) => {
+
+      if (true) {
+        softRoute();
+      }
+
+      });
+
+      function copyById(id){
+        var copyText = document.getElementById(id).innerText;   
+        navigator.clipboard.writeText(copyText)
+       .catch(e=> alert(e) )
+       .then(e => alert("copy successful"));
+      }
+      
+     const submitAll = async function(id, json) {
+      if (json)
+      //window.input_json =await  checkall(checklist_biosamples, json);
+      switch (id){
+        case "biosamples":
+          bstest(json);
+          break;
+        case "ena":
+          enatest(enaModify(json));
+          break;
+        
+      }
+      }
+
+  </script>
+
+  <!-- Button trigger modal -->
+  <button type="button" class="d-none btn btn-primary">
+    Launch convert modal
+  </button>
+  <!--Modal for submission-->
+  <div class="modal fade" id="cModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="cModalLabel"
+    aria-hidden="true" style="z-index:1001">
+    <div class="modal-dialog modal-xl modal-fullscreen-xl-down">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="cModalLabel">Upload to Endpoint Repositories</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+
+            <div class="form-check" id="submitRepos">
+              
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="1" id="biosamples" name="repo" checked>
+                      <label class="form-check-label" for="biosamples">
+                        BioSamples
+
+                      </label>
+
+
+                    </div>
+                    <div class="spinner-border text-primary d-none" id="biosamplesloading" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+
+
+
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="ena" name="repo">
+                      <label class="form-check-label" for="ENA">
+                        ENA
+                      </label>
+                    </div>
+
+
+                    <div class="spinner-border text-primary d-none" id="ENAloading" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+
+
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="metabolights" name="repo">
+                      <label class="form-check-label" for="metabolights">
+                        Metabolites
+                      </label>
+                    </div>
+
+
+                    <div class="spinner-border text-primary d-none" id="metabolightsloading" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+
+
+              </div>
+
+
+            
+          </div>
+          <table id="validate_table" class="table table-bordered table-hover">
+
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">download updated JSON</button>
+          <button type="button" class="btn btn-primary"
+            onclick="Array.from(document.querySelectorAll('input[name=repo]:checked')).forEach((e)=> submitAll(e.id, window.input_json)) ">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#status_modal"
+    id="status_modal_button">
+    Show Status
+  </button>
+
+  <!-- Modal -->
+  <div class="modal modal-xl fade" id="status_modal" tabindex="-1" data-bs-backdrop="static"
+    aria-labelledby="status_modal_label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="status_modal_label">Status Table</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <span id="init_word"> </span>
+          <br>
+          <span></span> Submission Status<br>
+
+          <table id="infoTable" class="table table-bordered table-hover" style="table-layout:auto; width: 100%;">
+            <thead>
+              <tr>
+                <th scope="col">Repositories</th>
+                <th scope="col">Submission Status</th>
+                <th scope="col">Returned</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Token</th>
+                <td  id="tokenStatus">not asked</td>
+                <td>
+                  <div class="scrollTable" id="tokenText" ></div>
+                </td>
+                <td><button class="btn btn-primary"  disabled>Copy Token</button><button class="btn btn-primary"disabled>Download Token</button></td>
+              </tr>
+              <tr>
+                <th scope="row">BioSamples</th>
+                <td id="biosamplesStatus">not asked</td>
+                <td  ><div class="scrollTable" id="biosamplesText"> </div> </td>
+                <td><button class="btn btn-primary" id="copyreturnedjson" onclick="copyById('biosamplesText')" >Copy Returned JSON</button>
+                  <button class="btn btn-primary" id="downloadreturnedjson" onclick="dlText(document.getElementById('biosamplesText').innerText, 'biosamples_returned_'+window.current_file+'.json' )" >Download Returned JSON</button></td>
+              </tr>
+              <tr>
+                <th scope="row">ENA</th>
+                <td id="enaStatus">not asked</td>
+                <td>
+                  <div id="enaText"></div>
+                </td>
+                <td>...</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button d-none" class="btn btn-secondary" data-bs-dismiss="modal">download files</button>
+
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+
+  </div>
+
+  <!-- Button trigger modal -->
+
+
+</body>
+<script>
+
+</script>
+
+</html>
