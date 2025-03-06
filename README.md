@@ -87,12 +87,11 @@ Based on the information in repository receipts, the ISA-JSON is updated with ac
 
 #### Credential management
 
-MARS-CLI is not responsible for storing and managing credentials, used for submission to the target repositories. Therefor, credentials should be managed by the [Data broker platform](#data-broker-platform).
-
+MARS-CLI comes with the functionality to interact with your device's keychain backend in order to fetch the necessary credentials. This allows the user to set credentials in a safe way. 
 
 #### Data submission
 
-MARS-CLI is not to be used as a platform to host data and will not store the data after submission to the target repository. This should be handled by the [Data broker platform](#data-broker-platform). The ISA-JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
+MARS-CLI is not a platform to host data and will not store the data after submission to the target repository. This should be handled by the [Data broker platform](#data-broker-platform) where MARS-CLI is installed. The ISA-JSON provided to the application will be updated and stored in the BioSamples repository as an External Reference, but is otherwise considered as ephemeral.
 
 
 ### ISA-JSON support by repositories
