@@ -1,7 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.6.13'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-    id "com.diffplug.spotless" version "5.12.5"
+    id "com.diffplug.spotless" version "6.25.0"
     id 'java'
 }
 
@@ -38,4 +38,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat('1.19.2')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.register('spotless-apply') {
+    dependsOn 'spotlessApply'
 }

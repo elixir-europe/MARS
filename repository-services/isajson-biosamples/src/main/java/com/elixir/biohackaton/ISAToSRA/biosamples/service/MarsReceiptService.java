@@ -36,12 +36,13 @@ public class MarsReceiptService extends MarsReceiptProvider {
    * Converting BioSample receipt to Mars data format
    *
    * @see
-   *      https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
+   *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from Biosample
    * @param isaJson {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
    */
-  public MarsReceipt convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
+  public MarsReceipt convertReceiptToMars(
+      final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
     return buildMarsReceipt(
         "biosamples", // https://registry.identifiers.org/registry/biosample
         biosampleAccessionsMap.studyAccessionsMap,

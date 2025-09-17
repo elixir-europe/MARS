@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -26,9 +25,10 @@ class BiosampleReceiptToMarsTest {
       String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
       String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
 
-      // Try https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/swagger-ui/index.html#/AuthenticationAPI/getToken to get the token
+      // Try
+      // https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/swagger-ui/index.html#/AuthenticationAPI/getToken to get the token
       String webinToken = "";
-      if(webinToken.isEmpty()){
+      if (webinToken.isEmpty()) {
         return; // Ignore the test when the token is not prepared
       }
 
@@ -39,7 +39,8 @@ class BiosampleReceiptToMarsTest {
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
       final List<Study> studies = isaJson.getInvestigation().getStudies();
-      final BiosampleAccessionsMap accessionsMap = bioSamplesSubmitter.createBioSamples(studies, webinToken);
+      final BiosampleAccessionsMap accessionsMap =
+          bioSamplesSubmitter.createBioSamples(studies, webinToken);
 
       // Converting Biosample receipt to MARS receipt
       MarsReceiptService marsReceiptService = new MarsReceiptService();
