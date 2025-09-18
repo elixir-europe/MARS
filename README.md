@@ -66,11 +66,6 @@ Track the status of each repository here:
 ## File structure in this repo
 
 ```
-├── mars-cli
-│   ├── mars_lib/
-│   ├── mars_cli.py
-│   ├── README.md
-│   └── ...
 ├── repository-services
 │   ├── isajson-biosamples/
 │   │── isajson-ena/
@@ -82,7 +77,6 @@ Track the status of each repository here:
 └── README.md
 ```
 
-- **mars-cli**: Source code of the Python library to submit (meta)data to the repositories. See README in [MARS-CLI repository](https://github.com/elixir-europe/mars-cli.git) to read more on how to use the command line tool.
 - **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
     - **repository-api.md**: Describing the receipt standard for repository APIs to follow.
 - **test-data**: Test data to be used in a submission.
