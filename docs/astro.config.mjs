@@ -5,5 +5,4 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
     site: 'https://elixir-europe.github.io',
     base: '/MARS'
-}
-)
+})
