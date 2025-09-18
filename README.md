@@ -46,7 +46,7 @@ Examples of Data broker platforms include ARC, Galaxy, and others.
 
 MARS-CLI is a command-line tool (CLI) used by the Data Broker platform to handle the submission of ISA-JSON metadata to multiple repositories. It automates the submission process, updates ISA-JSON with accession numbers based on repository responses, and ensures smooth data integration.  
 
-Built as a Python library, MARS-CLI can be integrated into web applications, ARC, Galaxy, and other platforms. The source code and documentation are available in the [mars-cli folder](/mars-cli/) in this repository.  
+Built as a Python library, MARS-CLI can be integrated into web applications, ARC, Galaxy, and other platforms. The source code and documentation are available in the [mars-cli repository](https://github.com/elixir-europe/mars-cli.git) in this repository.  
 
 #### Main Steps of MARS-CLI  
 
@@ -128,7 +128,7 @@ Track the status of each repository here:
 └── README.md
 ```
 
-- **mars-cli**: Source code of the Python library to submit (meta)data to the repositories. See [README](/mars-cli/README.md) to read more on how to use the command line tool.
+- **mars-cli**: Source code of the Python library to submit (meta)data to the repositories. See README in [MARS-CLI repository](https://github.com/elixir-europe/mars-cli.git) to read more on how to use the command line tool.
 - **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
     - **repository-api.md**: Describing the receipt standard for repository APIs to follow.
 - **test-data**: Test data to be used in a submission.
