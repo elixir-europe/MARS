@@ -1,7 +1,0 @@
-requests
-jsonschema
-keyring
-pydantic
-click
-retry
-colorlog
