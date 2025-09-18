@@ -1,0 +1,1723 @@
+{
+  "$defs": {
+    "Assay": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "characteristicCategories": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialAttribute"
+          },
+          "title": "Characteristiccategories",
+          "type": "array"
+        },
+        "dataFiles": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Data"
+          },
+          "title": "Datafiles",
+          "type": "array"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        },
+        "materials": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssayMaterialType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "measurementType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "processSequence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Process"
+          },
+          "title": "Processsequence",
+          "type": "array"
+        },
+        "technologyPlatform": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Technologyplatform"
+        },
+        "technologyType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "unitCategories": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OntologyAnnotation"
+          },
+          "title": "Unitcategories",
+          "type": "array"
+        }
+      },
+      "title": "Assay",
+      "type": "object"
+    },
+    "AssayMaterialType": {
+      "additionalProperties": false,
+      "properties": {
+        "samples": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Sample"
+          },
+          "title": "Samples",
+          "type": "array"
+        },
+        "otherMaterials": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "title": "Othermaterials",
+          "type": "array"
+        }
+      },
+      "title": "AssayMaterialType",
+      "type": "object"
+    },
+    "Comment": {
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "Comment",
+      "type": "object"
+    },
+    "Component": {
+      "additionalProperties": false,
+      "properties": {
+        "componentName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Componentname"
+        },
+        "componentType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Component",
+      "type": "object"
+    },
+    "Data": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataTypeEnum"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Data",
+      "type": "object"
+    },
+    "DataTypeEnum": {
+      "enum": [
+        "Raw Data File",
+        "Derived Data File",
+        "Image File",
+        "Raw Spectral Data File",
+        "Derived Spectral Data File",
+        "Free Induction Decay Data File",
+        "Acquisition Parameter Data File",
+        "Metabolite Assignment File",
+        "checksum"
+      ],
+      "title": "DataTypeEnum",
+      "type": "string"
+    },
+    "Factor": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "factorName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Factorname"
+        },
+        "factorType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Factor",
+      "type": "object"
+    },
+    "FactorValue": {
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Factor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "FactorValue",
+      "type": "object"
+    },
+    "Investigation": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "ontologySourceReferences": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OntologySourceReference"
+          },
+          "title": "Ontologysourcereferences",
+          "type": "array"
+        },
+        "people": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Person"
+          },
+          "title": "People",
+          "type": "array"
+        },
+        "publicReleaseDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publicreleasedate"
+        },
+        "publications": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Publication"
+          },
+          "title": "Publications",
+          "type": "array"
+        },
+        "studies": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Study"
+          },
+          "title": "Studies",
+          "type": "array"
+        },
+        "submissionDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Submissiondate"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "title": "Investigation",
+      "type": "object"
+    },
+    "Material": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "characteristics": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialAttributeValue"
+          },
+          "title": "Characteristics",
+          "type": "array"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type"
+        },
+        "derivesFrom": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "title": "Derivesfrom",
+          "type": "array"
+        }
+      },
+      "title": "Material",
+      "type": "object"
+    },
+    "MaterialAttribute": {
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "characteristicType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "MaterialAttribute",
+      "type": "object"
+    },
+    "MaterialAttributeValue": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MaterialAttribute"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "MaterialAttributeValue",
+      "type": "object"
+    },
+    "OntologyAnnotation": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "annotationValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Annotationvalue"
+        },
+        "termAccession": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Termaccession"
+        },
+        "termSource": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The abbreviated ontology name. It should correspond to one of the sources as specified in the ontologySourceReference section of the Investigation.",
+          "title": "Termsource"
+        }
+      },
+      "title": "OntologyAnnotation",
+      "type": "object"
+    },
+    "OntologySourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "title": "OntologySourceReference",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        },
+        "affiliation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Affiliation"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "fax": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fax"
+        },
+        "firstName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Firstname"
+        },
+        "lastName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lastname"
+        },
+        "midInitials": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Midinitials"
+        },
+        "phone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phone"
+        },
+        "roles": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OntologyAnnotation"
+          },
+          "title": "Roles",
+          "type": "array"
+        }
+      },
+      "title": "Person",
+      "type": "object"
+    },
+    "Process": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date"
+        },
+        "executesProtocol": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Protocol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "inputs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Source"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Sample"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Material"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Data"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": [],
+          "title": "Inputs"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "nextProcess": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Process"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "outputs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Sample"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Material"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Data"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": [],
+          "title": "Outputs"
+        },
+        "parameterValues": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ProcessParameterValue"
+          },
+          "title": "Parametervalues",
+          "type": "array"
+        },
+        "performer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Performer"
+        },
+        "previousProcess": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Process"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Process",
+      "type": "object"
+    },
+    "ProcessParameterValue": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProtocolParameter"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/OntologyAnnotation"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "title": "ProcessParameterValue",
+      "type": "object"
+    },
+    "Protocol": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "components": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Component"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "parameters": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ProtocolParameter"
+          },
+          "title": "Parameters",
+          "type": "array"
+        },
+        "protocolType": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uri"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "title": "Protocol",
+      "type": "object"
+    },
+    "ProtocolParameter": {
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "parameterName": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ProtocolParameter",
+      "type": "object"
+    },
+    "Publication": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "authorList": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authorlist"
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doi"
+        },
+        "pubMedID": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pubmedid"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OntologyAnnotation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "title": "Publication",
+      "type": "object"
+    },
+    "Sample": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "characteristics": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialAttributeValue"
+          },
+          "title": "Characteristics",
+          "type": "array"
+        },
+        "factorValues": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/FactorValue"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Factorvalues"
+        },
+        "derivesFrom": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "title": "Derivesfrom",
+          "type": "array"
+        }
+      },
+      "title": "Sample",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "characteristics": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialAttributeValue"
+          },
+          "title": "Characteristics",
+          "type": "array"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        }
+      },
+      "title": "Source",
+      "type": "object"
+    },
+    "Study": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Comment"
+          },
+          "title": "Comments",
+          "type": "array"
+        },
+        "@id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "@Id"
+        },
+        "assays": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Assay"
+          },
+          "title": "Assays",
+          "type": "array"
+        },
+        "characteristicCategories": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialAttribute"
+          },
+          "title": "Characteristiccategories",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "factors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Factor"
+          },
+          "title": "Factors",
+          "type": "array"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "materials": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StudyMaterialType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "people": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Person"
+          },
+          "title": "People",
+          "type": "array"
+        },
+        "processSequence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Process"
+          },
+          "title": "Processsequence",
+          "type": "array"
+        },
+        "protocols": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Protocol"
+          },
+          "title": "Protocols",
+          "type": "array"
+        },
+        "publicReleaseDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publicreleasedate"
+        },
+        "publications": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Publication"
+          },
+          "title": "Publications",
+          "type": "array"
+        },
+        "studyDesignDescriptors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OntologyAnnotation"
+          },
+          "title": "Studydesigndescriptors",
+          "type": "array"
+        },
+        "submissionDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Submissiondate"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "unitCategories": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OntologyAnnotation"
+          },
+          "title": "Unitcategories",
+          "type": "array"
+        }
+      },
+      "title": "Study",
+      "type": "object"
+    },
+    "StudyMaterialType": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "samples": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Sample"
+          },
+          "title": "Samples",
+          "type": "array"
+        },
+        "otherMaterials": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Material"
+          },
+          "title": "Othermaterials",
+          "type": "array"
+        }
+      },
+      "title": "StudyMaterialType",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "investigation": {
+      "$ref": "#/$defs/Investigation"
+    }
+  },
+  "required": [
+    "investigation"
+  ],
+  "title": "IsaJson",
+  "type": "object"
+}
