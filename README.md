@@ -85,3 +85,4 @@ Track the status of each repository here:
 ## Acknowledgements
 
 This project was initiated during the ELIXIR Europe BioHackathon 2022 and has since received continued support through subsequent ELIXIR Hackathons and the ELIXIR Data Platform WP2.
+The project was also supported by the H2020-EU 965406 grant to the [PrecisionTox project](https://precisiontox.org).
