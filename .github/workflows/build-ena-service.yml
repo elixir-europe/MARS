@@ -31,11 +31,6 @@ jobs:
           file: repository-services/isajson-ena/Dockerfile
           push: false
           tags: user/app:latest
-          secrets: |
-            id=gpr_user,env=GPR_USER
-            id=gpr_token,env=GPR_TOKEN
-          network: host
-        env:
-          DOCKER_BUILDKIT: 1
-          GPR_USER: ${{ secrets.GPR_USER }}
-          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
+          build-args: |
+            GPR_USER=${{ secrets.GPR_USER }}
+            GPR_TOKEN=${{ secrets.GPR_TOKEN }}
