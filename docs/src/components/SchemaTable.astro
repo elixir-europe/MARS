@@ -1,0 +1,26 @@
+---
+import SchemaProperty from './schemaProperty.astro';
+const { title, schema } = Astro.props;
+const schemaProperties = Object.entries(schema.properties ?? {})
+// console.log({ title, schema, schemaProperties });
+---
+<h3>{title}</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      schemaProperties.map(([name, property]) => {
+            return (<SchemaProperty name={name} property={property} />);
+        })
+    }
+  </tbody>
+</table>

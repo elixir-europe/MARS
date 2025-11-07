@@ -1,0 +1,27 @@
+---
+import { object } from 'astro:schema';
+import model from '../schemas/isa_json_schema_with_validators.json';
+import SchemaTable from '../components/schemaTable.astro';
+
+// Prepare data in frontmatter (JS/TS allowed here)
+function returnModel(modelName: string, schemaDefinitions: [Record<string, any>]) {
+    const model = schemaDefinitions.find(
+        (def) => def.title === modelName
+    );
+
+}
+
+const schema = model.schema ?? {};
+const schemaDefs = schema.$defs ?? [];
+const properties = Object.entries((schema.properties ?? {}) as Record<string, any>);
+
+// Only uncomment for debugging purposes
+// console.log({ schema, schemaDefs, properties });
+---
+
+<h2>ISA-JSON model</h2>
+{
+    Object.entries(schemaDefs).map(([key, schemadefinition]: any) => {
+        return <SchemaTable title={key} schema={schemadefinition} />;
+    })
+}
