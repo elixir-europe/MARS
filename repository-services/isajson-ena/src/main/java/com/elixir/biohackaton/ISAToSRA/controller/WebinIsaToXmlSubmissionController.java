@@ -4,8 +4,6 @@ package com.elixir.biohackaton.ISAToSRA.controller;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptConversionService;
@@ -14,6 +12,8 @@ import com.elixir.biohackaton.ISAToSRA.sra.service.WebinHttpSubmissionService;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinProjectXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinRunXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinStudyXmlCreator;
+import com.elixir.mars.repository.MarsReceiptException;
+import com.elixir.mars.repository.models.isa.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -1,7 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import com.elixir.mars.repository.models.isa.*;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 
