@@ -31,11 +31,10 @@ jobs:
           file: repository-services/isajson-ena/Dockerfile
           push: false
           tags: user/app:latest
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
           secrets: |
             id=gpr_user,env=GPR_USER
             id=gpr_token,env=GPR_TOKEN
+          network: host
         env:
           GPR_USER: ${{ secrets.GPR_USER }}
           GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
