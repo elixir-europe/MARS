@@ -1,18 +1,22 @@
 ---
 import '../styles/global.css';
 import NavBar from '../components/NavBar.astro';
+import Footer from '../components/footer.astro';
 ---
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href=`${Astro.url}/favicon.svg` />
+		<link rel="icon" type="image/svg+xml" href=`public/favicon.png` />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>MARS docs</title>
 	</head>
-	<body class="m-0 p-0 font-sans bg-white text-black dark:bg-black dark:text-white">
+	<body class="font-sans bg-white text-black dark:bg-gray-900 dark:text-white">
 		<NavBar />
-		<slot />
+		<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+			<slot />
+		</main>
+		<Footer/>
 	</body>
 </html>
