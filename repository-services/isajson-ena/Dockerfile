@@ -10,20 +10,19 @@ COPY . .
 RUN chmod +x gradlew
 
 # Mount GitHub Packages secrets and write to gradle.properties
-# Mount secrets and write to gradle.properties
+# Build the JAR
 RUN --mount=type=secret,id=gpr_user \
     --mount=type=secret,id=gpr_token \
     mkdir -p /root/.gradle && \
     echo "gpr.user=$(cat /run/secrets/gpr_user)" >> /root/.gradle/gradle.properties && \
-    echo "gpr.token=$(cat /run/secrets/gpr_token)" >> /root/.gradle/gradle.properties
+    echo "gpr.token=$(cat /run/secrets/gpr_token)" >> /root/.gradle/gradle.properties && \
+    ./gradlew build -x test -x spotlessApply --info --stacktrace \
+      "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
-# Build the JAR
-RUN ./gradlew build -x test -x spotlessApply --info --stacktrace \
-    "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
-     --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
-     --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
-     --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
-     --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
 # Runtime stage
 FROM eclipse-temurin:11-jre-alpine
