@@ -31,6 +31,7 @@ jobs:
           file: repository-services/isajson-ena/Dockerfile
           push: false
           tags: user/app:latest
+          network: host
           build-args: |
             BUILDKIT_INLINE_CACHE=1
           secrets: |
