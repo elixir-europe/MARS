@@ -9,6 +9,8 @@ RUN --mount=type=secret,id=gpr_user \
     --mount=type=secret,id=gpr_token \
     export GPR_USER=$(cat /run/secrets/gpr_user) && \
     export GPR_TOKEN=$(cat /run/secrets/gpr_token) && \
+    cd isajson-ena && \
+    chmod +x gradlew && \
     ./gradlew build -x test -x spotlessApply --info --stacktrace \
     "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
     --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
@@ -20,7 +22,7 @@ RUN --mount=type=secret,id=gpr_user \
 FROM eclipse-temurin:11-jre-alpine
 WORKDIR /app
 
-ARG JAR_FILE=/app/build/libs/*.jar
+ARG JAR_FILE=/app/isajson-ena/build/libs/*.jar
 
 # Copy the JAR file from the builder stage
 COPY --from=builder ${JAR_FILE} app.jar
