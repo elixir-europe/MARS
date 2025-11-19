@@ -3,7 +3,6 @@ const { name, property } = Astro.props;
 const propertyType = property.type ?? 'any';
 const propertyDefaultValue = property.default ?? 'N/A';
 const propertyTitle = property.title ?? 'Undefined';
-console.log({ name, property });
 ---
 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
     <th class="px-6 py-4 text-center">{name}</th>
