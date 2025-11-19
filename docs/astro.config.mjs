@@ -5,9 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://elixir-europe.github.io',
   base: '/MARS',
-
+  trailingSlash: 'never',
   vite: {
     plugins: [tailwindcss()]
   }

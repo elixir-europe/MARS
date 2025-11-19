@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import NavBar from '../components/NavBar.astro';
-import Footer from '../components/footer.astro';
+import Footer from '../components/Footer.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -13,10 +13,14 @@ import Footer from '../components/footer.astro';
 		<title>MARS docs</title>
 	</head>
 	<body class="font-sans bg-white text-black dark:bg-gray-900 dark:text-white">
-		<NavBar />
+		<header>
+			<NavBar />
+		</header>
 		<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 			<slot />
 		</main>
-		<Footer/>
+		<footer>
+			<Footer />
+		</footer>
 	</body>
 </html>
