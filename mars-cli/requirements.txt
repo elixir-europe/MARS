@@ -1,5 +1,0 @@
-requests
-jsonschema
-keyring
-pydantic
-click
