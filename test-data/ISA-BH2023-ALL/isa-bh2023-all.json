@@ -60,7 +60,7 @@
                     ],
                     "comments": [
                     {
-                        "name": "target repository",
+                        "name": "target_repository",
                         "value": "metabolights"
                     }
                     ],
@@ -858,7 +858,7 @@
                     "characteristicCategories": [],
                     "comments": [
                     {
-                        "name": "target repository",
+                        "name": "target_repository",
                         "value": "metabolights"
                     }
                     ],
@@ -2735,7 +2735,7 @@
                     "characteristicCategories": [],
                     "comments": [
                     {
-                        "name": "target repository",
+                        "name": "target_repository",
                         "value": "metabolights"
                     }
                     ],
@@ -3429,7 +3429,7 @@
                     ],
                     "comments": [
                     {
-                        "name": "target repository",
+                        "name": "target_repository",
                         "value": "eva"
                     }
                     ],
@@ -4749,7 +4749,7 @@
                     ],
                     "comments": [
                     {
-                        "name": "target repository",
+                        "name": "target_repository",
                         "value": "ena"
                     }
                     ],

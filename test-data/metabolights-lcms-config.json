@@ -1,0 +1,47 @@
+{
+    "LC-MS": {
+        "name": "LC-MS",
+        "protocols": [
+            {
+                "name": "Sample collection",
+                "parameters": []
+            },
+            {
+                "name": "Extraction",
+                "parameters": [
+                    "Post Extraction",
+                    "Derivatization"
+                ]
+            },
+            {
+                "name": "Liquid Chromatography mass spectrometry",
+                "parameters": [
+                    "Chromatography Instrument",
+                    "Autosampler model",
+                    "Column model",
+                    "Column type",
+                    "Guard column"
+                    "Scan polarity",
+                    "Scan m/z range",
+                    "Instrument",
+                    "Ion source",
+                    "Mass analyzer"
+                ]
+            },
+            {
+                "name": "Data transformation",
+                "parameters": []
+            },
+            {
+                "name": "Metabolite identification",
+                "parameters": []
+            }
+        ],
+        "technologyPlatformMatchTerms": [
+            "Liquid Chromatography MS"
+        ],
+        "technologyTypeMatchTerms": [
+            "mass spectrometry"
+        ]
+    }
+}
