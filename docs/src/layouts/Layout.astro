@@ -14,14 +14,16 @@ import astroConfig from '../../astro.config.mjs';
 		<title>MARS docs</title>
 	</head>
 	<body class="font-sans bg-white text-black dark:bg-gray-900 dark:text-white">
-		<header>
-			<NavBar />
-		</header>
-		<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-			<slot />
-		</main>
-		<footer>
-			<Footer />
-		</footer>
+		<div class="grid grid-rows-[auto_1fr_auto] min-h-screen">
+			<header>
+				<NavBar />
+			</header>
+			<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+				<slot />
+			</main>
+			<footer>
+				<Footer />
+			</footer>
+		</div>
 	</body>
 </html>
