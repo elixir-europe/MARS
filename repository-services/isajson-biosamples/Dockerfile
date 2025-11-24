@@ -3,8 +3,6 @@ FROM gradle:jdk17 AS builder
 
 # Set Gradle options for Docker builds
 ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
-# JVM arguments needed for Spotless/google-java-format to access internal JDK APIs
-ENV JAVA_TOOL_OPTIONS="--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
 WORKDIR /app
 
