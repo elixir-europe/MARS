@@ -1,26 +1,34 @@
-# Builder stage: Use gradle image to compile jar file
+# Builder stage
 FROM gradle:jdk11 AS builder
 
 WORKDIR /app
 
+# Copy everything from context (the service folder)
 COPY . .
 
-WORKDIR /app/receipt
-RUN ./gradlew build
-RUN ./gradlew publishToMavenLocal
+ARG GPR_USER
+ARG GPR_TOKEN
 
-WORKDIR /app/isajson-ena
-RUN ./gradlew build -x test -x spotlessApply --info --stacktrace "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+# Make gradlew executable
+RUN chmod +x gradlew
+# Build the JAR
+RUN mkdir -p /root/.gradle && \
+    echo "gpr.user=${GPR_USER}" >> /root/.gradle/gradle.properties && \
+    echo "gpr.token=${GPR_TOKEN}" >> /root/.gradle/gradle.properties && \
+    ./gradlew build -x test -x spotlessApply --info --stacktrace \
+      "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+       --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
-# Use a lightweight base image to run the jar file
-FROM openjdk:11-jre-slim
+
+# Runtime stage
+FROM eclipse-temurin:11-jre-alpine
+
 WORKDIR /app
 
-ARG JAR_FILE=/app/isajson-ena/build/libs/*.jar
+# Copy the built JAR
+COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Copy the JAR file from the builder stage
-COPY --from=builder ${JAR_FILE} app.jar
-
-# Set the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

@@ -1,16 +1,16 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
-import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
+import com.elixir.mars.repository.MarsReceiptProvider;
+import com.elixir.mars.repository.ReceiptAccessionsMap;
+import com.elixir.mars.repository.models.isa.DataFile;
+import com.elixir.mars.repository.models.isa.IsaJson;
+import com.elixir.mars.repository.models.isa.OtherMaterial;
+import com.elixir.mars.repository.models.isa.Study;
+import com.elixir.mars.repository.models.receipt.MarsError;
+import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

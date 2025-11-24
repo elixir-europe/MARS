@@ -12,6 +12,13 @@ group = 'com.elixir.biohackaton'
 version = '0.0.1-SNAPSHOT'
 
 repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/elixir-europe/mars-repository-lib")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
+            password = project.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
+        }
+    }
     mavenLocal()
     mavenCentral()
 }
@@ -28,7 +35,7 @@ dependencies {
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
     implementation group: 'dom4j', name: 'dom4j', version: '1.6.1'
 
-    implementation group: 'com.elixir.biohackaton', name: 'mars-receipt', version: '0.0.1'
+    implementation 'com.elixir.mars:mars-repository:0.0.1'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
