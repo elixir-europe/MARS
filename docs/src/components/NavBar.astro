@@ -1,5 +1,7 @@
 ---
 import astroConfig from "../../astro.config.mjs";
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-small.png';
 const homeUrl = `${astroConfig.base}`;
 const isaJsonSpecsUrl = `${astroConfig.base}/mars-isa-json`;
 ---
@@ -12,12 +14,12 @@ const isaJsonSpecsUrl = `${astroConfig.base}/mars-isa-json`;
         <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
           <span class="absolute -inset-0.5"></span>
           <span class="sr-only">Open main menu</span>
-          <img src="src/assets/image.png" alt="" style="height: 64px; width: 64px;">
+          <Image src={logo} alt="Small MARS logo" style="width: 64px;">
         </button>
       </div>
       <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
         <div class="flex shrink-0 items-center">
-          <img src="src/assets/image.png" alt="" style="height: 64px; width: 64px;">
+          <Image src={logo} alt="Small MARS logo" style="width: 64px;">
         </div>
         <div class="hidden sm:ml-6 sm:block">
           <div class="flex space-x-4">

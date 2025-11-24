@@ -2,13 +2,14 @@
 import '../styles/global.css';
 import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
+import astroConfig from '../../astro.config.mjs';
 ---
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href=`public/favicon.png` />
+		<link rel="icon" type="image/svg+xml" href={`${astroConfig.base}/favicon.png`} />
 		<meta name="generator" content={Astro.generator} />
 		<title>MARS docs</title>
 	</head>
