@@ -66,15 +66,14 @@ public class BioSamplesSubmitter {
 
   private BioSample createAndUpdateChildSampleWithRelationship(
       final Sample sample, final BioSample sourceBioSample, final String webinToken) {
-    final SortedSet<Attribute> sourceBioSampleAttributes = sourceBioSample.getAttributes();
-    final BioSample bioSample;
-
-    sourceBioSampleAttributes.removeIf(
+    // Create a copy of the attributes to avoid mutating the source BioSample
+    final SortedSet<Attribute> childSampleAttributes = new TreeSet<>(sourceBioSample.getAttributes());
+    childSampleAttributes.removeIf(
         attribute -> attribute.getType().equalsIgnoreCase("SRA accession"));
-    bioSample =
+    final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
-            .withAttributes(sourceBioSampleAttributes)
+            .withAttributes(childSampleAttributes)
             .build();
     try {
       final BioSample persistedBioSample = this.createSampleInBioSamples(bioSample, webinToken);
