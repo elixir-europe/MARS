@@ -1,0 +1,29 @@
+---
+import SchemaProperty from './SchemaProperty.astro';
+const { title, schema } = Astro.props;
+const schemaProperties = Object.entries(schema.properties ?? {})
+---
+<>
+<div class="relative overflow-x-auto my-6">
+  <h3 class="text-3xl font-extrabold leading-none tracking-tight text-white sm:text-5xl">{title}</h3>
+
+  <table class="w-full text-sm text-left rtl:text-right bg-gray-50 dark:bg-gray-700 dark:text-gray-400 mt-4">
+    <thead>
+      <tr>
+        <th scope="col" class="px-6 py-3 text-center font-extrabold">Field</th>
+        <th scope="col" class="px-6 py-3 text-center font-extrabold">Type</th>
+        <th scope="col" class="px-6 py-3 text-center font-extrabold">Description</th>
+        <th scope="col" class="px-6 py-3 text-center font-extrabold">Required</th>
+        <th scope="col" class="px-6 py-3 text-center font-extrabold">Default value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        schemaProperties.map(([name, property]) => {
+              return (<SchemaProperty name={name} property={property} />);
+          })
+      }
+    </tbody>
+  </table>
+</div>
+</>
