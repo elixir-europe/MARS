@@ -16,7 +16,7 @@ RUN ./gradlew build --no-daemon --stacktrace
 RUN ./gradlew publishToMavenLocal --no-daemon
 
 WORKDIR /app/isajson-ena
-RUN ./gradlew build -x test -x spotlessApply --no-daemon --stacktrace
+RUN ./gradlew build -x test -x spotlessApply --info --stacktrace "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
 # Use a lightweight base image to run the jar file
 FROM eclipse-temurin:17-jre-alpine
