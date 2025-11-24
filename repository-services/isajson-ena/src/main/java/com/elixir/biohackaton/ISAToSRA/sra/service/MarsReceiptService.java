@@ -1,6 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
 import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
@@ -9,6 +10,7 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -52,11 +54,11 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return HandlerInterceptor.super.preHandle(request, response, handler);
   }
 
-  public String convertMarsReceiptToJson() {
+  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
     try {
-      return jsonMapper.writeValueAsString(getMarsReceipt());
+      return jsonMapper.writeValueAsString(marsReceipt);
     } catch (Exception ex) {
-      throw new RuntimeException("Receipt", ex);
+      throw new RuntimeException("receipt", ex);
     }
   }
 
@@ -73,11 +75,11 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
    *
    * @param receipt {@link Receipt} Receipt from ENA
    * @param isaJson {@link IsaJson} Requested ISA-Json
-   * @see <a
-   *     href="https://github.com/elixir-europe/MARS/blob/main/repository-services/repository-api.md">Repository
-   *     API response</a>
+   * @return {@link MarsReceipt} Mars response data
+   * @see
+   *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
-  public void convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+  public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
     buildMarsReceipt(
         getAliasAccessionPairs(
             Study.Fields.title,
@@ -89,6 +91,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
+    return getMarsReceipt();
   }
 
   private ReceiptAccessionsMap getAliasAccessionPairs(
@@ -133,5 +136,10 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
     return alias.substring(
         0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
+  }
+
+  @Override
+  public String convertMarsReceiptToJson() {
+    throw new MarsReceiptException("METHOD NOT IMPLEMENTED");
   }
 }

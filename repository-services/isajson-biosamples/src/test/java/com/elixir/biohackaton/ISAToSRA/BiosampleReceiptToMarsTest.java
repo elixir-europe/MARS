@@ -1,19 +1,19 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesSubmitter;
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.MarsReceiptService;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class BiosampleReceiptToMarsTest {
@@ -45,11 +45,11 @@ class BiosampleReceiptToMarsTest {
 
       // Converting Biosample receipt to MARS receipt
       MarsReceiptService marsReceiptService = new MarsReceiptService();
-      marsReceiptService.convertReceiptToMars(accessionsMap, isaJson);
+      MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(accessionsMap, isaJson);
 
       // Saving the result as a Json file
       String marsReceiptPath = "../../test-data/mars-biosample-receipt.json";
-      Files.write(new File(marsReceiptPath).toPath(), jsonMapper.writeValueAsBytes(marsReceiptService.getMarsReceipt()));
+      Files.write(new File(marsReceiptPath).toPath(), jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception ex) {
       System.console().printf("%s", ex);
     }
