@@ -1,22 +1,16 @@
 # Builder stage: Use gradle image to compile jar file
 FROM gradle:jdk17 AS builder
 
-# Set Gradle options for Docker builds
-ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
-
 WORKDIR /app
 
 COPY . .
 
-# Make gradlew scripts executable
-RUN chmod +x receipt/gradlew isajson-biosamples/gradlew
-
 WORKDIR /app/receipt
-RUN ./gradlew build --no-daemon --stacktrace
-RUN ./gradlew publishToMavenLocal --no-daemon
+RUN ./gradlew build
+RUN ./gradlew publishToMavenLocal
 
 WORKDIR /app/isajson-biosamples
-RUN ./gradlew build -x test -x spotlessApply --no-daemon --stacktrace
+RUN ./gradlew build -x test -x spotlessApply --info --stacktrace "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
 # Use a lightweight base image to run the jar file
 FROM eclipse-temurin:17-jre-alpine
