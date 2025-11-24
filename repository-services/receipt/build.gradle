@@ -4,8 +4,11 @@ plugins {
     id 'maven-publish'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
 
 group = 'com.elixir.biohackaton'
 version = '0.0.2-SNAPSHOT'
