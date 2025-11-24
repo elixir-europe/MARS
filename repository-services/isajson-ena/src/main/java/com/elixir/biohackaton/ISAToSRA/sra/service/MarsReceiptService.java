@@ -10,10 +10,7 @@ import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +68,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
         accessionMap =
             new HashMap<String, String>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-                    .filter(item -> item != null)
+                    .filter(Objects::nonNull)
                     .collect(
                         Collectors.toMap(ReceiptObject::getAlias, ReceiptObject::getAccession)));
       }

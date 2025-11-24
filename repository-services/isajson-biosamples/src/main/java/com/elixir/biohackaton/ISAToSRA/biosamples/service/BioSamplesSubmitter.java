@@ -67,7 +67,8 @@ public class BioSamplesSubmitter {
   private BioSample createAndUpdateChildSampleWithRelationship(
       final Sample sample, final BioSample sourceBioSample, final String webinToken) {
     // Create a copy of the attributes to avoid mutating the source BioSample
-    final SortedSet<Attribute> childSampleAttributes = new TreeSet<>(sourceBioSample.getAttributes());
+    final SortedSet<Attribute> childSampleAttributes =
+        new TreeSet<>(sourceBioSample.getAttributes());
     childSampleAttributes.removeIf(
         attribute -> attribute.getType().equalsIgnoreCase("SRA accession"));
     final BioSample bioSample =

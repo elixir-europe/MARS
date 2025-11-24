@@ -25,7 +25,7 @@ dependencies {
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
     implementation group: 'dom4j', name: 'dom4j', version: '1.6.1'
 
-    implementation group: 'com.elixir.biohackaton', name: 'mars-receipt', version: '0.0.1'
+    implementation group: 'com.elixir.biohackaton', name: 'mars-receipt', version: '0.0.1-SNAPSHOT'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
