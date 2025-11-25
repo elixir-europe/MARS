@@ -10,7 +10,14 @@ ARG GPR_TOKEN
 
 # Build receipt first (dependency)
 WORKDIR /app/receipt
-RUN sed -i 's/\r$//' gradlew && \
+RUN echo "Contents of /app/receipt:" && ls -la && \
+    if [ ! -f gradlew ]; then \
+        echo "ERROR: gradlew not found in /app/receipt"; \
+        echo "Contents of /app:" && ls -la /app; \
+        echo "Contents of /app/receipt:" && ls -la /app/receipt; \
+        exit 1; \
+    fi && \
+    sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
     ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace && \
     ./gradlew publishToMavenLocal
