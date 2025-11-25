@@ -2,23 +2,24 @@
 FROM gradle:jdk17 AS builder
 
 WORKDIR /app
-# Copy everything from context (the repository-services folder)
-COPY . .
+# Copy receipt directory first (dependency)
+COPY receipt /app/receipt
+# Copy isajson-ena directory
+COPY isajson-ena /app/isajson-ena
 
 ARG GPR_USER
 ARG GPR_TOKEN
 
 # Build receipt first (dependency)
-# Verify receipt directory structure
-RUN echo "=== Directory structure ===" && \
-    ls -la /app && \
-    echo "=== /app/receipt contents ===" && \
-    (ls -la /app/receipt 2>&1 || echo "Directory not found or empty") && \
-    echo "=== Finding gradlew ===" && \
-    find /app -name "gradlew" -type f 2>/dev/null | head -5
-
 WORKDIR /app/receipt
-RUN test -f gradlew || (echo "ERROR: gradlew not in /app/receipt. Checking /app..." && ls -la /app && exit 1) && \
+RUN if [ ! -f gradlew ]; then \
+        echo "ERROR: gradlew not found in /app/receipt"; \
+        echo "Checking if receipt files are in a different location..."; \
+        find /app -name "gradlew" -type f 2>/dev/null; \
+        echo "Contents of /app/receipt:"; \
+        ls -la /app/receipt 2>&1 || echo "Directory empty or doesn't exist"; \
+        exit 1; \
+    fi && \
     sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
     ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace && \
