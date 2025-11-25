@@ -1,6 +1,6 @@
 package com.elixir.biohackaton.ISAToSRA.biosamples.model;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
+import com.elixir.mars.repository.ReceiptAccessionsMap;
 
 public class BiosampleAccessionsMap {
     public ReceiptAccessionsMap sourceAccessionsMap = new ReceiptAccessionsMap();
