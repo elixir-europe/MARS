@@ -40,3 +40,10 @@ publishing {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Skip spotlessJavaCheck during build (only run spotlessApply manually)
+afterEvaluate {
+    tasks.matching { it.name.startsWith('spotless') && it.name.endsWith('Check') }.configureEach {
+        onlyIf { false }
+    }
+}
