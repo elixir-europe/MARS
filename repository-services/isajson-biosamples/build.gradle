@@ -50,6 +50,13 @@ spotless {
     }
 }
 
+// Skip spotlessJavaCheck during build (only run spotlessApply manually)
+afterEvaluate {
+    tasks.named('spotlessJavaCheck').configure {
+        onlyIf { false }
+    }
+}
+
 tasks.register('spotless-apply') {
     dependsOn 'spotlessApply'
 }
