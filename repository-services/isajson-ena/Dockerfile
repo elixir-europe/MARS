@@ -29,7 +29,6 @@ FROM eclipse-temurin:11-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR
-ARG JAR_FILE=/app/isajson-ena/build/libs/*.jar
-COPY --from=builder ${JAR_FILE} app.jar
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
