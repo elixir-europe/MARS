@@ -22,14 +22,14 @@ import com.elixir.biohackaton.ISAToSRA.biosamples.model.Attribute;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.Relationship;
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
-import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Category;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Sample;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Source;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Value;
+import com.elixir.mars.repository.MarsReceiptException;
+import com.elixir.mars.repository.ReceiptAccessionsMap;
+import com.elixir.mars.repository.models.isa.Category;
+import com.elixir.mars.repository.models.isa.Characteristic;
+import com.elixir.mars.repository.models.isa.Sample;
+import com.elixir.mars.repository.models.isa.Source;
+import com.elixir.mars.repository.models.isa.Study;
+import com.elixir.mars.repository.models.isa.Value;
 
 import lombok.extern.slf4j.Slf4j;
 
