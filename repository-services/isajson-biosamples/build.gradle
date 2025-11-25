@@ -1,12 +1,12 @@
 plugins {
     id 'org.springframework.boot' version '2.6.13'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-    id "com.diffplug.spotless" version "5.12.5"
+    id "com.diffplug.spotless" version "6.25.0"
     id 'java'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 
 group = 'com.elixir.biohackaton'
 version = '0.0.1-SNAPSHOT'
@@ -28,7 +28,7 @@ dependencies {
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
     implementation group: 'dom4j', name: 'dom4j', version: '1.6.1'
     
-    implementation group: 'com.elixir.biohackaton', name: 'mars-receipt', version: '0.0.1'
+    implementation group: 'com.elixir.biohackaton', name: 'mars-receipt', version: '0.0.3-SNAPSHOT'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
@@ -38,4 +38,25 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat('1.19.2')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// Skip spotlessJavaCheck during build (only run spotlessApply manually)
+afterEvaluate {
+    tasks.named('spotlessJavaCheck').configure {
+        onlyIf { false }
+    }
+}
+
+tasks.register('spotless-apply') {
+    dependsOn 'spotlessApply'
 }

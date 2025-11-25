@@ -19,5 +19,6 @@ public class Assay {
   public Materials materials;
   public ArrayList<ProcessSequence> processSequence;
   public ArrayList<DataFile> dataFiles;
+  public ArrayList<Comment> comments;
   public ArrayList<Object> unitCategories;
 }
