@@ -12,17 +12,9 @@ ARG GPR_TOKEN
 
 # Build receipt first (dependency)
 WORKDIR /app/receipt
-RUN if [ ! -f gradlew ]; then \
-        echo "ERROR: gradlew not found in /app/receipt"; \
-        echo "Checking if receipt files are in a different location..."; \
-        find /app -name "gradlew" -type f 2>/dev/null; \
-        echo "Contents of /app/receipt:"; \
-        ls -la /app/receipt 2>&1 || echo "Directory empty or doesn't exist"; \
-        exit 1; \
-    fi && \
-    sed -i 's/\r$//' gradlew && \
+RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace && \
+    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck && \
     ./gradlew publishToMavenLocal
 
 # Build isajson-ena
