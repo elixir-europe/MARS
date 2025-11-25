@@ -1,7 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.6.13'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-    id "com.diffplug.spotless" version "5.12.5"
+    id "com.diffplug.spotless" version "6.25.0"
     id 'java'
 }
 
@@ -46,13 +46,21 @@ dependencies {
 
 spotless {
     java {
+        target 'src/**/*.java'
         importOrder('java', 'javax', 'org', 'com', '', 'uk')
         removeUnusedImports()
-        googleJavaFormat()
+        googleJavaFormat('1.19.2')
         licenseHeader '''/** Elixir BioHackathon 2022 */'''
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
+
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.register('spotless-apply') {
+    dependsOn 'spotlessApply'
 }

@@ -135,10 +135,10 @@ public class WebinRunXmlCreator {
     if (dataFile.getComments() != null) {
       for (final Comment comment : dataFile.getComments()) {
         if ("file type".equals(comment.getName())) {
-          fileType = comment.getValue() != null ? comment.getValue().toString() : null;
+          fileType = comment.getValue() != null ? comment.getValue() : null;
         }
         if ("file checksum".equals(comment.getName())) {
-          checksum = comment.getValue() != null ? comment.getValue().toString() : null;
+          checksum = comment.getValue() != null ? comment.getValue() : null;
         }
       }
     }
