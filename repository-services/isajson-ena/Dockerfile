@@ -14,7 +14,7 @@ ARG GPR_TOKEN
 WORKDIR /app/receipt
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck && \
+    ./gradlew build && \
     ./gradlew publishToMavenLocal
 
 # Build isajson-ena
