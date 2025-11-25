@@ -21,6 +21,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
   }
 
   public MarsReceiptService() {
+    super("biosamples");
     setupJsonMapper();
   }
 
@@ -43,8 +44,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
    */
   public MarsReceipt convertReceiptToMars(
       final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
-    return buildMarsReceipt(
-        "biosamples", // https://registry.identifiers.org/registry/biosample
+    buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
         biosampleAccessionsMap.sourceAccessionsMap,
@@ -53,5 +53,11 @@ public class MarsReceiptService extends MarsReceiptProvider {
         null,
         null,
         isaJson);
+    return getMarsReceipt();
+  }
+
+  @Override
+  public String convertMarsReceiptToJson() {
+    throw new RuntimeException("UNIMPLEMENTED");
   }
 }

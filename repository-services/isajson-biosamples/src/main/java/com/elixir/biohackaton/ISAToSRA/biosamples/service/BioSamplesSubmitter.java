@@ -31,7 +31,7 @@ public class BioSamplesSubmitter {
       /*TODO: check if it is guaranteed to have one source */
       final BioSample sourceBioSample = this.createSourceBioSample(studies, webinToken).get(0);
 
-      typeToBioSamplesAccessionMap.sourceAccessionsMap.keyName = Source.Fields.name;
+      typeToBioSamplesAccessionMap.sourceAccessionsMap.isaItemName = Source.Fields.name;
       typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
           sourceBioSample.getName(), sourceBioSample.getAccession());
 
@@ -50,7 +50,7 @@ public class BioSamplesSubmitter {
                               sample, sourceBioSample, webinToken);
 
                       if (persistedChildSample != null) {
-                        typeToBioSamplesAccessionMap.sampleAccessionsMap.keyName =
+                        typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName =
                             Sample.Fields.name;
                         typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
                             persistedChildSample.getName(), persistedChildSample.getAccession());

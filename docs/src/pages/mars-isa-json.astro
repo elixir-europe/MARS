@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import model from '../../../schemas/isa_json_schema_with_validators.json';
+import SchemaTable from '../components/SchemaTable.astro';
+
+const schema = model.schema ?? {};
+const validators = model.validators ?? {};
+const schemaDefs = schema.$defs ?? [];
+const properties = Object.entries((schema.properties ?? {}) as Record<string, any>);
+
+---
+<Layout>
+  <h2 class="text-5xl font-semibold tracking-tight text-white sm:text-7xl">MARS ISA-JSON model</h2>
+  {
+      Object.entries(schemaDefs).map(([key, schemadefinition]: any) => {
+          return <SchemaTable title={key} schema={schemadefinition} />;
+      })
+  }
+</Layout>

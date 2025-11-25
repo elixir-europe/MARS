@@ -27,7 +27,10 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          context: repository-services
+          context: repository-services/isajson-ena
           file: repository-services/isajson-ena/Dockerfile
           push: false
           tags: user/app:latest
+          build-args: |
+            GPR_USER=${{ secrets.GPR_USER }}
+            GPR_TOKEN=${{ secrets.GPR_TOKEN }}
