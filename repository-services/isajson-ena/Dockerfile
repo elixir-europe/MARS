@@ -2,9 +2,7 @@
 FROM gradle:jdk17 AS builder
 
 WORKDIR /app
-# Copy everything from context
-# IMPORTANT: Build context must be repository-services/ (parent directory), not isajson-ena/
-# This allows access to both receipt/ and isajson-ena/ directories
+
 COPY . .
 
 ARG GPR_USER
