@@ -1,3 +1,7 @@
+---
+layout: ../layouts/Layout.astro
+---
+
 # Repository API Specification
 This document is to define the interface between the broker and the target repository services.
 This applies to all repositories, including BioSamples.

@@ -3,27 +3,43 @@ import '../styles/global.css';
 import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
 import astroConfig from '../../astro.config.mjs';
+
+// Values coming from markdown frontmatter
+const {
+  title = 'MARS docs',
+  description = '',
+} = Astro.props;
 ---
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href={`${astroConfig.base}/favicon.png`} />
-		<meta name="generator" content={Astro.generator} />
-		<title>MARS docs</title>
-	</head>
-	<body class="font-sans bg-white text-black dark:bg-gray-900 dark:text-white">
-		<div class="grid grid-rows-[auto_1fr_auto] min-h-screen">
-			<header>
-				<NavBar />
-			</header>
-			<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-				<slot />
-			</main>
-			<footer>
-				<Footer />
-			</footer>
-		</div>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={`${astroConfig.base}/favicon.png`}
+    />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+  </head>
+  <body class="font-sans bg-white text-black dark:bg-gray-900 dark:text-white">
+    <div class="grid grid-rows-[auto_1fr_auto] min-h-screen">
+      <header>
+        <NavBar />
+      </header>
+
+      <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <article class="prose prose-slate max-w-none dark:prose-invert">
+          <slot />
+        </article>
+      </main>
+
+      <footer>
+        <Footer />
+      </footer>
+    </div>
+  </body>
 </html>
