@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/Layout.astro
+layout: ../../layouts/Layout.astro
 ---
 
 # Repository API Specification
