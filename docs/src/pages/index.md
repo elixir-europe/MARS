@@ -17,7 +17,7 @@ MARS is comprised of multiple stakeholders: the end-user, the platform that gene
 
 ## Components
 
-![MARS overview](/MARS_overview.svg)
+![MARS overview](../assets/MARS_overview.svg)
 
 
 ### ISA-JSON as metadata carrier
