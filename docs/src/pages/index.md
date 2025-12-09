@@ -21,7 +21,7 @@ MARS is comprised of multiple stakeholders: the end-user, the platform that gene
 
 
 ### ISA-JSON as metadata carrier
-
+[](#isa-json-as-metadata-carrier)
 We use [ISA-JSON](https://isatools.readthedocs.io/en/latest/isamodel.html) to store and interchange metadata between the end-user and the target repositories because:
 
 - **Standardization**: ISA-JSON follows the ISA structure (Investigation- Study - Assay), ensuring structured metadata descriptions.
