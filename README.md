@@ -46,9 +46,9 @@ Full documentation and concepts are hosted on the MARS website: https://elixir-e
 └── README.md
 ```
 
+- **docs**: Astro project powering the public MARS documentation site.
 - **repository-services**: Code to deploy repository API endpoints that can accept ISAJSON. See [README](/repository-services/README.md) for deployment instructions. 
 - **schemas**: JSON schema representation of the pydantic models used for syntactic validation of the ISA-JSON
 - **test-data**: Test data to be used in a submission.
 - **README.md**: This file.
-- **docs**: Astro project powering the public MARS documentation site.
 
