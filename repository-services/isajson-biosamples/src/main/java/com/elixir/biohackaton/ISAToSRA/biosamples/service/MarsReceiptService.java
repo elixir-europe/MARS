@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
+import com.elixir.mars.repository.MarsReceiptProvider;
+import com.elixir.mars.repository.models.isa.IsaJson;
+import com.elixir.mars.repository.models.receipt.MarsError;
+import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
