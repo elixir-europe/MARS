@@ -23,7 +23,7 @@ RUN mkdir -p /root/.gradle && \
        --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
 
 
-# Runtime stage
+# Runtime stage           
 FROM eclipse-temurin:11-jre-alpine
 
 WORKDIR /app
