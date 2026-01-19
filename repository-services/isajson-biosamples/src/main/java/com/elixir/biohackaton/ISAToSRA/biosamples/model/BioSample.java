@@ -70,7 +70,7 @@ public class BioSample implements Comparable<BioSample> {
 
   @JsonIgnore
   public boolean hasAccession() {
-    if (accession != null && accession.trim().length() != 0) {
+    if (accession != null && !accession.trim().isEmpty()) {
       return true;
     } else {
       return false;

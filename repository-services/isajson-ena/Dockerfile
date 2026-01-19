@@ -1,34 +1,36 @@
 # Builder stage
-FROM gradle:jdk11 AS builder
+FROM gradle:jdk17 AS builder
 
 WORKDIR /app
 
-# Copy everything from context (the service folder)
 COPY . .
 
 ARG GPR_USER
 ARG GPR_TOKEN
 
-# Make gradlew executable
-RUN chmod +x gradlew
-# Build the JAR
-RUN mkdir -p /root/.gradle && \
+# Build receipt first (dependency)
+WORKDIR /app/receipt
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    ./gradlew build && \
+    ./gradlew publishToMavenLocal
+
+# Build isajson-ena
+WORKDIR /app/isajson-ena
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    mkdir -p /root/.gradle && \
     echo "gpr.user=${GPR_USER}" >> /root/.gradle/gradle.properties && \
     echo "gpr.token=${GPR_TOKEN}" >> /root/.gradle/gradle.properties && \
-    ./gradlew build -x test -x spotlessApply --info --stacktrace \
-      "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace
 
 
 # Runtime stage
-FROM eclipse-temurin:11-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
 # Copy the built JAR
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/isajson-ena/build/libs/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
