@@ -1,0 +1,3 @@
+[submodule "repository-services/isajson-ena/libs/mars-repository-lib"]
+	path = repository-services/isajson-ena/libs/mars-repository-lib
+	url = https://github.com/elixir-europe/mars-repository-lib.git
