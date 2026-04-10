@@ -6,15 +6,13 @@ WORKDIR /app
 # Copy everything from context (the service folder)
 COPY . .
 
-ARG GPR_USER
-ARG GPR_TOKEN
-
 # Make gradlew executable
 RUN chmod +x gradlew
 # Build the JAR
-RUN mkdir -p /root/.gradle && \
-    echo "gpr.user=${GPR_USER}" >> /root/.gradle/gradle.properties && \
-    echo "gpr.token=${GPR_TOKEN}" >> /root/.gradle/gradle.properties && \
+RUN --mount=type=secret,id=gpr_user \
+    --mount=type=secret,id=gpr_token \
+    GPR_USER=$(cat /run/secrets/gpr_user) \
+    GPR_TOKEN=$(cat /run/secrets/gpr_token) \
     ./gradlew build -x test -x spotlessApply --info --stacktrace \
       "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
        --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
