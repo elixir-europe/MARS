@@ -3,10 +3,9 @@ FROM gradle:jdk17 AS builder
 
 WORKDIR /app
 
-COPY . .
-
-ARG GPR_USER
-ARG GPR_TOKEN
+USER root
+COPY repository-services/receipt /app/receipt
+COPY repository-services/isajson-ena /app/isajson-ena
 
 # Build receipt first (dependency)
 WORKDIR /app/receipt
@@ -19,11 +18,7 @@ RUN sed -i 's/\r$//' gradlew && \
 WORKDIR /app/isajson-ena
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    mkdir -p /root/.gradle && \
-    echo "gpr.user=${GPR_USER}" >> /root/.gradle/gradle.properties && \
-    echo "gpr.token=${GPR_TOKEN}" >> /root/.gradle/gradle.properties && \
     ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace
-
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-alpine

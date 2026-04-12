@@ -3,7 +3,9 @@ FROM gradle:jdk17 AS builder
 
 WORKDIR /app
 
-COPY . .
+USER root
+COPY repository-services/receipt /app/receipt
+COPY repository-services/isajson-biosamples /app/isajson-biosamples
 
 # Build receipt first (dependency)
 WORKDIR /app/receipt
