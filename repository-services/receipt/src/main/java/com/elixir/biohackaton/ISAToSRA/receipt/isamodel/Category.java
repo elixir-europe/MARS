@@ -9,4 +9,6 @@ import lombok.experimental.FieldNameConstants;
 public class Category {
   @JsonProperty("@id")
   public String id;
+
+  public CharacteristicType characteristicType;
 }

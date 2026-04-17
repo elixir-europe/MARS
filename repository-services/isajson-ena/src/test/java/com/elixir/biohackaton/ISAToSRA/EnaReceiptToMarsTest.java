@@ -1,10 +1,10 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
-import com.elixir.mars.repository.MarsReceiptException;
-import com.elixir.mars.repository.models.isa.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;

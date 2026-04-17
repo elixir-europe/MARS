@@ -1,23 +1,17 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.biosamples.service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.HandlerInterceptor;
-
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.stereotype.Service;
 
 @Service
-public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
+public class MarsReceiptService extends MarsReceiptProvider {
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
   private void setupJsonMapper() {
@@ -27,43 +21,29 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   public MarsReceiptService() {
-    super("biosamples"); // TODO decide whether to use instead
-    // https://registry.identifiers.org/registry/biosample
+    super("biosamples");
     setupJsonMapper();
   }
 
-  // Reset MARS receipt per request
-  @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-      throws Exception {
-    resetMarsReceipt();
-    return HandlerInterceptor.super.preHandle(request, response, handler);
-  }
-
-  public String convertMarsReceiptToJson() {
+  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
     try {
-      return jsonMapper.writeValueAsString(getMarsReceipt());
+      return jsonMapper.writeValueAsString(marsReceipt);
     } catch (Exception ex) {
-      throw new RuntimeException("Receipt", ex);
+      throw new RuntimeException("receipt", ex);
     }
-  }
-
-  public void setMarsReceiptErrors(String... errors) {
-    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
-  }
-
-  public void setMarsReceiptErrors(MarsError... errors) {
-    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
   }
 
   /**
    * Converting BioSample receipt to Mars data format
    *
-   * @see <a href='https://github.com/elixir-europe/MARS/blob/main/repository-services/repository-api.md#response'>Repository API Specification</a>
+   * @see
+   *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from Biosample
-   * @param isaJson                {@link IsaJson} Requested ISA-Json
+   * @param isaJson {@link IsaJson} Requested ISA-Json
+   * @return {@link MarsReceipt} Mars response data
    */
-  public void convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
+  public MarsReceipt convertReceiptToMars(
+      final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
     buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
@@ -73,5 +53,11 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         null,
         null,
         isaJson);
+    return getMarsReceipt();
+  }
+
+  @Override
+  public String convertMarsReceiptToJson() {
+    throw new RuntimeException("UNIMPLEMENTED");
   }
 }
