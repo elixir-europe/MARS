@@ -1,5 +1,5 @@
 {
-  "identifier": "",
+  "identifier": "investigation_1",
   "title": "Multi-omics in chickens",
   "description": "Multi-modal investigation in chickens",
   "submissionDate": "",
@@ -12,7 +12,7 @@
       "description": ""
     }
   ],
-  "filename": "Multi-omics in chickens.txt",
+  "filename": "i_Multi-omics_in_chickens.txt",
   "comments": [
     {
       "name": "ISAjson export time",
@@ -61,12 +61,12 @@
   ],
   "studies": [
     {
-      "identifier": "",
+      "identifier": "study_1",
       "title": "Impact of host–microbiota on chicken production",
       "description": "Hologenomic approach to understand the impact of host–microbiota interactions on chicken production by analysing multiomic data, phenotypic characteristics, and associated metadata in response to novel feeds.",
       "submissionDate": "",
       "publicReleaseDate": "",
-      "filename": "Impact of host–microbiota on chicken production.txt",
+      "filename": "s_Impact_of_host–microbiota_on_chicken_production.txt",
       "comments": [
         {
           "@id": "#study_comment/98_80815c40-2b5c-013f-80d5-0242ac120005",
