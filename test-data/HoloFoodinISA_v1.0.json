@@ -1046,7 +1046,12 @@
             "termSource": "",
             "termAccession": ""
           },
-          "comments": [],
+          "comments": [
+              {
+                "name": "target_repository",
+                "value": "ena"
+              }
+          ],
           "technologyPlatform": "",
           "characteristicCategories": [
             {
