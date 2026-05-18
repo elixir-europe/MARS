@@ -1,0 +1,1345 @@
+{
+    "identifier": "",
+    "title": "Multi-omics in chickens",
+    "description": "Multi-modal investigation in chickens",
+    "submissionDate": "",
+    "publicReleaseDate": "",
+    "ontologySourceReferences": [
+        {
+            "name": "efo",
+            "file": "",
+            "version": "",
+            "description": ""
+        }
+    ],
+    "filename": "Multi-omics in chickens.txt",
+    "comments": [
+        {
+            "name": "ISAjson export time",
+            "value": "2026-05-06T09:33:02Z"
+        },
+        {
+            "name": "SEEK Project name",
+            "value": "HoloFood in DataHub"
+        },
+        {
+            "name": "SEEK Project ID",
+            "value": "https://datahub-test.elixir-belgium.org/single_pages/86"
+        },
+        {
+            "name": "SEEK Investigation ID",
+            "value": "80"
+        }
+    ],
+    "publications": [],
+    "people": [
+        {
+            "@id": "#people/3",
+            "lastName": "D'Anna",
+            "firstName": "Flora",
+            "midInitials": "",
+            "email": "flora.danna@vib.be",
+            "phone": "",
+            "fax": "",
+            "address": "",
+            "affiliation": "",
+            "roles": [
+                {
+                    "termAccession": "",
+                    "termSource": "",
+                    "annotationValue": ""
+                }
+            ],
+            "comments": [
+                {
+                    "@id": "",
+                    "value": "",
+                    "name": ""
+                }
+            ]
+        }
+    ],
+    "studies": [
+        {
+            "identifier": "",
+            "title": "Impact of host–microbiota on chicken production",
+            "description": "Hologenomic approach to understand the impact of host–microbiota interactions on chicken production by analysing multiomic data, phenotypic characteristics, and associated metadata in response to novel feeds.",
+            "submissionDate": "",
+            "publicReleaseDate": "",
+            "filename": "Impact of host–microbiota on chicken production.txt",
+            "comments": [
+                {
+                    "@id": "#study_comment/98_80815c40-2b5c-013f-80d5-0242ac120005",
+                    "name": "SEEK Study ID",
+                    "value": "98"
+                },
+                {
+                    "@id": "#study_comment/98_80816580-2b5c-013f-80d6-0242ac120005",
+                    "name": "SEEK creation date",
+                    "value": "2026-04-21T14:24:53Z"
+                }
+            ],
+            "publications": [],
+            "people": [
+                {
+                    "@id": "#people/3",
+                    "lastName": "D'Anna",
+                    "firstName": "Flora",
+                    "midInitials": "",
+                    "email": "flora.danna@vib.be",
+                    "phone": "",
+                    "fax": "",
+                    "address": "",
+                    "affiliation": "",
+                    "roles": [
+                        {
+                            "termAccession": "",
+                            "termSource": "",
+                            "annotationValue": ""
+                        }
+                    ],
+                    "comments": [
+                        {
+                            "@id": "",
+                            "value": "",
+                            "name": ""
+                        }
+                    ]
+                }
+            ],
+            "studyDesignDescriptors": [],
+            "characteristicCategories": [
+                {
+                    "@id": "#characteristic_category/geographic_location_(country_and/or_sea)_2888",
+                    "characteristicType": {
+                        "annotationValue": "geographic location (country and/or sea)",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/taxon_id_2889",
+                    "characteristicType": {
+                        "annotationValue": "taxon_id",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/organism_2890",
+                    "characteristicType": {
+                        "annotationValue": "organism",
+                        "termAccession": "http://purl.obolibrary.org/obo/OBI_0100026",
+                        "termSource": "efo"
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Animal_code_2891",
+                    "characteristicType": {
+                        "annotationValue": "Animal code",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Trial_code_2892",
+                    "characteristicType": {
+                        "annotationValue": "Trial code",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Pen_code_2893",
+                    "characteristicType": {
+                        "annotationValue": "Pen code",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Treatment_code_2894",
+                    "characteristicType": {
+                        "annotationValue": "Treatment code",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Breed_2895",
+                    "characteristicType": {
+                        "annotationValue": "Breed",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Trial_timepoint_2896",
+                    "characteristicType": {
+                        "annotationValue": "Trial timepoint",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Sampling_time_2897",
+                    "characteristicType": {
+                        "annotationValue": "Sampling time",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/C-Reactive_protein_2898",
+                    "characteristicType": {
+                        "annotationValue": "C-Reactive protein",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Chicken_body_weight_2899",
+                    "characteristicType": {
+                        "annotationValue": "Chicken body weight",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Feather_cortisol_2900",
+                    "characteristicType": {
+                        "annotationValue": "Feather cortisol",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Haptoglobin_2901",
+                    "characteristicType": {
+                        "annotationValue": "Haptoglobin",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Lipopolysaccharide_2902",
+                    "characteristicType": {
+                        "annotationValue": "Lipopolysaccharide",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Project_2903",
+                    "characteristicType": {
+                        "annotationValue": "Project",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Animal_BioSamples_accession_2904",
+                    "characteristicType": {
+                        "annotationValue": "Animal BioSamples accession",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/material_type_2907",
+                    "characteristicType": {
+                        "annotationValue": "material type",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Sample_code_2909",
+                    "characteristicType": {
+                        "annotationValue": "Sample code",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Trial_timepoint_2911",
+                    "characteristicType": {
+                        "annotationValue": "Trial timepoint",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Body_site_2912",
+                    "characteristicType": {
+                        "annotationValue": "Body site",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Organism_part_2913",
+                    "characteristicType": {
+                        "annotationValue": "Organism part",
+                        "termAccession": "http://www.ebi.ac.uk/efo/EFO_0000635",
+                        "termSource": "efo"
+                    }
+                },
+                {
+                    "@id": "#characteristic_category/Sample_BioSamples_accession_2914",
+                    "characteristicType": {
+                        "annotationValue": "Sample BioSamples accession",
+                        "termAccession": "",
+                        "termSource": ""
+                    }
+                }
+            ],
+            "protocols": [
+                {
+                    "@id": "#protocol/study_98_2908",
+                    "name": "Sample collection",
+                    "protocolType": {
+                        "annotationValue": "sample collection",
+                        "termAccession": "",
+                        "termSource": ""
+                    },
+                    "description": "how caecum content has been sampled from chickens; how ileum mucosa has been sampled from chickens",
+                    "uri": "",
+                    "version": "",
+                    "parameters": [
+                        {
+                            "@id": "#parameter/2910",
+                            "parameterName": {
+                                "annotationValue": "collection date",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        }
+                    ],
+                    "components": [
+                        {
+                            "componentName": "",
+                            "componentType": {
+                                "annotationValue": "",
+                                "termSource": "",
+                                "termAccession": ""
+                            }
+                        }
+                    ]
+                },
+                {
+                    "@id": "#protocol/study_98_2908",
+                    "name": "Sample collection",
+                    "protocolType": {
+                        "annotationValue": "sample collection",
+                        "termAccession": "",
+                        "termSource": ""
+                    },
+                    "description": "how caecum content has been sampled from chickens; how ileum mucosa has been sampled from chickens",
+                    "uri": "",
+                    "version": "",
+                    "parameters": [
+                        {
+                            "@id": "#parameter/2910",
+                            "parameterName": {
+                                "annotationValue": "collection date",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        }
+                    ],
+                    "components": [
+                        {
+                            "componentName": "",
+                            "componentType": {
+                                "annotationValue": "",
+                                "termSource": "",
+                                "termAccession": ""
+                            }
+                        }
+                    ]
+                },
+                {
+                    "@id": "#protocol/assay_262_86",
+                    "name": "Library construction",
+                    "protocolType": {
+                        "annotationValue": "library construction",
+                        "termAccession": "",
+                        "termSource": ""
+                    },
+                    "description": "Library construction for HoloFood shotgun chicken transcriptomics",
+                    "uri": "",
+                    "version": "",
+                    "parameters": [
+                        {
+                            "@id": "#parameter/2919",
+                            "parameterName": {
+                                "annotationValue": "library_source",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#parameter/2920",
+                            "parameterName": {
+                                "annotationValue": "library_strategy",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#parameter/2921",
+                            "parameterName": {
+                                "annotationValue": "library_selection",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#parameter/2922",
+                            "parameterName": {
+                                "annotationValue": "library_layout",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#parameter/2923",
+                            "parameterName": {
+                                "annotationValue": "platform",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#parameter/2924",
+                            "parameterName": {
+                                "annotationValue": "instrument_model",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        }
+                    ],
+                    "components": [
+                        {
+                            "componentName": "",
+                            "componentType": {
+                                "annotationValue": "",
+                                "termSource": "",
+                                "termAccession": ""
+                            }
+                        }
+                    ]
+                },
+                {
+                    "@id": "#protocol/assay_263_2926",
+                    "name": "Sequencing protocol",
+                    "protocolType": {
+                        "annotationValue": "nucleic acid sequencing",
+                        "termAccession": "",
+                        "termSource": ""
+                    },
+                    "description": "",
+                    "uri": "",
+                    "version": "",
+                    "parameters": [],
+                    "components": [
+                        {
+                            "componentName": "",
+                            "componentType": {
+                                "annotationValue": "",
+                                "termSource": "",
+                                "termAccession": ""
+                            }
+                        }
+                    ]
+                }
+            ],
+            "materials": {
+                "sources": [
+                    {
+                        "@id": "#source/3064",
+                        "name": "CC08.13",
+                        "characteristics": [
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/geographic_location_(country_and/or_sea)_2888"
+                                },
+                                "value": {
+                                    "annotationValue": "Spain",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/taxon_id_2889"
+                                },
+                                "value": {
+                                    "annotationValue": 9031,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/organism_2890"
+                                },
+                                "value": {
+                                    "annotationValue": "Gallus gallus",
+                                    "termSource": "efo",
+                                    "termAccession": "http://purl.obolibrary.org/obo/NCBITaxon_9031"
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Animal_code_2891"
+                                },
+                                "value": {
+                                    "annotationValue": "CC08.13",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Trial_code_2892"
+                                },
+                                "value": {
+                                    "annotationValue": "CC",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Pen_code_2893"
+                                },
+                                "value": {
+                                    "annotationValue": "CC08",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Treatment_code_2894"
+                                },
+                                "value": {
+                                    "annotationValue": "CC",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Breed_2895"
+                                },
+                                "value": {
+                                    "annotationValue": "Ross",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Trial_timepoint_2896"
+                                },
+                                "value": {
+                                    "annotationValue": 35.0,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Sampling_time_2897"
+                                },
+                                "value": {
+                                    "annotationValue": 35.0,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/C-Reactive_protein_2898"
+                                },
+                                "value": {
+                                    "annotationValue": 2.19,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Chicken_body_weight_2899"
+                                },
+                                "value": {
+                                    "annotationValue": 1866.0,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Feather_cortisol_2900"
+                                },
+                                "value": {
+                                    "annotationValue": 12.17,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Haptoglobin_2901"
+                                },
+                                "value": {
+                                    "annotationValue": 17.25,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Lipopolysaccharide_2902"
+                                },
+                                "value": {
+                                    "annotationValue": 10.05,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Project_2903"
+                                },
+                                "value": {
+                                    "annotationValue": "HoloFood",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Animal_BioSamples_accession_2904"
+                                },
+                                "value": {
+                                    "annotationValue": "SAMEA112904743",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "samples": [
+                    {
+                        "@id": "#sample/3065",
+                        "name": "CC08.13F1a_NTM",
+                        "derivesFrom": [
+                            {
+                                "@id": "#source/3064"
+                            }
+                        ],
+                        "characteristics": [
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/material_type_2907"
+                                },
+                                "value": {
+                                    "annotationValue": "organism part",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Sample_code_2909"
+                                },
+                                "value": {
+                                    "annotationValue": "CC08.13F1a",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Trial_timepoint_2911"
+                                },
+                                "value": {
+                                    "annotationValue": 35.0,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Body_site_2912"
+                                },
+                                "value": {
+                                    "annotationValue": "caecum content",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Organism_part_2913"
+                                },
+                                "value": {
+                                    "annotationValue": "caecum",
+                                    "termSource": "efo",
+                                    "termAccession": "http://purl.obolibrary.org/obo/UBERON_0001153"
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Sample_BioSamples_accession_2914"
+                                },
+                                "value": {
+                                    "annotationValue": "SAMEA112907471",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            }
+                        ],
+                        "factorValues": [
+                            {
+                                "category": {
+                                    "@id": ""
+                                },
+                                "value": {
+                                    "annotationValue": "",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "@id": "#sample/3066",
+                        "name": "CC08.13B1a_HostT",
+                        "derivesFrom": [
+                            {
+                                "@id": "#source/3064"
+                            }
+                        ],
+                        "characteristics": [
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/material_type_2907"
+                                },
+                                "value": {
+                                    "annotationValue": "organism part",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Sample_code_2909"
+                                },
+                                "value": {
+                                    "annotationValue": "CC08.13B1a",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Trial_timepoint_2911"
+                                },
+                                "value": {
+                                    "annotationValue": 35.0,
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Body_site_2912"
+                                },
+                                "value": {
+                                    "annotationValue": "ileum mucosa",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Organism_part_2913"
+                                },
+                                "value": {
+                                    "annotationValue": "ileum",
+                                    "termSource": "efo",
+                                    "termAccession": "http://purl.obolibrary.org/obo/UBERON_0002116"
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            },
+                            {
+                                "category": {
+                                    "@id": "#characteristic_category/Sample_BioSamples_accession_2914"
+                                },
+                                "value": {
+                                    "annotationValue": "SAMEA13901688",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            }
+                        ],
+                        "factorValues": [
+                            {
+                                "category": {
+                                    "@id": ""
+                                },
+                                "value": {
+                                    "annotationValue": "",
+                                    "termSource": "",
+                                    "termAccession": ""
+                                },
+                                "unit": {
+                                    "termSource": "",
+                                    "termAccession": "",
+                                    "comments": []
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "processSequence": [
+                {
+                    "@id": "#process/sample_collection/3065",
+                    "name": "",
+                    "executesProtocol": {
+                        "@id": "#protocol/study_98_2908"
+                    },
+                    "parameterValues": [
+                        {
+                            "category": {
+                                "@id": "#parameter/2910"
+                            },
+                            "value": {
+                                "annotationValue": "21-04-2028",
+                                "termSource": "",
+                                "termAccession": ""
+                            },
+                            "unit": {
+                                "termSource": "",
+                                "termAccession": "",
+                                "comments": []
+                            }
+                        }
+                    ],
+                    "performer": "",
+                    "date": "",
+                    "inputs": [
+                        {
+                            "@id": "#source/3064"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "@id": "#sample/3065"
+                        }
+                    ]
+                },
+                {
+                    "@id": "#process/sample_collection/3066",
+                    "name": "",
+                    "executesProtocol": {
+                        "@id": "#protocol/study_98_2908"
+                    },
+                    "parameterValues": [
+                        {
+                            "category": {
+                                "@id": "#parameter/2910"
+                            },
+                            "value": {
+                                "annotationValue": "14/10/2019",
+                                "termSource": "",
+                                "termAccession": ""
+                            },
+                            "unit": {
+                                "termSource": "",
+                                "termAccession": "",
+                                "comments": []
+                            }
+                        }
+                    ],
+                    "performer": "",
+                    "date": "",
+                    "inputs": [
+                        {
+                            "@id": "#source/3064"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "@id": "#sample/3066"
+                        }
+                    ]
+                }
+            ],
+            "assays": [
+                {
+                    "@id": "#assay/262_263",
+                    "filename": "a_transcriptomics_261_262_263.txt",
+                    "measurementType": {
+                        "annotationValue": "",
+                        "termSource": "",
+                        "termAccession": ""
+                    },
+                    "technologyType": {
+                        "annotationValue": "",
+                        "termSource": "",
+                        "termAccession": ""
+                    },
+                    "comments": [],
+                    "technologyPlatform": "",
+                    "characteristicCategories": [
+                        {
+                            "@id": "#characteristic_category/library_name_2918",
+                            "characteristicType": {
+                                "annotationValue": "library_name",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        },
+                        {
+                            "@id": "#characteristic_category/experiment_accession_2934",
+                            "characteristicType": {
+                                "annotationValue": "experiment accession",
+                                "termAccession": "",
+                                "termSource": ""
+                            }
+                        }
+                    ],
+                    "materials": {
+                        "samples": [
+                            {
+                                "@id": "#sample/3066"
+                            }
+                        ],
+                        "otherMaterials": [
+                            {
+                                "@id": "#other_material/3067",
+                                "name": "CC08.13B1a_HostT",
+                                "type": "title",
+                                "characteristics": [
+                                    {
+                                        "category": {
+                                            "@id": "#characteristic_category/library_name_2918"
+                                        },
+                                        "value": {
+                                            "annotationValue": "Illumina Ribo-Zero Plus rRNA Depletion Kit + NEB Next Ultra RNA Library Prep Kit",
+                                            "termSource": "",
+                                            "termAccession": ""
+                                        },
+                                        "unit": {
+                                            "termSource": "",
+                                            "termAccession": "",
+                                            "comments": []
+                                        }
+                                    },
+                                    {
+                                        "category": {
+                                            "@id": "#characteristic_category/experiment_accession_2934"
+                                        },
+                                        "value": {
+                                            "annotationValue": "ERX9058507",
+                                            "termSource": "",
+                                            "termAccession": ""
+                                        },
+                                        "unit": {
+                                            "termSource": "",
+                                            "termAccession": "",
+                                            "comments": []
+                                        }
+                                    }
+                                ],
+                                "derivesFrom": [
+                                    {
+                                        "@id": "#sample/3066"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "processSequence": [
+                        {
+                            "@id": "#process/protocol/3067",
+                            "name": "",
+                            "executesProtocol": {
+                                "@id": "#protocol/assay_262_86"
+                            },
+                            "parameterValues": [
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2919"
+                                    },
+                                    "value": {
+                                        "annotationValue": "TRANSCRIPTOMIC",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                },
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2920"
+                                    },
+                                    "value": {
+                                        "annotationValue": "RNA-Seq",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                },
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2921"
+                                    },
+                                    "value": {
+                                        "annotationValue": "cDNA",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                },
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2922"
+                                    },
+                                    "value": {
+                                        "annotationValue": "PAIRED",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                },
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2923"
+                                    },
+                                    "value": {
+                                        "annotationValue": "Illumina",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                },
+                                {
+                                    "category": {
+                                        "@id": "#parameter/2924"
+                                    },
+                                    "value": {
+                                        "annotationValue": "Illumina NovaSeq 6000",
+                                        "termSource": "",
+                                        "termAccession": ""
+                                    },
+                                    "unit": {
+                                        "termSource": "",
+                                        "termAccession": "",
+                                        "comments": []
+                                    }
+                                }
+                            ],
+                            "performer": "",
+                            "date": "",
+                            "inputs": [
+                                {
+                                    "@id": "#sample/3066"
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "@id": "#other_material/3067"
+                                }
+                            ],
+                            "previousProcess": {
+                                "@id": "#process/sample_collection/3067"
+                            },
+                            "nextProcess": {
+                                "@id": "#process/nucleic_acid_sequencing/3067"
+                            }
+                        },
+                        {
+                            "@id": "#process/nucleic_acid_sequencing/3068_3069",
+                            "name": "",
+                            "executesProtocol": {
+                                "@id": "#protocol/assay_263_2926"
+                            },
+                            "parameterValues": [],
+                            "performer": "",
+                            "date": "",
+                            "inputs": [
+                                {
+                                    "@id": "#other_material/3067"
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "@id": "#data_file/3068"
+                                },
+                                {
+                                    "@id": "#data_file/3069"
+                                }
+                            ],
+                            "previousProcess": {
+                                "@id": "#process/protocol/3068"
+                            },
+                            "nextProcess": {}
+                        }
+                    ],
+                    "dataFiles": [
+                        {
+                            "@id": "#data_file/3068",
+                            "name": "CC08_13B1a_RAW_1.fq.gz",
+                            "type": "Raw Data File",
+                            "comments": [
+                                {
+                                    "name": "file_name",
+                                    "value": "CC08_13B1a_RAW_1.fq.gz"
+                                },
+                                {
+                                    "name": "file_type",
+                                    "value": "fastq"
+                                },
+                                {
+                                    "name": "run_accession",
+                                    "value": "ERR9516968"
+                                },
+                                {
+                                    "name": "fastq_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR951/008/ERR9516968/ERR9516968_1.fastq.gz"
+                                },
+                                {
+                                    "name": "submitted_bytes",
+                                    "value": "1187082353"
+                                },
+                                {
+                                    "name": "submitted_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/run/ERR951/ERR9516968/CC08_13B1a_RAW_1.fq.gz"
+                                },
+                                {
+                                    "name": "bam_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/err/ERR951/008/ERR9516968.bam"
+                                }
+                            ]
+                        },
+                        {
+                            "@id": "#data_file/3069",
+                            "name": "CC08_13B1a_RAW_2.fq.gz",
+                            "type": "Raw Data File",
+                            "comments": [
+                                {
+                                    "name": "file_name",
+                                    "value": "CC08_13B1a_RAW_2.fq.gz"
+                                },
+                                {
+                                    "name": "file_type",
+                                    "value": "fastq"
+                                },
+                                {
+                                    "name": "run_accession",
+                                    "value": "ERR9516968"
+                                },
+                                {
+                                    "name": "fastq_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR951/008/ERR9516968/ERR9516968_2.fastq.gz"
+                                },
+                                {
+                                    "name": "submitted_bytes",
+                                    "value": "1258600159"
+                                },
+                                {
+                                    "name": "submitted_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/run/ERR951/ERR9516968/CC08_13B1a_RAW_2.fq.gz"
+                                },
+                                {
+                                    "name": "bam_ftp",
+                                    "value": "ftp.sra.ebi.ac.uk/vol1/err/ERR951/008/ERR9516968.bam"
+                                }
+                            ]
+                        }
+                    ],
+                    "unitCategories": []
+                }
+            ],
+            "factors": [],
+            "unitCategories": []
+        }
+    ]
+}
