@@ -307,11 +307,20 @@ public class WebinIsaToXmlSubmissionController {
     }
 
     for (Characteristic characteristic : characteristics) {
-      if (characteristic.category != null
-          && "#characteristic_category/accession".equals(characteristic.category.id)) {
-        if (characteristic.value != null) {
-          return characteristic.value.annotationValue;
-        }
+      if (characteristic.category == null) {
+        continue;
+      }
+
+      final CharacteristicCategory category = characteristic.category;
+      final boolean accessionCategoryIdMatches =
+          category.id != null && category.id.startsWith("#characteristic_category/accession");
+      final boolean accessionCategoryNameMatches =
+          category.characteristicType != null
+              && "accession".equalsIgnoreCase(category.characteristicType.annotationValue);
+
+      if ((accessionCategoryIdMatches || accessionCategoryNameMatches)
+          && characteristic.value != null) {
+        return characteristic.value.annotationValue;
       }
     }
 
