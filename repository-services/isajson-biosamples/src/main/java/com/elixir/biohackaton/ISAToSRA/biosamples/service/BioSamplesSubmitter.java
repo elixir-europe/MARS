@@ -76,9 +76,9 @@ public class BioSamplesSubmitter {
                 || attribute
                     .getType()
                     .equalsIgnoreCase("geographic location (country and/or sea)"));
-    childSampleAttributes.add(Attribute.build("collection date", "Not provided"));
+    childSampleAttributes.add(Attribute.build("collection date", "not provided"));
     childSampleAttributes.add(
-        Attribute.build("geographic location (country and/or sea)", "Not provided"));
+        Attribute.build("geographic location (country and/or sea)", "not provided"));
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
