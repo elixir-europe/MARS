@@ -1,8 +1,8 @@
 {
   "investigation": {
     "identifier": "investigation1",
-    "title": "Bob's investigation",
-    "description": "",
+    "title": "Bob's investigation project",
+    "description": "Arabidopsis thaliana sequencing project for MARS PoC validation.",
     "submissionDate": "",
     "publicReleaseDate": "",
     "ontologySourceReferences": [],
