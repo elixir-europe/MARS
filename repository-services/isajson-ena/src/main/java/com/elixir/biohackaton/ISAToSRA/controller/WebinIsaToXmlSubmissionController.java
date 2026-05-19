@@ -311,7 +311,7 @@ public class WebinIsaToXmlSubmissionController {
         continue;
       }
 
-      final CharacteristicCategory category = characteristic.category;
+      final Category category = characteristic.category;
       final boolean accessionCategoryIdMatches =
           category.id != null && category.id.startsWith("#characteristic_category/accession");
       final boolean accessionCategoryNameMatches =
