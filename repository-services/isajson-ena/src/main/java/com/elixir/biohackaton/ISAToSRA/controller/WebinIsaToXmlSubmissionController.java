@@ -279,9 +279,12 @@ public class WebinIsaToXmlSubmissionController {
     }
 
     for (Study study : studies) {
+      final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study);
+
       if (study.materials != null && study.materials.samples != null) {
         for (Sample sample : study.materials.samples) {
-          String sampleAccession = getCharacteresticAnnotation(sample.characteristics);
+          String sampleAccession =
+              getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
           if (sampleAccession != null && !sampleAccession.isBlank()) {
             biosamples.put("SOURCE", sampleAccession);
             return biosamples;
@@ -291,7 +294,8 @@ public class WebinIsaToXmlSubmissionController {
 
       if (study.materials != null && study.materials.sources != null) {
         for (Source source : study.materials.sources) {
-          String sourceAccession = getCharacteresticAnnotation(source.characteristics);
+          String sourceAccession =
+              getCharacteresticAnnotation(source.characteristics, characteristicKeyLookup);
           if (sourceAccession != null && !sourceAccession.isBlank()) {
             biosamples.put("SOURCE", sourceAccession);
             return biosamples;
@@ -303,6 +307,30 @@ public class WebinIsaToXmlSubmissionController {
     return biosamples;
   }
 
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+    final Map<String, String> keyLookup = new HashMap<>();
+
+    if (study == null || study.characteristicCategories == null) {
+      return keyLookup;
+    }
+
+    for (CharacteristicCategory characteristicCategory : study.characteristicCategories) {
+      if (characteristicCategory == null
+          || characteristicCategory.id == null
+          || characteristicCategory.characteristicType == null
+          || characteristicCategory.characteristicType.annotationValue == null
+          || characteristicCategory.characteristicType.annotationValue.isBlank()) {
+        continue;
+      }
+
+      keyLookup.put(
+          characteristicCategory.id,
+          characteristicCategory.characteristicType.annotationValue);
+    }
+
+    return keyLookup;
+  }
+
   /**
    * Extracts a BioSamples accession from ISA characteristics.
    *
@@ -312,7 +340,8 @@ public class WebinIsaToXmlSubmissionController {
    * @param characteristics list of characteristics to search
    * @return BioSamples accession value, or empty string if not found
    */
-  private String getCharacteresticAnnotation(List<Characteristic> characteristics) {
+  private String getCharacteresticAnnotation(
+      List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
     if (characteristics == null) {
       return "";
     }
@@ -323,11 +352,16 @@ public class WebinIsaToXmlSubmissionController {
       }
 
       final Category category = characteristic.category;
-      final boolean accessionCategoryIdMatches =
-          category.id != null && category.id.startsWith("#characteristic_category/accession");
+      final String characteristicName =
+          category.id != null ? characteristicKeyLookup.get(category.id) : null;
       final boolean accessionCategoryNameMatches =
-          category.characteristicType != null
-              && "accession".equalsIgnoreCase(category.characteristicType.annotationValue);
+          "accession".equalsIgnoreCase(characteristicName)
+              || (category.characteristicType != null
+                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
+      final boolean accessionCategoryIdMatches =
+          !accessionCategoryNameMatches
+              && category.id != null
+              && category.id.startsWith("#characteristic_category/accession");
 
       if ((accessionCategoryIdMatches || accessionCategoryNameMatches)
           && characteristic.value != null) {
