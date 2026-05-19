@@ -90,6 +90,10 @@ class WebinExperimentXmlCreatorTest {
     // Verify DESIGN_DESCRIPTION
     final Element designDescription = design.element("DESIGN_DESCRIPTION");
     Assertions.assertNotNull(designDescription, "DESIGN should have a DESIGN_DESCRIPTION element");
+    Assertions.assertEquals(
+        "Test",
+        designDescription.getText(),
+        "DESIGN_DESCRIPTION should come from the ISA design_description parameter");
 
     // Verify SAMPLE_DESCRIPTOR
     final Element sampleDescriptor = design.element("SAMPLE_DESCRIPTOR");
@@ -102,6 +106,33 @@ class WebinExperimentXmlCreatorTest {
     // Verify LIBRARY_DESCRIPTOR
     final Element libraryDescriptor = design.element("LIBRARY_DESCRIPTOR");
     Assertions.assertNotNull(libraryDescriptor, "DESIGN should have a LIBRARY_DESCRIPTOR element");
+    Assertions.assertEquals(
+        "library 1",
+        libraryDescriptor.elementText("LIBRARY_NAME"),
+        "LIBRARY_NAME should come from the ISA library material name");
+    Assertions.assertEquals(
+        "OTHER",
+        libraryDescriptor.elementText("LIBRARY_STRATEGY"),
+        "LIBRARY_STRATEGY should come from the ISA library strategy parameter");
+    Assertions.assertEquals(
+        "OTHER",
+        libraryDescriptor.elementText("LIBRARY_SOURCE"),
+        "LIBRARY_SOURCE should come from the ISA library source parameter");
+    Assertions.assertEquals(
+        "RT-PCR",
+        libraryDescriptor.elementText("LIBRARY_SELECTION"),
+        "LIBRARY_SELECTION should come from the ISA library selection parameter");
+    Assertions.assertEquals(
+        "lib prep",
+        libraryDescriptor.elementText("LIBRARY_CONSTRUCTION_PROTOCOL"),
+        "LIBRARY_CONSTRUCTION_PROTOCOL should come from the ISA library_construction_protocol parameter");
+
+    final Element libraryLayout = libraryDescriptor.element("LIBRARY_LAYOUT");
+    Assertions.assertNotNull(
+        libraryLayout, "LIBRARY_DESCRIPTOR should have a LIBRARY_LAYOUT element");
+    Assertions.assertNotNull(
+        libraryLayout.element("SINGLE"),
+        "LIBRARY_LAYOUT should reflect the ISA library layout parameter");
 
     // Verify PLATFORM element
     final Element platform = firstExperiment.element("PLATFORM");
@@ -115,6 +146,10 @@ class WebinExperimentXmlCreatorTest {
     final Element instrumentModel = oxfordNanopore.element("INSTRUMENT_MODEL");
     Assertions.assertNotNull(
         instrumentModel, "OXFORD_NANOPORE should have an INSTRUMENT_MODEL element");
+    Assertions.assertEquals(
+        "MinION",
+        instrumentModel.getText(),
+        "INSTRUMENT_MODEL should come from the ISA sequencing instrument parameter");
 
     // Print XML for debugging (optional)
     final OutputFormat format = OutputFormat.createPrettyPrint();

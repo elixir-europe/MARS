@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class WebinExperimentXmlCreator {
   public static final String OTHER_MATERIAL_LIBRARY_NAME_DETERMINES_EXPERIMENT = "Library Name";
+  private static final String DEFAULT_DESIGN_DESCRIPTION = "ISA-Test";
 
   public Map<String, String> createENAExperimentSetElement(
       final Map<String, String> typeToBioSamplesAccessionMap,
@@ -101,6 +102,7 @@ public class WebinExperimentXmlCreator {
                                             library,
                                             study,
                                             libraryConstructionProcess,
+                                            sequencingProcess,
                                             protocolToParameterMap,
                                             bioSampleAccessions,
                                             experimentId,
@@ -177,6 +179,7 @@ public class WebinExperimentXmlCreator {
       final OtherMaterial library,
       final Study study,
       final ProcessSequence libraryConstructionProcess,
+      final ProcessSequence sequencingProcess,
       final Map<String, List<Parameter>> protocolToParameterMap,
       final Map<String, String> bioSampleAccessions,
       final String experimentId,
@@ -190,7 +193,6 @@ public class WebinExperimentXmlCreator {
         .addAttribute("refname", study.getTitle() + "-" + randomSubmissionIdentifier);
 
     final Element designElement = experimentElement.addElement("DESIGN");
-    designElement.addElement("DESIGN_DESCRIPTION").addText("ISA-Test");
 
     final String sourceBioSampleAccession = bioSampleAccessions.get("SOURCE");
     designElement
@@ -199,23 +201,22 @@ public class WebinExperimentXmlCreator {
 
     final Element libraryDescriptorElement = designElement.addElement("LIBRARY_DESCRIPTOR");
 
-    // Extract library parameters from the library construction process
-    if (libraryConstructionProcess != null
-        && libraryConstructionProcess.getExecutesProtocol() != null) {
-      final String protocolId = libraryConstructionProcess.getExecutesProtocol().getId();
-      final List<Parameter> protocolParameters = protocolToParameterMap.get(protocolId);
-      final List<ParameterValue> parameterValues = libraryConstructionProcess.getParameterValues();
+    final Map<String, String> libraryParameters =
+        extractParameterValues(libraryConstructionProcess, protocolToParameterMap);
+    final Map<String, String> sequencingParameters =
+        extractParameterValues(sequencingProcess, protocolToParameterMap);
 
-      if (protocolParameters != null && parameterValues != null) {
-        addLibraryParameters(
-            libraryDescriptorElement, library, protocolParameters, parameterValues);
-      }
-    }
+    final String designDescription = libraryParameters.get("design_description");
+    designElement
+        .addElement("DESIGN_DESCRIPTION")
+        .addText(
+            designDescription != null && !designDescription.isBlank()
+                ? designDescription
+                : DEFAULT_DESIGN_DESCRIPTION);
 
-    // Add platform information (hardcoded for now, could be extracted from sequencing process)
-    final Element platformElement = experimentElement.addElement("PLATFORM");
-    final Element experimentTypeElement = platformElement.addElement("OXFORD_NANOPORE");
-    experimentTypeElement.addElement("INSTRUMENT_MODEL").addText("MinION");
+    addLibraryParameters(libraryDescriptorElement, library, libraryParameters);
+
+    addPlatformInformation(experimentElement, sequencingParameters);
   }
 
   /**
@@ -225,37 +226,15 @@ public class WebinExperimentXmlCreator {
   private void addLibraryParameters(
       final Element libraryDescriptorElement,
       final OtherMaterial library,
-      final List<Parameter> protocolParameters,
-      final List<ParameterValue> parameterValues) {
-    // Collect parameter values first
+      final Map<String, String> libraryParameters) {
     String libraryName = library.getName() != null ? library.getName() : null;
-    String libraryStrategy = null;
-    String librarySource = null;
-    String librarySelection = null;
-    String libraryLayout = null;
-
-    for (final Parameter parameter : protocolParameters) {
-      final String parameterId = parameter.getId();
-      final String parameterName = parameter.getParameterName().getAnnotationValue();
-
-      for (final ParameterValue parameterValue : parameterValues) {
-        if (parameterValue.getCategory() != null
-            && parameterValue.getCategory().getId() != null
-            && parameterValue.getCategory().getId().equals(parameterId)) {
-          final String value = parameterValue.getValue().getAnnotationValue();
-
-          if (isALibraryStrategyParameterName(parameterName)) {
-            libraryStrategy = value;
-          } else if ("library source".equalsIgnoreCase(parameterName)) {
-            librarySource = value;
-          } else if ("library selection".equalsIgnoreCase(parameterName)) {
-            librarySelection = value;
-          } else if (isALibraryLayoutParameterName(parameterName)) {
-            libraryLayout = value;
-          }
-        }
-      }
-    }
+    final String libraryStrategy = libraryParameters.get("library strategy");
+    final String librarySource = libraryParameters.get("library source");
+    final String librarySelection = libraryParameters.get("library selection");
+    final String libraryLayout = libraryParameters.get("library layout");
+    final String insertSize = libraryParameters.get("insert size");
+    final String libraryConstructionProtocol =
+        libraryParameters.get("library_construction_protocol");
 
     // Add elements in the required order
     // 1. LIBRARY_NAME
@@ -281,15 +260,118 @@ public class WebinExperimentXmlCreator {
     // 5. LIBRARY_LAYOUT
     if (libraryLayout != null) {
       final Element libraryLayoutElement = libraryDescriptorElement.addElement("LIBRARY_LAYOUT");
-      libraryLayoutElement.addElement(libraryLayout.toUpperCase());
+      final String normalizedLayout = libraryLayout.trim().toUpperCase();
+      if ("PAIRED".equals(normalizedLayout)) {
+        final Element pairedElement = libraryLayoutElement.addElement("PAIRED");
+        if (insertSize != null && !insertSize.isBlank()) {
+          pairedElement.addAttribute("NOMINAL_LENGTH", insertSize.trim());
+        }
+      } else {
+        libraryLayoutElement.addElement(normalizedLayout);
+      }
+    }
+
+    if (libraryConstructionProtocol != null && !libraryConstructionProtocol.isBlank()) {
+      libraryDescriptorElement
+          .addElement("LIBRARY_CONSTRUCTION_PROTOCOL")
+          .addText(libraryConstructionProtocol);
     }
   }
 
-  private boolean isALibraryStrategyParameterName(final String parameterName) {
-    return parameterName.equalsIgnoreCase("library strategy");
+  private Map<String, String> extractParameterValues(
+      final ProcessSequence processSequence,
+      final Map<String, List<Parameter>> protocolToParameterMap) {
+    final Map<String, String> parameterMap = new HashMap<>();
+
+    if (processSequence == null
+        || processSequence.getExecutesProtocol() == null
+        || processSequence.getExecutesProtocol().getId() == null
+        || processSequence.getParameterValues() == null) {
+      return parameterMap;
+    }
+
+    final List<Parameter> protocolParameters =
+        protocolToParameterMap.get(processSequence.getExecutesProtocol().getId());
+
+    if (protocolParameters == null) {
+      return parameterMap;
+    }
+
+    for (final Parameter parameter : protocolParameters) {
+      if (parameter == null
+          || parameter.getId() == null
+          || parameter.getParameterName() == null
+          || parameter.getParameterName().getAnnotationValue() == null) {
+        continue;
+      }
+
+      for (final ParameterValue parameterValue : processSequence.getParameterValues()) {
+        if (parameterValue == null
+            || parameterValue.getCategory() == null
+            || parameterValue.getCategory().getId() == null
+            || parameterValue.getValue() == null
+            || parameterValue.getValue().getAnnotationValue() == null) {
+          continue;
+        }
+
+        if (parameterValue.getCategory().getId().equals(parameter.getId())) {
+          final String normalizedName =
+              normalizeParameterName(parameter.getParameterName().getAnnotationValue());
+          final String normalizedValue = parameterValue.getValue().getAnnotationValue().trim();
+          parameterMap.put(normalizedName, normalizedValue);
+        }
+      }
+    }
+
+    return parameterMap;
   }
 
-  private boolean isALibraryLayoutParameterName(final String parameterName) {
-    return parameterName.equalsIgnoreCase("library layout");
+  private void addPlatformInformation(
+      final Element experimentElement, final Map<String, String> sequencingParameters) {
+    final String instrumentModel = sequencingParameters.get("sequencing instrument");
+    final Element platformElement = experimentElement.addElement("PLATFORM");
+
+    if (instrumentModel == null || instrumentModel.isBlank()) {
+      throw new MarsReceiptException("Missing sequencing instrument parameter for ENA platform");
+    }
+
+    final Element platformTypeElement =
+        platformElement.addElement(getPlatformElementName(instrumentModel));
+    platformTypeElement.addElement("INSTRUMENT_MODEL").addText(instrumentModel);
+  }
+
+  private String getPlatformElementName(final String instrumentModel) {
+    final String normalizedInstrument = instrumentModel.trim().toLowerCase();
+
+    if (normalizedInstrument.contains("minion")
+        || normalizedInstrument.contains("gridion")
+        || normalizedInstrument.contains("promethion")
+        || normalizedInstrument.contains("nanopore")) {
+      return "OXFORD_NANOPORE";
+    }
+
+    if (normalizedInstrument.contains("illumina")) {
+      return "ILLUMINA";
+    }
+
+    if (normalizedInstrument.contains("pacbio")
+        || normalizedInstrument.contains("sequel")
+        || normalizedInstrument.contains("rs ii")) {
+      return "PACBIO_SMRT";
+    }
+
+    if (normalizedInstrument.contains("ion torrent")
+        || normalizedInstrument.contains("ion proton")
+        || normalizedInstrument.contains("ion s5")
+        || normalizedInstrument.contains("ion pgm")) {
+      return "ION_TORRENT";
+    }
+
+    throw new MarsReceiptException(
+        String.format("Unsupported sequencing instrument for ENA platform mapping: %s", instrumentModel));
+  }
+
+  private String normalizeParameterName(final String parameterName) {
+    return parameterName == null ? "" : parameterName.trim().toLowerCase();
   }
 }
