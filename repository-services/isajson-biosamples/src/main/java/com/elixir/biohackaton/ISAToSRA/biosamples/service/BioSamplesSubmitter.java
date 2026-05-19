@@ -70,7 +70,15 @@ public class BioSamplesSubmitter {
     final SortedSet<Attribute> childSampleAttributes =
         new TreeSet<>(sourceBioSample.getAttributes());
     childSampleAttributes.removeIf(
-        attribute -> attribute.getType().equalsIgnoreCase("SRA accession"));
+        attribute ->
+            attribute.getType().equalsIgnoreCase("SRA accession")
+                || attribute.getType().equalsIgnoreCase("collection date")
+                || attribute
+                    .getType()
+                    .equalsIgnoreCase("geographic location (country and/or sea)"));
+    childSampleAttributes.add(Attribute.build("collection date", "Not provided"));
+    childSampleAttributes.add(
+        Attribute.build("geographic location (country and/or sea)", "Not provided"));
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())

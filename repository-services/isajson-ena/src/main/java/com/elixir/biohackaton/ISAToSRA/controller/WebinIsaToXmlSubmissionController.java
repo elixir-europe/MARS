@@ -87,7 +87,7 @@ public class WebinIsaToXmlSubmissionController {
    *   <li>Parse ISA-JSON payload
    *   <li>Create ENA XML structure (WEBIN element with SUBMISSION)
    *   <li>Convert Study → ENA STUDY (top-down)
-   *   <li>Get BioSamples accessions for source samples
+   *   <li>Get BioSamples accessions for study samples
    *   <li>Convert Library → ENA EXPERIMENT (bottom-up: DataFile → Library)
    *   <li>Convert DataFile → ENA RUN (bottom-up: DataFile → Experiment reference)
    *   <li>Convert Investigation → ENA PROJECT (top-down)
@@ -140,7 +140,7 @@ public class WebinIsaToXmlSubmissionController {
     this.webinStudyXmlCreator.createENAStudySetElement(
         webinElement, studies, randomSubmissionIdentifier);
 
-    // Step 2: Get BioSamples accessions for source samples (needed for EXPERIMENT)
+    // Step 2: Get BioSamples accessions for study samples (needed for EXPERIMENT)
     // Use provided bioSampleAccessions if available, otherwise extract from ISA-JSON
     final Map<String, String> typeToBioSamplesAccessionMap =
         parseBioSampleAccessions(bioSampleAccessions, studies);
@@ -214,7 +214,7 @@ public class WebinIsaToXmlSubmissionController {
    * Parses BioSamples accessions from input parameter or extracts from ISA-JSON.
    *
    * <p>If the bioSampleAccessions JSON string is provided, it will be parsed and used. Otherwise,
-   * falls back to extracting from ISA-JSON Study sources.
+   * falls back to extracting from ISA-JSON Study samples first, then sources.
    *
    * <p>Expected format: JSON string with "SOURCE" as key, e.g., {@code {"SOURCE":"SAMEA130793922"}}
    *
@@ -304,7 +304,7 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   /**
-   * Extracts BioSamples accession from source characteristics.
+   * Extracts a BioSamples accession from ISA characteristics.
    *
    * <p>Looks for a characteristic with category "#characteristic_category/accession" and returns
    * its value.
