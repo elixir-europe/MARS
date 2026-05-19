@@ -66,19 +66,11 @@ public class BioSamplesSubmitter {
 
   private BioSample createAndUpdateChildSampleWithRelationship(
       final Sample sample, final BioSample sourceBioSample, final String webinToken) {
-    // Create a copy of the attributes to avoid mutating the source BioSample
     final SortedSet<Attribute> childSampleAttributes =
-        new TreeSet<>(sourceBioSample.getAttributes());
-    childSampleAttributes.removeIf(
-        attribute ->
-            attribute.getType().equalsIgnoreCase("SRA accession")
-                || attribute.getType().equalsIgnoreCase("collection date")
-                || attribute
-                    .getType()
-                    .equalsIgnoreCase("geographic location (country and/or sea)"));
-    childSampleAttributes.add(Attribute.build("collection date", "not provided"));
-    childSampleAttributes.add(
-        Attribute.build("geographic location (country and/or sea)", "not provided"));
+        buildAttributesFromCharacteristics(sample.getCharacteristics());
+    ensureMandatorySampleAttribute(childSampleAttributes, "collection date", "not provided");
+    ensureMandatorySampleAttribute(
+        childSampleAttributes, "geographic location (country and/or sea)", "not provided");
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
@@ -109,7 +101,6 @@ public class BioSamplesSubmitter {
 
   private List<BioSample> createSourceBioSample(
       final List<Study> studies, final String webinToken) {
-    final List<Attribute> attributes = new ArrayList<>();
     List<BioSample> biosamples = new ArrayList<>();
 
     studies.forEach(
@@ -119,6 +110,7 @@ public class BioSamplesSubmitter {
                 .getSources()
                 .forEach(
                     source -> {
+                      final List<Attribute> attributes = new ArrayList<>();
                       source
                           .getCharacteristics()
                           .forEach(
@@ -142,6 +134,43 @@ public class BioSamplesSubmitter {
                     }));
 
     return biosamples;
+  }
+
+  private SortedSet<Attribute> buildAttributesFromCharacteristics(
+      final List<Characteristic> characteristics) {
+    final SortedSet<Attribute> attributes = new TreeSet<>();
+
+    if (characteristics == null) {
+      return attributes;
+    }
+
+    characteristics.forEach(
+        characteristic -> {
+          if (characteristic == null
+              || characteristic.getCategory() == null
+              || characteristic.getValue() == null) {
+            return;
+          }
+
+          final String key = getCharacteristicKey(characteristic.getCategory());
+          final String value = characteristic.getValue().getAnnotationValue();
+
+          if (key != null && value != null) {
+            attributes.add(Attribute.build(key, value));
+          }
+        });
+
+    return attributes;
+  }
+
+  private void ensureMandatorySampleAttribute(
+      final SortedSet<Attribute> attributes, final String type, final String value) {
+    final boolean alreadyPresent =
+        attributes.stream().anyMatch(attribute -> attribute.getType().equalsIgnoreCase(type));
+
+    if (!alreadyPresent) {
+      attributes.add(Attribute.build(type, value));
+    }
   }
 
   private static Characteristic getBioSampleAccessionCharacteristic(
