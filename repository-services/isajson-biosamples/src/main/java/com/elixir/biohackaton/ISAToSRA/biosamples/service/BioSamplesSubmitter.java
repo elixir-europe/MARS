@@ -212,8 +212,7 @@ public class BioSamplesSubmitter {
   }
 
   /**
-   * Uses the human-readable annotation value when available, otherwise falls back to a concise key
-   * derived from the category id.
+   * Uses the human-readable ISA annotation value as the BioSamples attribute key.
    */
   private static String getCharacteristicKey(final Category category) {
     if (category == null) {
@@ -226,19 +225,7 @@ public class BioSamplesSubmitter {
       return category.getCharacteristicType().getAnnotationValue();
     }
 
-    final String categoryId = category.getId();
-    if (categoryId == null) {
-      return null;
-    }
-
-    final String prefix = "#characteristic_category/";
-
-    if (!categoryId.startsWith(prefix)) {
-      return categoryId;
-    }
-
-    // Strip a trailing underscore followed by digits, if present
-    return categoryId.substring(prefix.length()).replaceFirst("_[0-9]+$", "");
+    return null;
   }
 
   private BioSample updateSampleWithRelationshipsToBioSamples(
