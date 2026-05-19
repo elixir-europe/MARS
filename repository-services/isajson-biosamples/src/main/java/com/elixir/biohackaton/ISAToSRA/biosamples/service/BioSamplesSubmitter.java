@@ -71,10 +71,10 @@ public class BioSamplesSubmitter {
     copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "organism");
     copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "tax_id");
     ensureMandatorySampleAttribute(
-        childSampleAttributes, "collection_date", "not provided");
+        childSampleAttributes, "collection date", "not provided");
     ensureMandatorySampleAttribute(
         childSampleAttributes,
-        "geographic_location_(country_and/or_sea)",
+        "geographic location (country and/or sea)",
         "not provided");
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
