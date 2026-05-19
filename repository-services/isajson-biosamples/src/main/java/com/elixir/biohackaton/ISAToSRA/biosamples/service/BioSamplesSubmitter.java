@@ -68,6 +68,8 @@ public class BioSamplesSubmitter {
       final Sample sample, final BioSample sourceBioSample, final String webinToken) {
     final SortedSet<Attribute> childSampleAttributes =
         buildAttributesFromCharacteristics(sample.getCharacteristics());
+    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "organism");
+    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "tax_id");
     ensureMandatorySampleAttribute(childSampleAttributes, "collection date", "not provided");
     ensureMandatorySampleAttribute(
         childSampleAttributes, "geographic location (country and/or sea)", "not provided");
@@ -171,6 +173,24 @@ public class BioSamplesSubmitter {
     if (!alreadyPresent) {
       attributes.add(Attribute.build(type, value));
     }
+  }
+
+  private void copySourceAttributeIfMissing(
+      final SortedSet<Attribute> childAttributes,
+      final BioSample sourceBioSample,
+      final String attributeType) {
+    final boolean alreadyPresent =
+        childAttributes.stream()
+            .anyMatch(attribute -> attribute.getType().equalsIgnoreCase(attributeType));
+
+    if (alreadyPresent || sourceBioSample.getAttributes() == null) {
+      return;
+    }
+
+    sourceBioSample.getAttributes().stream()
+        .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+        .findFirst()
+        .ifPresent(childAttributes::add);
   }
 
   private static Characteristic getBioSampleAccessionCharacteristic(
