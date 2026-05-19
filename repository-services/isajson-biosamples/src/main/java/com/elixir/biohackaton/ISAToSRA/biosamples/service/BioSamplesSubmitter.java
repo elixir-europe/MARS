@@ -116,8 +116,8 @@ public class BioSamplesSubmitter {
                           .forEach(
                               characteristic -> {
                                 if (characteristic.getCategory().getId() != null) {
-                                  final String rawId = characteristic.getCategory().getId();
-                                  final String extractedKey = extractCharacteristicKey(rawId);
+                                  final String extractedKey =
+                                      getCharacteristicKey(characteristic.getCategory());
 
                                   attributes.add(
                                       Attribute.build(
@@ -152,12 +152,21 @@ public class BioSamplesSubmitter {
   }
 
   /**
-   * Extracts a concise key from a characteristic category id. Example:
-   * "#characteristic_category/collection_date_323" -> "collection_date"
-   * "#characteristic_category/isolation_source_324" -> "isolation_source" Falls back to the
-   * original id if it doesn't match the expected pattern.
+   * Uses the human-readable annotation value when available, otherwise falls back to a concise key
+   * derived from the category id.
    */
-  private static String extractCharacteristicKey(final String categoryId) {
+  private static String getCharacteristicKey(final Category category) {
+    if (category == null) {
+      return null;
+    }
+
+    if (category.getCharacteristicType() != null
+        && category.getCharacteristicType().getAnnotationValue() != null
+        && !category.getCharacteristicType().getAnnotationValue().isBlank()) {
+      return category.getCharacteristicType().getAnnotationValue();
+    }
+
+    final String categoryId = category.getId();
     if (categoryId == null) {
       return null;
     }
