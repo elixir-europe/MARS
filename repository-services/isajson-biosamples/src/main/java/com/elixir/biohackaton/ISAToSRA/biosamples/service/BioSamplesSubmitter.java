@@ -37,6 +37,8 @@ public class BioSamplesSubmitter {
 
       studies.forEach(
           study -> {
+            final Map<String, String> characteristicKeyLookup =
+                buildCharacteristicKeyLookup(study);
             typeToBioSamplesAccessionMap.studyAccessionsMap =
                 new ReceiptAccessionsMap(Study.Fields.title, study.getTitle());
 
@@ -47,7 +49,7 @@ public class BioSamplesSubmitter {
                     sample -> {
                       final BioSample persistedChildSample =
                           this.createAndUpdateChildSampleWithRelationship(
-                              sample, sourceBioSample, webinToken);
+                              sample, sourceBioSample, webinToken, characteristicKeyLookup);
 
                       if (persistedChildSample != null) {
                         typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName =
@@ -65,9 +67,12 @@ public class BioSamplesSubmitter {
   }
 
   private BioSample createAndUpdateChildSampleWithRelationship(
-      final Sample sample, final BioSample sourceBioSample, final String webinToken) {
+      final Sample sample,
+      final BioSample sourceBioSample,
+      final String webinToken,
+      final Map<String, String> characteristicKeyLookup) {
     final SortedSet<Attribute> childSampleAttributes =
-        buildAttributesFromCharacteristics(sample.getCharacteristics());
+        buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
     copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "organism");
     copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "tax_id");
     ensureMandatorySampleAttribute(
@@ -115,6 +120,8 @@ public class BioSamplesSubmitter {
                 .getSources()
                 .forEach(
                     source -> {
+                      final Map<String, String> characteristicKeyLookup =
+                          buildCharacteristicKeyLookup(study);
                       final List<Attribute> attributes = new ArrayList<>();
                       source
                           .getCharacteristics()
@@ -122,7 +129,8 @@ public class BioSamplesSubmitter {
                               characteristic -> {
                                 if (characteristic.getCategory().getId() != null) {
                                   final String extractedKey =
-                                      getCharacteristicKey(characteristic.getCategory());
+                                      getCharacteristicKey(
+                                          characteristic.getCategory(), characteristicKeyLookup);
 
                                   attributes.add(
                                       Attribute.build(
@@ -142,7 +150,7 @@ public class BioSamplesSubmitter {
   }
 
   private SortedSet<Attribute> buildAttributesFromCharacteristics(
-      final List<Characteristic> characteristics) {
+      final List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
     final SortedSet<Attribute> attributes = new TreeSet<>();
 
     if (characteristics == null) {
@@ -157,7 +165,8 @@ public class BioSamplesSubmitter {
             return;
           }
 
-          final String key = getCharacteristicKey(characteristic.getCategory());
+          final String key =
+              getCharacteristicKey(characteristic.getCategory(), characteristicKeyLookup);
           final String value = characteristic.getValue().getAnnotationValue();
 
           if (key != null && value != null) {
@@ -166,6 +175,31 @@ public class BioSamplesSubmitter {
         });
 
     return attributes;
+  }
+
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+    final Map<String, String> keyLookup = new HashMap<>();
+
+    if (study == null || study.getCharacteristicCategories() == null) {
+      return keyLookup;
+    }
+
+    study.getCharacteristicCategories().forEach(
+        characteristicCategory -> {
+          if (characteristicCategory == null
+              || characteristicCategory.getId() == null
+              || characteristicCategory.getCharacteristicType() == null
+              || characteristicCategory.getCharacteristicType().getAnnotationValue() == null
+              || characteristicCategory.getCharacteristicType().getAnnotationValue().isBlank()) {
+            return;
+          }
+
+          keyLookup.put(
+              characteristicCategory.getId(),
+              characteristicCategory.getCharacteristicType().getAnnotationValue());
+        });
+
+    return keyLookup;
   }
 
   private void ensureMandatorySampleAttribute(
@@ -212,20 +246,16 @@ public class BioSamplesSubmitter {
   }
 
   /**
-   * Uses the human-readable ISA annotation value as the BioSamples attribute key.
+   * Uses the study-level ISA characteristic definition to resolve the human-readable attribute
+   * name for a characteristic id.
    */
-  private static String getCharacteristicKey(final Category category) {
-    if (category == null) {
+  private static String getCharacteristicKey(
+      final Category category, final Map<String, String> characteristicKeyLookup) {
+    if (category == null || category.getId() == null) {
       return null;
     }
 
-    if (category.getCharacteristicType() != null
-        && category.getCharacteristicType().getAnnotationValue() != null
-        && !category.getCharacteristicType().getAnnotationValue().isBlank()) {
-      return category.getCharacteristicType().getAnnotationValue();
-    }
-
-    return null;
+    return characteristicKeyLookup.get(category.getId());
   }
 
   private BioSample updateSampleWithRelationshipsToBioSamples(
