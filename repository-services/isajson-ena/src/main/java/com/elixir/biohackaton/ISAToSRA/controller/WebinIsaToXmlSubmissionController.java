@@ -262,10 +262,11 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   /**
-   * Extracts BioSamples accessions from Study sources.
+   * Extracts BioSamples accessions from Study samples, falling back to sources.
    *
-   * <p>Looks for source samples that have a BioSamples accession stored in the characteristic with
-   * category "#characteristic_category/accession". Returns the first source accession found.
+   * <p>ENA experiments should point to the biological sample used in the assay. We therefore look
+   * for a Study sample accession first and only fall back to a source accession if no sample
+   * accession is present.
    *
    * @param studies list of Study objects to search
    * @return map with "SOURCE" key and BioSamples accession value, or empty map if not found
@@ -278,6 +279,16 @@ public class WebinIsaToXmlSubmissionController {
     }
 
     for (Study study : studies) {
+      if (study.materials != null && study.materials.samples != null) {
+        for (Sample sample : study.materials.samples) {
+          String sampleAccession = getCharacteresticAnnotation(sample.characteristics);
+          if (sampleAccession != null && !sampleAccession.isBlank()) {
+            biosamples.put("SOURCE", sampleAccession);
+            return biosamples;
+          }
+        }
+      }
+
       if (study.materials != null && study.materials.sources != null) {
         for (Source source : study.materials.sources) {
           String sourceAccession = getCharacteresticAnnotation(source.characteristics);
