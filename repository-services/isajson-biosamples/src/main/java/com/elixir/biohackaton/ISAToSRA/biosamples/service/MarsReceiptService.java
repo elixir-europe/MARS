@@ -2,9 +2,9 @@
 package com.elixir.biohackaton.ISAToSRA.biosamples.service;
 
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.*;
+import com.elixir.mars.repository.MarsReceiptProvider;
+import com.elixir.mars.repository.models.isa.*;
+import com.elixir.mars.repository.models.receipt.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -37,13 +37,15 @@ public class MarsReceiptService extends MarsReceiptProvider {
    * Converting BioSample receipt to Mars data format
    *
    * @see
-   *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
-   * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from Biosample
-   * @param isaJson {@link IsaJson} Requested ISA-Json
+   *      https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
+   * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from
+   *                               Biosample
+   * @param isaJson                {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
    */
   public MarsReceipt convertReceiptToMars(
-      final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
+      final BiosampleAccessionsMap biosampleAccessionsMap,
+      final IsaJson isaJson) {        
     buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,

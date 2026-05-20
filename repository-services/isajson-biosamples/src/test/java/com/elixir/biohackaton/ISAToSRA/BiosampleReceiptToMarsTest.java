@@ -4,9 +4,9 @@ package com.elixir.biohackaton.ISAToSRA;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesSubmitter;
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.MarsReceiptService;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
-import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
+import com.elixir.mars.repository.models.isa.IsaJson;
+import com.elixir.mars.repository.models.isa.Study;
+import com.elixir.mars.repository.models.receipt.MarsReceipt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -27,7 +27,8 @@ class BiosampleReceiptToMarsTest {
       String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
 
       // Try
-      // https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/swagger-ui/index.html#/AuthenticationAPI/getToken to get the token
+      // https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/swagger-ui/index.html#/AuthenticationAPI/getToken
+      // to get the token
       String webinToken = "";
       if (webinToken.isEmpty()) {
         return; // Ignore the test when the token is not prepared
@@ -40,8 +41,7 @@ class BiosampleReceiptToMarsTest {
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
       final List<Study> studies = isaJson.getInvestigation().getStudies();
-      final BiosampleAccessionsMap accessionsMap =
-          bioSamplesSubmitter.createBioSamples(studies, webinToken);
+      final BiosampleAccessionsMap accessionsMap = bioSamplesSubmitter.createBioSamples(studies, webinToken);
 
       // Converting Biosample receipt to MARS receipt
       MarsReceiptService marsReceiptService = new MarsReceiptService();
