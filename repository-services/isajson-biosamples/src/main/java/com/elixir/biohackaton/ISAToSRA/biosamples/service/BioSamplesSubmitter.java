@@ -73,14 +73,11 @@ public class BioSamplesSubmitter {
       final Map<String, String> characteristicKeyLookup) {
     final SortedSet<Attribute> childSampleAttributes =
         buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
-    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "organism");
-    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "tax_id");
-    ensureMandatorySampleAttribute(
-        childSampleAttributes, "collection date", "not provided");
-    ensureMandatorySampleAttribute(
-        childSampleAttributes,
-        "geographic location (country and/or sea)",
-        "not provided");
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "organism");
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "tax_id");
+    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "collection date");
+    copySourceAttributeIfMissing(
+        childSampleAttributes, sourceBioSample, "geographic location (country and/or sea)");
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
@@ -202,16 +199,6 @@ public class BioSamplesSubmitter {
     return keyLookup;
   }
 
-  private void ensureMandatorySampleAttribute(
-      final SortedSet<Attribute> attributes, final String type, final String value) {
-    final boolean alreadyPresent =
-        attributes.stream().anyMatch(attribute -> attribute.getType().equalsIgnoreCase(type));
-
-    if (!alreadyPresent) {
-      attributes.add(Attribute.build(type, value));
-    }
-  }
-
   private void copySourceAttributeIfMissing(
       final SortedSet<Attribute> childAttributes,
       final BioSample sourceBioSample,
@@ -228,6 +215,32 @@ public class BioSamplesSubmitter {
         .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
         .findFirst()
         .ifPresent(childAttributes::add);
+  }
+
+  private void synchronizeSharedAttribute(
+      final SortedSet<Attribute> childAttributes,
+      final BioSample sourceBioSample,
+      final String attributeType) {
+    final Optional<Attribute> childAttribute =
+        childAttributes.stream()
+            .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+            .findFirst();
+
+    final Optional<Attribute> sourceAttribute =
+        sourceBioSample.getAttributes() == null
+            ? Optional.empty()
+            : sourceBioSample.getAttributes().stream()
+                .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+                .findFirst();
+
+    if (childAttribute.isPresent() && sourceAttribute.isEmpty()) {
+      sourceBioSample.getAttributes().add(childAttribute.get());
+      return;
+    }
+
+    if (childAttribute.isEmpty() && sourceAttribute.isPresent()) {
+      childAttributes.add(sourceAttribute.get());
+    }
   }
 
   private static Characteristic getBioSampleAccessionCharacteristic(
