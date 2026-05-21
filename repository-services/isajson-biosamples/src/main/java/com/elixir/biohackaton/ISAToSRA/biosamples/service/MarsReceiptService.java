@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MarsReceiptService extends MarsReceiptProvider {
+
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
   private void setupJsonMapper() {
@@ -36,16 +37,16 @@ public class MarsReceiptService extends MarsReceiptProvider {
   /**
    * Converting BioSample receipt to Mars data format
    *
-   * @see
-   *      https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
+   * @see https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    * @param biosampleAccessionsMap {@link BiosampleAccessionsMap} Receipt from
    *                               Biosample
    * @param isaJson                {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
+   * @see https://elixir-europe.github.io/MARS/repository-services/repository-api
    */
   public MarsReceipt convertReceiptToMars(
       final BiosampleAccessionsMap biosampleAccessionsMap,
-      final IsaJson isaJson) {        
+      final IsaJson isaJson) {
     buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
@@ -60,6 +61,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
 
   @Override
   public String convertMarsReceiptToJson() {
-    throw new RuntimeException("UNIMPLEMENTED");
+    return convertMarsReceiptToJson(getMarsReceipt());
   }
 }
