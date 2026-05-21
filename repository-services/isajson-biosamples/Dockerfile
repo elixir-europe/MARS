@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------
-# Stage 1: Build mars-repository-lib and publish to a local Maven repo
-# --------------------------------------------------------------------
-FROM gradle:7.2-jdk11 AS lib-builder
+# Builder stage
+FROM gradle:jdk17 AS builder
 
 WORKDIR /lib
 USER root
@@ -14,19 +12,11 @@ RUN git clone https://github.com/elixir-europe/mars-repository-lib.git
 WORKDIR /lib/mars-repository-lib
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    ./gradlew publishToMavenLocal --no-daemon --info --stacktrace
-
-# ---------------------------------------------
-# Stage 2: Use gradle image to compile jar file
-# ---------------------------------------------
-FROM gradle:jdk17 AS builder
+    ./gradlew build && \
+    ./gradlew publishToMavenLocal
 
 WORKDIR /app
-USER root
-
-# Bring in the published artifact from Stage 1
-COPY --from=lib-builder /root/.gradle/caches /root/.gradle/caches
-COPY --from=lib-builder /root/.m2 /root/.m2
+# Copy the isajson-biosamples source code to the builder stage
 COPY repository-services/isajson-biosamples /app/isajson-biosamples
 
 # Build isajson-biosamples
