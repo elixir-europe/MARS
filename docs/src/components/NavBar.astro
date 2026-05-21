@@ -1,32 +1,81 @@
 ---
 import astroConfig from "../../astro.config.mjs";
-import { Image } from 'astro:assets';
-import logo from '../assets/logo-small.png';
+import { Image } from "astro:assets";
+import logo from "../assets/logo-small.png";
+
 const homeUrl = `${astroConfig.base}`;
-const isaJsonSpecsUrl = `${astroConfig.base}/mars-isa-json`;
+const isaJsonSpecsUrl = `${astroConfig.base}mars-isa-json`;
+const stakeholdersUrl = `${astroConfig.base}stakeholders`;
+const repositoryApiUrl = `${astroConfig.base}repository-services/repository-api`;
 ---
 
 <nav class="relative dark:bg-gray-800 dark:border-gray-600 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10">
-  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl px-2 sm:px-6 lg:px-8">
     <div class="relative flex h-16 items-center justify-between">
-      <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+      {/* Logo + desktop links */}
+      <div class="flex flex-1 items-center sm:items-stretch sm:justify-start">
         <div class="flex shrink-0 items-center">
-          <Image src={logo} alt="Small MARS logo" style="width: 64px;">
+          <Image src={logo} alt="Small MARS logo" style="width: 64px;" />
         </div>
+
+        {/* Desktop nav */}
         <div class="hidden sm:ml-6 sm:block">
           <div class="flex space-x-4">
-            <a href={homeUrl} aria-current="page" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
-            <a href={isaJsonSpecsUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">MARS ISA-JSON model</a>
+            <a href={homeUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
+            <a href={isaJsonSpecsUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">ISA-JSON model</a>
+            <a href={stakeholdersUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Stakeholders</a>
+            <a href={repositoryApiUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Repository API</a>
           </div>
         </div>
+      </div>
+
+      {/* Mobile menu button */}
+      <div class="flex sm:hidden">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-md p-2 text-gray-300 hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          data-mobile-menu-toggle
+        >
+          <span class="sr-only">Open main menu</span>
+          <!-- Simple hamburger icon -->
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 
-  <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
+  {/* Mobile menu */}
+  <div
+    id="mobile-menu"
+    class="sm:hidden hidden"
+    data-mobile-menu
+  >
     <div class="space-y-1 px-2 pt-2 pb-3">
-      <a href={homeUrl} aria-current="page" class="rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white">Home</a>
-      <a href={isaJsonSpecsUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">MARS ISA-JSON model</a>
+      <a href={homeUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
+      <a href={isaJsonSpecsUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">ISA-JSON model</a>
+      <a href={stakeholdersUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Stakeholders</a>
+      <a href={repositoryApiUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Repository API</a>
     </div>
-  </el-disclosure>
+  </div>
 </nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.querySelector("[data-mobile-menu-toggle]");
+    const menu = document.querySelector("[data-mobile-menu]");
+
+    if (!toggle || !menu) return;
+
+    toggle.addEventListener("click", () => {
+      const isHidden = menu.classList.toggle("hidden"); // true if now hidden
+      toggle.setAttribute("aria-expanded", String(!isHidden));
+    });
+  });
+</script>
