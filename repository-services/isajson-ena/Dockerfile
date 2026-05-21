@@ -1,32 +1,37 @@
 # Builder stage
-FROM gradle:jdk11 AS builder
+FROM gradle:jdk17 AS builder
+
+WORKDIR /lib
+USER root
+
+# Install git and clone the mars-repository-lib repository
+RUN apk add --no-cache git || apt-get update && apt-get install -y git
+RUN git clone https://github.com/elixir-europe/mars-repository-lib.git
+
+# Build and publish mars-repository-lib to the local Maven repository
+WORKDIR /lib/mars-repository-lib
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    ./gradlew build && \
+    ./gradlew publishToMavenLocal
+
+WORKDIR /app
+# Copy the isajson-ena source code to the builder stage
+COPY repository-services/isajson-ena /app/isajson-ena
+
+# Build isajson-ena
+WORKDIR /app/isajson-ena
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace
+
+# Use a lightweight base image to run the jar file
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy everything from context (the service folder)
-COPY . .
+# Copy the JAR file from the builder stage
+COPY --from=builder /app/isajson-ena/build/libs/*.jar app.jar
 
-# Make gradlew executable
-RUN chmod +x gradlew
-# Build the JAR
-RUN --mount=type=secret,id=gpr_user \
-    --mount=type=secret,id=gpr_token \
-    GPR_USER=$(cat /run/secrets/gpr_user) \
-    GPR_TOKEN=$(cat /run/secrets/gpr_token) \
-    ./gradlew build -x test -x spotlessApply --info --stacktrace \
-      "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
-       --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
-
-
-# Runtime stage           
-FROM eclipse-temurin:11-jre-alpine
-
-WORKDIR /app
-
-# Copy the built JAR
-COPY --from=builder /app/build/libs/*.jar app.jar
-
+# Set the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

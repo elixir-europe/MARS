@@ -4,7 +4,7 @@ package com.elixir.biohackaton.ISAToSRA;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.elixir.mars.repository.MarsReceiptException;
-import com.elixir.mars.repository.models.isa.*;
+import com.elixir.mars.repository.models.isa.IsaJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;

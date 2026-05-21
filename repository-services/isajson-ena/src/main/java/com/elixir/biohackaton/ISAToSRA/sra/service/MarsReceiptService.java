@@ -9,8 +9,7 @@ import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.OtherMaterial;
 import com.elixir.mars.repository.models.isa.Study;
-import com.elixir.mars.repository.models.receipt.MarsError;
-import com.elixir.mars.repository.models.receipt.MarsErrorType;
+import com.elixir.mars.repository.models.receipt.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -21,14 +20,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @Service
-public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
+public class MarsReceiptService extends MarsReceiptProvider {
 
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -39,24 +37,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   public MarsReceiptService() {
-    super("ena"); // TODO decide whether to use instead
-    // https://registry.identifiers.org/registry/ena.embl
+    super("ena");
     setupJsonMapper();
   }
 
-  // Reset MARS receipt per request
-  @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-      throws Exception {
-    resetMarsReceipt();
-    return HandlerInterceptor.super.preHandle(request, response, handler);
-  }
-
-  public String convertMarsReceiptToJson() {
+  public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
     try {
-      return jsonMapper.writeValueAsString(getMarsReceipt());
+      return jsonMapper.writeValueAsString(marsReceipt);
     } catch (Exception ex) {
-      throw new RuntimeException("Receipt", ex);
+      throw new RuntimeException("receipt", ex);
     }
   }
 
@@ -73,11 +62,12 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
    *
    * @param receipt {@link Receipt} Receipt from ENA
    * @param isaJson {@link IsaJson} Requested ISA-Json
-   * @see <a
-   *     href="https://github.com/elixir-europe/MARS/blob/main/repository-services/repository-api.md">Repository
-   *     API response</a>
+   * @return {@link MarsReceipt} Mars response data
+   * @see https://elixir-europe.github.io/MARS/repository-services/repository-api
    */
-  public void convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+  public MarsReceipt convertReceiptToMars(
+      final Receipt receipt,
+      final IsaJson isaJson) {
     buildMarsReceipt(
         getAliasAccessionPairs(
             Study.Fields.title,
@@ -89,6 +79,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
+    return getMarsReceipt();
   }
 
   private ReceiptAccessionsMap getAliasAccessionPairs(
@@ -99,12 +90,11 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return new ReceiptAccessionsMap() {
       {
         isaItemName = keyNameInput;
-        accessionMap =
-            new HashMap<>(
-                Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-                    .filter(aliasAccessionPairValidateFn)
-                    .collect(
-                        Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
+        accessionMap = new HashMap<>(
+            Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
+                .filter(aliasAccessionPairValidateFn)
+                .collect(
+                    Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
       }
     };
   }
@@ -128,10 +118,16 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   private String getPreRandomizedAlias(@NotNull ReceiptObject receiptObject) {
-    // Convert Arabidopsis thaliana-0.49105604184136276 -> Arabidopsis thaliana
+    // EXAMPLE: Convert "Arabidopsis thaliana-0.49105604184136276" to "Arabidopsis
+    // thaliana"
     final String alias = receiptObject.getAlias();
     final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
     return alias.substring(
         0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
+  }
+
+  @Override
+  public String convertMarsReceiptToJson() {
+    return convertMarsReceiptToJson(getMarsReceipt());
   }
 }
