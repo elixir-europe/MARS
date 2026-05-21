@@ -50,3 +50,4 @@ This role includes any omics archive that joins the MARS approach, facilitating 
   * To create a process that will transform the received ISA-JSON into a suiting format for the submission of their archive. That is, if the archive does not accept natively ISA-JSON
   * To register the metadata targeted to the archive contained in the ISA-JSON
   * Ensure that the response given to the data broker conforms to the given standards.
+  
