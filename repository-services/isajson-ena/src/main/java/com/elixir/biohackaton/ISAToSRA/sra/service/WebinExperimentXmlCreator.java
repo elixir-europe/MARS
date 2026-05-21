@@ -1,14 +1,22 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
+
+import com.elixir.mars.repository.MarsReceiptException;
+import com.elixir.mars.repository.models.isa.Input;
+import com.elixir.mars.repository.models.isa.Materials;
+import com.elixir.mars.repository.models.isa.OtherMaterial;
+import com.elixir.mars.repository.models.isa.Output;
+import com.elixir.mars.repository.models.isa.Parameter;
+import com.elixir.mars.repository.models.isa.ParameterValue;
+import com.elixir.mars.repository.models.isa.ProcessSequence;
+import com.elixir.mars.repository.models.isa.Study;
 
 @Service
 @Slf4j
