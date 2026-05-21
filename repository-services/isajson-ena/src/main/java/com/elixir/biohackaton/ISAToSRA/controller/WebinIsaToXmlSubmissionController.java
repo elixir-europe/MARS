@@ -262,20 +262,21 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   /**
-   * Extracts BioSamples accessions from Study samples, falling back to sources.
+   * Extracts BioSamples accessions from Study samples.
    *
-   * <p>ENA experiments should point to the biological sample used in the assay. We therefore look
-   * for a Study sample accession first and only fall back to a source accession if no sample
-   * accession is present.
+   * <p>ENA experiments should point to the biological sample used in the assay. We therefore
+   * require a BioSamples accession on the Study sample.
    *
    * @param studies list of Study objects to search
-   * @return map with "SOURCE" key and BioSamples accession value, or empty map if not found
+   * @return map with "SOURCE" key and BioSamples accession value
+   * @throws IllegalArgumentException if no Study sample has a BioSamples accession
    */
   public Map<String, String> getBiosamples(List<Study> studies) {
     Map<String, String> biosamples = new HashMap<>();
 
     if (studies == null) {
-      return biosamples;
+      throw new IllegalArgumentException(
+          "No studies were provided. ENA submission requires a BioSamples accession on a Study sample.");
     }
 
     for (Study study : studies) {
@@ -291,20 +292,10 @@ public class WebinIsaToXmlSubmissionController {
           }
         }
       }
-
-      if (study.materials != null && study.materials.sources != null) {
-        for (Source source : study.materials.sources) {
-          String sourceAccession =
-              getCharacteresticAnnotation(source.characteristics, characteristicKeyLookup);
-          if (sourceAccession != null && !sourceAccession.isBlank()) {
-            biosamples.put("SOURCE", sourceAccession);
-            return biosamples;
-          }
-        }
-      }
     }
 
-    return biosamples;
+    throw new IllegalArgumentException(
+        "No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
   }
 
   private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
