@@ -1,4 +1,6 @@
+# --------------------------------------------------------------------
 # Stage 1: Build mars-repository-lib and publish to a local Maven repo
+# --------------------------------------------------------------------
 FROM gradle:7.2-jdk11 AS lib-builder
 
 WORKDIR /lib
@@ -14,7 +16,9 @@ RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
     ./gradlew publishToMavenLocal --no-daemon --info --stacktrace
 
+# ---------------------------------------------
 # Stage 2: Use gradle image to compile jar file
+# ---------------------------------------------
 FROM gradle:jdk17 AS builder
 
 WORKDIR /app
