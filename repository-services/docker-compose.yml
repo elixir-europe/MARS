@@ -1,30 +1,16 @@
 services:
   isa_biosamples:
-    build:
-      context: ./isajson-biosamples
-      dockerfile: Dockerfile
-      network: host
-      secrets:
-        - gpr_token
-        - gpr_user
-    ports:
-      - "8032:8032"
-    restart: unless-stopped
+      build:
+        context: .
+        dockerfile: isajson-biosamples/Dockerfile
+      ports:
+        - "8032:8032"
+      restart: unless-stopped
 
   isa_sra:
-    build:
-      context: ./isajson-ena
-      dockerfile: Dockerfile
-      network: host
-      secrets:
-        - gpr_token
-        - gpr_user
-    ports:
-      - "8042:8042"
-    restart: unless-stopped
-
-secrets:
-  gpr_token:
-    environment: GPR_TOKEN
-  gpr_user:
-    environment: GPR_USER
+      build:
+        context: .
+        dockerfile: isajson-ena/Dockerfile
+      ports:
+        - "8042:8042"
+      restart: unless-stopped

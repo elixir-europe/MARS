@@ -12,13 +12,6 @@ group = 'com.elixir.biohackaton'
 version = '0.0.1-SNAPSHOT'
 
 repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/elixir-europe/mars-repository-lib")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
-            password = project.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
-        }
-    }
     mavenLocal()
     mavenCentral()
 }
