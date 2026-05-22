@@ -1,8 +1,8 @@
 {
   "investigation": {
     "identifier": "investigation1",
-    "title": "Bob's investigation",
-    "description": "",
+    "title": "Bob's investigation project",
+    "description": "Arabidopsis thaliana sequencing project for MARS PoC validation.",
     "submissionDate": "",
     "publicReleaseDate": "",
     "ontologySourceReferences": [],
@@ -277,7 +277,7 @@
                     "@id": "#characteristic_category/collection_date_323"
                   },
                   "value": {
-                    "annotationValue": "01/01/2022",
+                    "annotationValue": "2022-01-01",
                     "termSource": "",
                     "termAccession": ""
                   }
