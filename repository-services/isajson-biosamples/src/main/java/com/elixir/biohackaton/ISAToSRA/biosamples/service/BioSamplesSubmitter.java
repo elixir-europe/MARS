@@ -37,6 +37,8 @@ public class BioSamplesSubmitter {
 
       studies.forEach(
           study -> {
+            final Map<String, String> characteristicKeyLookup =
+                buildCharacteristicKeyLookup(study);
             typeToBioSamplesAccessionMap.studyAccessionsMap =
                 new ReceiptAccessionsMap(Study.Fields.title, study.getTitle());
 
@@ -47,7 +49,7 @@ public class BioSamplesSubmitter {
                     sample -> {
                       final BioSample persistedChildSample =
                           this.createAndUpdateChildSampleWithRelationship(
-                              sample, sourceBioSample, webinToken);
+                              sample, sourceBioSample, webinToken, characteristicKeyLookup);
 
                       if (persistedChildSample != null) {
                         typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName =
@@ -65,12 +67,17 @@ public class BioSamplesSubmitter {
   }
 
   private BioSample createAndUpdateChildSampleWithRelationship(
-      final Sample sample, final BioSample sourceBioSample, final String webinToken) {
-    // Create a copy of the attributes to avoid mutating the source BioSample
+      final Sample sample,
+      final BioSample sourceBioSample,
+      final String webinToken,
+      final Map<String, String> characteristicKeyLookup) {
     final SortedSet<Attribute> childSampleAttributes =
-        new TreeSet<>(sourceBioSample.getAttributes());
-    childSampleAttributes.removeIf(
-        attribute -> attribute.getType().equalsIgnoreCase("SRA accession"));
+        buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "organism");
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "tax_id");
+    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "collection date");
+    copySourceAttributeIfMissing(
+        childSampleAttributes, sourceBioSample, "geographic location (country and/or sea)");
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
@@ -101,7 +108,6 @@ public class BioSamplesSubmitter {
 
   private List<BioSample> createSourceBioSample(
       final List<Study> studies, final String webinToken) {
-    final List<Attribute> attributes = new ArrayList<>();
     List<BioSample> biosamples = new ArrayList<>();
 
     studies.forEach(
@@ -111,13 +117,17 @@ public class BioSamplesSubmitter {
                 .getSources()
                 .forEach(
                     source -> {
+                      final Map<String, String> characteristicKeyLookup =
+                          buildCharacteristicKeyLookup(study);
+                      final List<Attribute> attributes = new ArrayList<>();
                       source
                           .getCharacteristics()
                           .forEach(
                               characteristic -> {
                                 if (characteristic.getCategory().getId() != null) {
-                                  final String rawId = characteristic.getCategory().getId();
-                                  final String extractedKey = extractCharacteristicKey(rawId);
+                                  final String extractedKey =
+                                      getCharacteristicKey(
+                                          characteristic.getCategory(), characteristicKeyLookup);
 
                                   attributes.add(
                                       Attribute.build(
@@ -136,6 +146,103 @@ public class BioSamplesSubmitter {
     return biosamples;
   }
 
+  private SortedSet<Attribute> buildAttributesFromCharacteristics(
+      final List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
+    final SortedSet<Attribute> attributes = new TreeSet<>();
+
+    if (characteristics == null) {
+      return attributes;
+    }
+
+    characteristics.forEach(
+        characteristic -> {
+          if (characteristic == null
+              || characteristic.getCategory() == null
+              || characteristic.getValue() == null) {
+            return;
+          }
+
+          final String key =
+              getCharacteristicKey(characteristic.getCategory(), characteristicKeyLookup);
+          final String value = characteristic.getValue().getAnnotationValue();
+
+          if (key != null && value != null) {
+            attributes.add(Attribute.build(key, value));
+          }
+        });
+
+    return attributes;
+  }
+
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+    final Map<String, String> keyLookup = new HashMap<>();
+
+    if (study == null || study.getCharacteristicCategories() == null) {
+      return keyLookup;
+    }
+
+    study.getCharacteristicCategories().forEach(
+        characteristicCategory -> {
+          if (characteristicCategory == null
+              || characteristicCategory.getId() == null
+              || characteristicCategory.getCharacteristicType() == null
+              || characteristicCategory.getCharacteristicType().getAnnotationValue() == null
+              || characteristicCategory.getCharacteristicType().getAnnotationValue().isBlank()) {
+            return;
+          }
+
+          keyLookup.put(
+              characteristicCategory.getId(),
+              characteristicCategory.getCharacteristicType().getAnnotationValue());
+        });
+
+    return keyLookup;
+  }
+
+  private void copySourceAttributeIfMissing(
+      final SortedSet<Attribute> childAttributes,
+      final BioSample sourceBioSample,
+      final String attributeType) {
+    final boolean alreadyPresent =
+        childAttributes.stream()
+            .anyMatch(attribute -> attribute.getType().equalsIgnoreCase(attributeType));
+
+    if (alreadyPresent || sourceBioSample.getAttributes() == null) {
+      return;
+    }
+
+    sourceBioSample.getAttributes().stream()
+        .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+        .findFirst()
+        .ifPresent(childAttributes::add);
+  }
+
+  private void synchronizeSharedAttribute(
+      final SortedSet<Attribute> childAttributes,
+      final BioSample sourceBioSample,
+      final String attributeType) {
+    final Optional<Attribute> childAttribute =
+        childAttributes.stream()
+            .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+            .findFirst();
+
+    final Optional<Attribute> sourceAttribute =
+        sourceBioSample.getAttributes() == null
+            ? Optional.empty()
+            : sourceBioSample.getAttributes().stream()
+                .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
+                .findFirst();
+
+    if (childAttribute.isPresent() && sourceAttribute.isEmpty()) {
+      sourceBioSample.getAttributes().add(childAttribute.get());
+      return;
+    }
+
+    if (childAttribute.isEmpty() && sourceAttribute.isPresent()) {
+      childAttributes.add(sourceAttribute.get());
+    }
+  }
+
   private static Characteristic getBioSampleAccessionCharacteristic(
       AtomicReference<BioSample> biosample) {
     final Characteristic biosampleAccessionCharacteristic = new Characteristic();
@@ -152,24 +259,16 @@ public class BioSamplesSubmitter {
   }
 
   /**
-   * Extracts a concise key from a characteristic category id. Example:
-   * "#characteristic_category/collection_date_323" -> "collection_date"
-   * "#characteristic_category/isolation_source_324" -> "isolation_source" Falls back to the
-   * original id if it doesn't match the expected pattern.
+   * Uses the study-level ISA characteristic definition to resolve the human-readable attribute
+   * name for a characteristic id.
    */
-  private static String extractCharacteristicKey(final String categoryId) {
-    if (categoryId == null) {
+  private static String getCharacteristicKey(
+      final Category category, final Map<String, String> characteristicKeyLookup) {
+    if (category == null || category.getId() == null) {
       return null;
     }
 
-    final String prefix = "#characteristic_category/";
-
-    if (!categoryId.startsWith(prefix)) {
-      return categoryId;
-    }
-
-    // Strip a trailing underscore followed by digits, if present
-    return categoryId.substring(prefix.length()).replaceFirst("_[0-9]+$", "");
+    return characteristicKeyLookup.get(category.getId());
   }
 
   private BioSample updateSampleWithRelationshipsToBioSamples(

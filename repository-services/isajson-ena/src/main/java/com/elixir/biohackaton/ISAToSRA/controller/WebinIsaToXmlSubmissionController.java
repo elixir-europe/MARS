@@ -91,7 +91,7 @@ public class WebinIsaToXmlSubmissionController {
    *   <li>Parse ISA-JSON payload
    *   <li>Create ENA XML structure (WEBIN element with SUBMISSION)
    *   <li>Convert Study → ENA STUDY (top-down)
-   *   <li>Get BioSamples accessions for source samples
+   *   <li>Get BioSamples accessions for study samples
    *   <li>Convert Library → ENA EXPERIMENT (bottom-up: DataFile → Library)
    *   <li>Convert DataFile → ENA RUN (bottom-up: DataFile → Experiment reference)
    *   <li>Convert Investigation → ENA PROJECT (top-down)
@@ -144,7 +144,7 @@ public class WebinIsaToXmlSubmissionController {
     this.webinStudyXmlCreator.createENAStudySetElement(
         webinElement, studies, randomSubmissionIdentifier);
 
-    // Step 2: Get BioSamples accessions for source samples (needed for EXPERIMENT)
+    // Step 2: Get BioSamples accessions for study samples (needed for EXPERIMENT)
     // Use provided bioSampleAccessions if available, otherwise extract from ISA-JSON
     final Map<String, String> typeToBioSamplesAccessionMap =
         parseBioSampleAccessions(bioSampleAccessions, studies);
@@ -218,7 +218,7 @@ public class WebinIsaToXmlSubmissionController {
    * Parses BioSamples accessions from input parameter or extracts from ISA-JSON.
    *
    * <p>If the bioSampleAccessions JSON string is provided, it will be parsed and used. Otherwise,
-   * falls back to extracting from ISA-JSON Study sources.
+   * falls back to extracting from ISA-JSON Study samples first, then sources.
    *
    * <p>Expected format: JSON string with "SOURCE" as key, e.g., {@code {"SOURCE":"SAMEA130793922"}}
    *
@@ -266,38 +266,68 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   /**
-   * Extracts BioSamples accessions from Study sources.
+   * Extracts BioSamples accessions from Study samples.
    *
-   * <p>Looks for source samples that have a BioSamples accession stored in the characteristic with
-   * category "#characteristic_category/accession". Returns the first source accession found.
+   * <p>ENA experiments should point to the biological sample used in the assay. We therefore
+   * require a BioSamples accession on the Study sample.
    *
    * @param studies list of Study objects to search
-   * @return map with "SOURCE" key and BioSamples accession value, or empty map if not found
+   * @return map with "SOURCE" key and BioSamples accession value
+   * @throws IllegalArgumentException if no Study sample has a BioSamples accession
    */
   public Map<String, String> getBiosamples(List<Study> studies) {
     Map<String, String> biosamples = new HashMap<>();
 
     if (studies == null) {
-      return biosamples;
+      throw new IllegalArgumentException(
+          "No studies were provided. ENA submission requires a BioSamples accession on a Study sample.");
     }
 
     for (Study study : studies) {
-      if (study.materials != null && study.materials.sources != null) {
-        for (Source source : study.materials.sources) {
-          String sourceAccession = getCharacteresticAnnotation(source.characteristics);
-          if (sourceAccession != null && !sourceAccession.isBlank()) {
-            biosamples.put("SOURCE", sourceAccession);
+      final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study);
+
+      if (study.materials != null && study.materials.samples != null) {
+        for (Sample sample : study.materials.samples) {
+          String sampleAccession =
+              getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
+          if (sampleAccession != null && !sampleAccession.isBlank()) {
+            biosamples.put("SOURCE", sampleAccession);
             return biosamples;
           }
         }
       }
     }
 
-    return biosamples;
+    throw new IllegalArgumentException(
+        "No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
+  }
+
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+    final Map<String, String> keyLookup = new HashMap<>();
+
+    if (study == null || study.characteristicCategories == null) {
+      return keyLookup;
+    }
+
+    for (CharacteristicCategory characteristicCategory : study.characteristicCategories) {
+      if (characteristicCategory == null
+          || characteristicCategory.id == null
+          || characteristicCategory.characteristicType == null
+          || characteristicCategory.characteristicType.annotationValue == null
+          || characteristicCategory.characteristicType.annotationValue.isBlank()) {
+        continue;
+      }
+
+      keyLookup.put(
+          characteristicCategory.id,
+          characteristicCategory.characteristicType.annotationValue);
+    }
+
+    return keyLookup;
   }
 
   /**
-   * Extracts BioSamples accession from source characteristics.
+   * Extracts a BioSamples accession from ISA characteristics.
    *
    * <p>Looks for a characteristic with category "#characteristic_category/accession" and returns
    * its value.
@@ -305,17 +335,32 @@ public class WebinIsaToXmlSubmissionController {
    * @param characteristics list of characteristics to search
    * @return BioSamples accession value, or empty string if not found
    */
-  private String getCharacteresticAnnotation(List<Characteristic> characteristics) {
+  private String getCharacteresticAnnotation(
+      List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
     if (characteristics == null) {
       return "";
     }
 
     for (Characteristic characteristic : characteristics) {
-      if (characteristic.category != null
-          && "#characteristic_category/accession".equals(characteristic.category.id)) {
-        if (characteristic.value != null) {
-          return characteristic.value.annotationValue;
-        }
+      if (characteristic.category == null) {
+        continue;
+      }
+
+      final Category category = characteristic.category;
+      final String characteristicName =
+          category.id != null ? characteristicKeyLookup.get(category.id) : null;
+      final boolean accessionCategoryNameMatches =
+          "accession".equalsIgnoreCase(characteristicName)
+              || (category.characteristicType != null
+                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
+      final boolean accessionCategoryIdMatches =
+          !accessionCategoryNameMatches
+              && category.id != null
+              && category.id.startsWith("#characteristic_category/accession");
+
+      if ((accessionCategoryIdMatches || accessionCategoryNameMatches)
+          && characteristic.value != null) {
+        return characteristic.value.annotationValue;
       }
     }
 
