@@ -2,7 +2,11 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Category;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.CharacteristicCategory;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DerivesFrom;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Input;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Materials;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
@@ -10,10 +14,13 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Output;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Parameter;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ParameterValue;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Sample;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
@@ -173,6 +180,7 @@ public class WebinExperimentXmlCreator {
 
     createExperimentElement(
         root,
+        study,
         library,
         assay,
         libraryConstructionProcess,
@@ -242,6 +250,7 @@ public class WebinExperimentXmlCreator {
   /** Creates one ENA EXPERIMENT element using ENA-native assay/process parameter names. */
   private void createExperimentElement(
       final Element root,
+      final Study study,
       final OtherMaterial library,
       final com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay assay,
       final ProcessSequence libraryConstructionProcess,
@@ -269,7 +278,7 @@ public class WebinExperimentXmlCreator {
         .addElement("DESIGN_DESCRIPTION")
         .addText(requireParameter(libraryParameters, "DESIGN_DESCRIPTION"));
 
-    final String sampleAccession = bioSampleAccessions.get("SOURCE");
+    final String sampleAccession = resolveSampleAccessionForLibrary(study, assay, library);
     designElement
         .addElement("SAMPLE_DESCRIPTOR")
         .addAttribute("accession", requireValue(sampleAccession, "BioSamples sample accession"));
@@ -277,6 +286,134 @@ public class WebinExperimentXmlCreator {
     final Element libraryDescriptorElement = designElement.addElement("LIBRARY_DESCRIPTOR");
     addLibraryDescriptor(libraryDescriptorElement, library, libraryParameters);
     addPlatform(experimentElement, sequencingParameters);
+  }
+
+  /**
+   * Resolves the BioSamples accession for the biological sample that the library derives from.
+   */
+  private String resolveSampleAccessionForLibrary(
+      final Study study,
+      final com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay assay,
+      final OtherMaterial library) {
+    if (study == null || study.getMaterials() == null || study.getMaterials().getSamples() == null) {
+      return "";
+    }
+
+    final Map<String, Sample> samplesById = new HashMap<>();
+    for (final Sample sample : study.getMaterials().getSamples()) {
+      if (sample != null && sample.getId() != null) {
+        samplesById.put(sample.getId(), sample);
+      }
+    }
+
+    final Map<String, OtherMaterial> otherMaterialsById = new HashMap<>();
+    if (assay.getMaterials() != null && assay.getMaterials().getOtherMaterials() != null) {
+      for (final OtherMaterial otherMaterial : assay.getMaterials().getOtherMaterials()) {
+        if (otherMaterial != null && otherMaterial.getId() != null) {
+          otherMaterialsById.put(otherMaterial.getId(), otherMaterial);
+        }
+      }
+    }
+
+    final Sample sample =
+        findSampleForMaterialId(library.getId(), samplesById, otherMaterialsById, new HashSet<>());
+    if (sample == null) {
+      return "";
+    }
+
+    final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study);
+    return getCharacteristicAnnotation(sample.getCharacteristics(), characteristicKeyLookup);
+  }
+
+  private Sample findSampleForMaterialId(
+      final String materialId,
+      final Map<String, Sample> samplesById,
+      final Map<String, OtherMaterial> otherMaterialsById,
+      final Set<String> visitedIds) {
+    if (materialId == null || !visitedIds.add(materialId)) {
+      return null;
+    }
+
+    final Sample sample = samplesById.get(materialId);
+    if (sample != null) {
+      return sample;
+    }
+
+    final OtherMaterial otherMaterial = otherMaterialsById.get(materialId);
+    if (otherMaterial == null || otherMaterial.getDerivesFrom() == null) {
+      return null;
+    }
+
+    for (final DerivesFrom derivesFrom : otherMaterial.getDerivesFrom()) {
+      if (derivesFrom == null || derivesFrom.getId() == null) {
+        continue;
+      }
+
+      final Sample derivedSample =
+          findSampleForMaterialId(
+              derivesFrom.getId(), samplesById, otherMaterialsById, visitedIds);
+      if (derivedSample != null) {
+        return derivedSample;
+      }
+    }
+
+    return null;
+  }
+
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+    final Map<String, String> keyLookup = new HashMap<>();
+
+    if (study == null || study.characteristicCategories == null) {
+      return keyLookup;
+    }
+
+    for (CharacteristicCategory characteristicCategory : study.characteristicCategories) {
+      if (characteristicCategory == null
+          || characteristicCategory.id == null
+          || characteristicCategory.characteristicType == null
+          || characteristicCategory.characteristicType.annotationValue == null
+          || characteristicCategory.characteristicType.annotationValue.isBlank()) {
+        continue;
+      }
+
+      keyLookup.put(
+          characteristicCategory.id,
+          characteristicCategory.characteristicType.annotationValue);
+    }
+
+    return keyLookup;
+  }
+
+  private String getCharacteristicAnnotation(
+      final List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
+    if (characteristics == null) {
+      return "";
+    }
+
+    for (Characteristic characteristic : characteristics) {
+      if (characteristic.category == null) {
+        continue;
+      }
+
+      final Category category = characteristic.category;
+      final String characteristicName =
+          category.id != null ? characteristicKeyLookup.get(category.id) : null;
+      final boolean accessionCategoryNameMatches =
+          "accession".equalsIgnoreCase(characteristicName)
+              || (category.characteristicType != null
+                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
+      final boolean accessionCategoryIdMatches =
+          !accessionCategoryNameMatches
+              && category.id != null
+              && category.id.startsWith("#characteristic_category/accession");
+
+      if ((accessionCategoryIdMatches || accessionCategoryNameMatches)
+          && characteristic.value != null) {
+        return characteristic.value.annotationValue;
+      }
+    }
+
+    return "";
   }
 
   /**

@@ -127,23 +127,20 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
     int sequencingProcessIndex = 0;
 
-    Optional.ofNullable(items)
-        .orElse(new ArrayList<>())
-        .stream()
-        .filter(aliasAccessionPairValidateFn)
-        .forEach(
-            receiptObject -> {
-              final String processId = getPreRandomizedAlias(receiptObject);
-              List<String> dataFileIds = getDataFileIdsForSequencingProcess(isaJson, processId);
-              if (dataFileIds.isEmpty()
-                  && sequencingProcessIndex < sequencingProcessDataFiles.size()) {
-                dataFileIds = sequencingProcessDataFiles.get(sequencingProcessIndex);
-              }
+    for (ReceiptObject receiptObject : Optional.ofNullable(items).orElse(new ArrayList<>())) {
+      if (!aliasAccessionPairValidateFn.test(receiptObject)) {
+        continue;
+      }
 
-              dataFileIds.forEach(
-                  dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
-              sequencingProcessIndex++;
-            });
+      final String processId = getPreRandomizedAlias(receiptObject);
+      List<String> dataFileIds = getDataFileIdsForSequencingProcess(isaJson, processId);
+      if (dataFileIds.isEmpty() && sequencingProcessIndex < sequencingProcessDataFiles.size()) {
+        dataFileIds = sequencingProcessDataFiles.get(sequencingProcessIndex);
+      }
+
+      dataFileIds.forEach(dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
+      sequencingProcessIndex++;
+    }
 
     return new ReceiptAccessionsMap() {
       {
