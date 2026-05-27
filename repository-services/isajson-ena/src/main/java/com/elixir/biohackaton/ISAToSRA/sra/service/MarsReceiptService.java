@@ -85,15 +85,6 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
-    System.out.println(
-        "=== Parsed ENA receipt counts === studies="
-            + Optional.ofNullable(receipt.getStudies()).orElse(new ArrayList<>()).size()
-            + ", projects="
-            + Optional.ofNullable(receipt.getProjects()).orElse(new ArrayList<>()).size()
-            + ", experiments="
-            + Optional.ofNullable(receipt.getExperiments()).orElse(new ArrayList<>()).size()
-            + ", runs="
-            + Optional.ofNullable(receipt.getRuns()).orElse(new ArrayList<>()).size());
     buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
@@ -131,7 +122,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   private ReceiptAccessionsMap getRunAliasAccessionPairs(
       final List<ReceiptObject> items, final IsaJson isaJson) {
     Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
-    final Map<String, String> accessionMap = new HashMap<>();
+    final Map<String, String> runAccessionMap = new HashMap<>();
     final List<List<String>> sequencingProcessDataFiles =
         getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
     int sequencingProcessIndex = 0;
@@ -147,16 +138,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         dataFileIds = sequencingProcessDataFiles.get(sequencingProcessIndex);
       }
 
-      dataFileIds.forEach(dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
+      dataFileIds.forEach(
+          dataFileId -> runAccessionMap.put(dataFileId, receiptObject.getAccession()));
       sequencingProcessIndex++;
     }
-
-    System.out.println("=== ENA run accession map === " + accessionMap);
 
     return new ReceiptAccessionsMap() {
       {
         isaItemName = DataFile.Fields.id;
-        this.accessionMap = accessionMap;
+        this.accessionMap = new HashMap<>(runAccessionMap);
       }
     };
   }
