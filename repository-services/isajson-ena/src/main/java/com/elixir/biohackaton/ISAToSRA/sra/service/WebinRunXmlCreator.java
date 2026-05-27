@@ -2,8 +2,11 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ public class WebinRunXmlCreator {
                 .getAssays()
                 .forEach(
                     assay -> {
+                      final Set<String> processedSequencingProcesses = new HashSet<>();
                       if (assay.getDataFiles() != null) {
                         assay
                             .getDataFiles()
@@ -34,6 +38,11 @@ public class WebinRunXmlCreator {
                                           assay.getProcessSequence(), dataFile.getId());
 
                                   if (sequencingProcess != null) {
+                                    if (!processedSequencingProcesses.add(
+                                        sequencingProcess.getId())) {
+                                      return;
+                                    }
+
                                     // Find the library (experiment) that was input to sequencing
                                     final OtherMaterial library =
                                         findLibraryFromProcessInput(
@@ -43,10 +52,13 @@ public class WebinRunXmlCreator {
                                         && experimentSequenceMap.containsKey(library.getId())) {
                                       final String experimentId =
                                           experimentSequenceMap.get(library.getId());
+                                      final List<DataFile> runDataFiles =
+                                          findDataFilesFromProcessOutputs(
+                                              sequencingProcess, assay.getDataFiles());
                                       createRunElement(
                                           runSetElement,
-                                          dataFile,
-                                          assay,
+                                          sequencingProcess,
+                                          runDataFiles,
                                           experimentId,
                                           randomSubmissionIdentifier);
                                     }
@@ -112,54 +124,89 @@ public class WebinRunXmlCreator {
     return null;
   }
 
-  /** Creates an ENA RUN element from a DataFile. */
+  /** Resolves the assay data files referenced by a sequencing process outputs list. */
+  private List<DataFile> findDataFilesFromProcessOutputs(
+      final ProcessSequence process, final List<DataFile> assayDataFiles) {
+    final List<DataFile> dataFiles = new ArrayList<>();
+    if (process.getOutputs() == null || assayDataFiles == null) {
+      return dataFiles;
+    }
+
+    for (final Output output : process.getOutputs()) {
+      if (output.getId() == null) {
+        continue;
+      }
+
+      final String normalizedOutputId = normalizeDataFileId(output.getId());
+      for (final DataFile dataFile : assayDataFiles) {
+        if (dataFile.getId() != null
+            && normalizeDataFileId(dataFile.getId()).equals(normalizedOutputId)) {
+          dataFiles.add(dataFile);
+        }
+      }
+    }
+
+    return dataFiles;
+  }
+
+  /** Creates one ENA RUN element from all data files produced by a sequencing process. */
   private void createRunElement(
       final Element runSetElement,
-      final DataFile dataFile,
-      final Assay assay,
+      final ProcessSequence sequencingProcess,
+      final List<DataFile> dataFiles,
       final String experimentId,
       final String randomSubmissionIdentifier) {
     final Element runElement =
         runSetElement
             .addElement("RUN")
-            .addAttribute("alias", dataFile.getId() + "-" + randomSubmissionIdentifier);
+            .addAttribute("alias", sequencingProcess.getId() + "-" + randomSubmissionIdentifier);
 
-    runElement.addElement("TITLE").addText(dataFile.getName() != null ? dataFile.getName() : "");
+    final String runTitle =
+        !dataFiles.isEmpty() && dataFiles.get(0).getName() != null ? dataFiles.get(0).getName() : "";
+    runElement.addElement("TITLE").addText(runTitle);
     runElement.addElement("EXPERIMENT_REF").addAttribute("refname", experimentId);
 
-    // Extract file metadata from comments
-    final String fileName = dataFile.getName();
-    String fileType = null;
-    String checksum = null;
-
-    if (dataFile.getComments() != null) {
-      for (final Comment comment : dataFile.getComments()) {
-        if ("file type".equals(comment.getName())) {
-          fileType = comment.getValue() != null ? comment.getValue() : null;
-        }
-        if ("file checksum".equals(comment.getName())) {
-          checksum = comment.getValue() != null ? comment.getValue() : null;
-        }
-      }
+    if (dataFiles.isEmpty()) {
+      throw new RuntimeException(
+          "Run file(s) not found or missing required metadata for sequencing process "
+              + sequencingProcess.getId());
     }
 
-    if (fileName != null && fileType != null && checksum != null) {
-      final Element dataBlockElement = runElement.addElement("DATA_BLOCK");
-      final Element filesElement = dataBlockElement.addElement("FILES");
+    final Element dataBlockElement = runElement.addElement("DATA_BLOCK");
+    final Element filesElement = dataBlockElement.addElement("FILES");
+
+    for (final DataFile dataFile : dataFiles) {
+      final String fileName = dataFile.getName();
+      String fileType = null;
+      String checksum = null;
+
+      if (dataFile.getComments() != null) {
+        for (final Comment comment : dataFile.getComments()) {
+          if ("file type".equals(comment.getName())) {
+            fileType = comment.getValue() != null ? comment.getValue() : null;
+          }
+          if ("file checksum".equals(comment.getName())) {
+            checksum = comment.getValue() != null ? comment.getValue() : null;
+          }
+        }
+      }
+
+      if (fileName == null || fileType == null || checksum == null) {
+        throw new RuntimeException(
+            "Run file(s) not found or missing required metadata: fileName="
+                + fileName
+                + ", fileType="
+                + fileType
+                + ", checksum="
+                + checksum);
+      }
+
       filesElement
           .addElement("FILE")
           .addAttribute("filename", fileName)
           .addAttribute("filetype", fileType)
           .addAttribute("checksum_method", "MD5")
           .addAttribute("checksum", checksum);
-    } else {
-      throw new RuntimeException(
-          "Run file(s) not found or missing required metadata: fileName="
-              + fileName
-              + ", fileType="
-              + fileType
-              + ", checksum="
-              + checksum);
     }
   }
 }

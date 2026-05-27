@@ -27,6 +27,7 @@ class WebinRunXmlCreatorTest {
   private WebinExperimentXmlCreator experimentXmlCreator;
   private ObjectMapper objectMapper;
   private IsaJson isaJson;
+  private IsaJson multiIsaJson;
 
   @BeforeEach
   void setUp() throws Exception {
@@ -38,6 +39,10 @@ class WebinRunXmlCreatorTest {
     String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
     String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
+
+    String multiIsaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    String multiIsaJsonFile = Files.readString(new File(multiIsaJsonFilePath).toPath());
+    multiIsaJson = objectMapper.readValue(multiIsaJsonFile, IsaJson.class);
   }
 
   @Test
@@ -127,10 +132,11 @@ class WebinRunXmlCreatorTest {
 
   @Test
   void testCreateENARunSetElementWithMultipleDataFiles() throws Exception {
-    // This test verifies that multiple data files create multiple runs
+    // This test verifies that paired files stay in one run while a separate
+    // single-end experiment creates its own run.
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = document.addElement("WEBIN");
-    final List<Study> studies = isaJson.getInvestigation().getStudies();
+    final List<Study> studies = multiIsaJson.getInvestigation().getStudies();
     final String randomSubmissionIdentifier = "test-456";
     final Map<String, String> bioSampleAccessions = new HashMap<>();
     bioSampleAccessions.put("SOURCE", "SAMEA130793922");
@@ -144,21 +150,43 @@ class WebinRunXmlCreatorTest {
     runXmlCreator.createENARunSetElement(
         webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
 
-    // Count data files in the ISA JSON
-    final long dataFileCount =
-        studies.stream()
-            .flatMap(study -> study.getAssays().stream())
-            .filter(assay -> assay.getDataFiles() != null)
-            .flatMap(assay -> assay.getDataFiles().stream())
-            .count();
-
-    // Verify that we have runs matching the number of data files
     final Element runSet = webinElement.element("RUN_SET");
     Assertions.assertNotNull(runSet);
 
     @SuppressWarnings("unchecked")
     final List<Element> runs = runSet.elements("RUN");
+    Assertions.assertEquals(2, runs.size(), "Expected one paired run and one single-end run");
+
+    final Element pairedRun =
+        runs.stream()
+            .filter(
+                run ->
+                    "#process/nucleic_acid_sequencing/334-test-456"
+                        .equals(run.attributeValue("alias")))
+            .findFirst()
+            .orElse(null);
+    Assertions.assertNotNull(pairedRun, "Expected a run for the paired sequencing process");
+
+    final Element pairedFiles = pairedRun.element("DATA_BLOCK").element("FILES");
+    @SuppressWarnings("unchecked")
+    final List<Element> pairedFileElements = pairedFiles.elements("FILE");
     Assertions.assertEquals(
-        dataFileCount, runs.size(), "Number of RUN elements should match number of data files");
+        2, pairedFileElements.size(), "Paired sequencing run should include two FASTQ files");
+
+    final Element singleRun =
+        runs.stream()
+            .filter(
+                run ->
+                    "#process/nucleic_acid_sequencing/339-test-456"
+                        .equals(run.attributeValue("alias")))
+            .findFirst()
+            .orElse(null);
+    Assertions.assertNotNull(singleRun, "Expected a run for the single-end sequencing process");
+
+    final Element singleFiles = singleRun.element("DATA_BLOCK").element("FILES");
+    @SuppressWarnings("unchecked")
+    final List<Element> singleFileElements = singleFiles.elements("FILE");
+    Assertions.assertEquals(
+        1, singleFileElements.size(), "Single-end sequencing run should contain one FASTQ file");
   }
 }

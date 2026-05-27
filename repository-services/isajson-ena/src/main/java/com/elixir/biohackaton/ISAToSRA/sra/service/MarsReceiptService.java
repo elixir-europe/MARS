@@ -8,6 +8,7 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Output;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -89,7 +91,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         null,
         null,
         getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
-        getAliasAccessionPairs(DataFile.Fields.id, receipt.getRuns()),
+        getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
@@ -112,6 +114,65 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
                         Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
       }
     };
+  }
+
+  private ReceiptAccessionsMap getRunAliasAccessionPairs(
+      final List<ReceiptObject> items, final IsaJson isaJson) {
+    Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
+    final Map<String, String> accessionMap = new HashMap<>();
+
+    Optional.ofNullable(items)
+        .orElse(new ArrayList<>())
+        .stream()
+        .filter(aliasAccessionPairValidateFn)
+        .forEach(
+            receiptObject -> {
+              final String processId = getPreRandomizedAlias(receiptObject);
+              getDataFileIdsForSequencingProcess(isaJson, processId)
+                  .forEach(dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
+            });
+
+    return new ReceiptAccessionsMap() {
+      {
+        isaItemName = DataFile.Fields.id;
+        this.accessionMap = accessionMap;
+      }
+    };
+  }
+
+  private List<String> getDataFileIdsForSequencingProcess(
+      final IsaJson isaJson, final String sequencingProcessId) {
+    final List<String> dataFileIds = new ArrayList<>();
+
+    Optional.ofNullable(isaJson.getInvestigation())
+        .map(investigation -> investigation.getStudies())
+        .orElse(new ArrayList<>())
+        .forEach(
+            study ->
+                Optional.ofNullable(study.getAssays())
+                    .orElse(new ArrayList<>())
+                    .forEach(
+                        assay ->
+                            Optional.ofNullable(assay.getProcessSequence())
+                                .orElse(new ArrayList<>())
+                                .stream()
+                                .filter(process -> sequencingProcessId.equals(process.getId()))
+                                .findFirst()
+                                .ifPresent(
+                                    process ->
+                                        Optional.ofNullable(process.getOutputs())
+                                            .orElse(new ArrayList<>())
+                                            .stream()
+                                            .map(Output::getId)
+                                            .filter(id -> id != null && !id.isBlank())
+                                            .map(this::normalizeDataFileId)
+                                            .forEach(dataFileIds::add))));
+
+    return dataFileIds;
+  }
+
+  private String normalizeDataFileId(final String id) {
+    return id == null ? null : id.replace("#data_file/", "#data/");
   }
 
   private boolean aliasAccessionPairFilter(ReceiptObject item) {
