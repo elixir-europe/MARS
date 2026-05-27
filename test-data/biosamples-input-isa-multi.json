@@ -1239,7 +1239,7 @@
                       "@id": "#parameter/363"
                     },
                     "value": {
-                      "annotationValue": "NovaSeq 6000",
+                      "annotationValue": "Illumina MiSeq",
                       "termAccession": "",
                       "termSource": "",
                       "comments": []
