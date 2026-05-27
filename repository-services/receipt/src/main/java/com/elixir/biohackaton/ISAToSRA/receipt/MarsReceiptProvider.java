@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsAccession;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
@@ -134,11 +136,28 @@ public abstract class MarsReceiptProvider {
         .forEach(
             study -> {
               if (studiesAccessionsMap != null) {
-                ReceiptAccessionMap studyAccessionMap = getAccessionMapEntry(
-                    studiesAccessionsMap, study, marsMessage);
-                if (studyAccessionMap.accession != null) {
-                  marsAccessions.add(getStudyMarsAccession(studyAccessionMap));
+                if (Assay.Fields.id.equals(studiesAccessionsMap.isaItemName)) {
+                  Optional.ofNullable(study.assays)
+                      .orElse(new ArrayList<>())
+                      .forEach(
+                          assay -> {
+                            ReceiptAccessionMap assayAccessionMap = getAccessionMapEntry(
+                                studiesAccessionsMap, assay, marsMessage);
+                            if (assayAccessionMap.accession != null) {
+                              marsAccessions.add(getAssayStudyMarsAccession(
+                                  Map.entry(Study.Fields.title, study.title), assayAccessionMap));
+                            }
+                          });
+                } else {
+                  ReceiptAccessionMap studyAccessionMap = getAccessionMapEntry(
+                      studiesAccessionsMap, study, marsMessage);
+                  if (studyAccessionMap.accession != null) {
+                    marsAccessions.add(getStudyMarsAccession(studyAccessionMap));
+                  }
                 }
+                ReceiptAccessionMap studyAccessionMap = new ReceiptAccessionMap();
+                studyAccessionMap.isaFieldKey = Study.Fields.title;
+                studyAccessionMap.isaFieldValue = study.title;
                 if (samplesAccessionsMap != null && study.materials != null) {
                   Optional.ofNullable(study.materials.samples)
                       .orElse(new ArrayList<>())
@@ -217,6 +236,30 @@ public abstract class MarsReceiptProvider {
                 MarsWhere.builder()
                     .key(isaStudyKeyValue.getKey())
                     .value(isaStudyKeyValue.getValue())
+                    .build())
+            .build()
+    };
+  }
+
+  public MarsPath[] getAssayMarsPath(
+      final Entry<String, String> isaStudyKeyValue,
+      final Entry<String, String> isaAssayKeyValue) {
+    return new MarsPath[] {
+        MarsPath.builder().key("investigation").build(),
+        MarsPath.builder()
+            .key("studies")
+            .where(
+                MarsWhere.builder()
+                    .key(isaStudyKeyValue.getKey())
+                    .value(isaStudyKeyValue.getValue())
+                    .build())
+            .build(),
+        MarsPath.builder()
+            .key("assays")
+            .where(
+                MarsWhere.builder()
+                    .key(isaAssayKeyValue.getKey())
+                    .value(isaAssayKeyValue.getValue())
                     .build())
             .build()
     };
@@ -347,6 +390,19 @@ public abstract class MarsReceiptProvider {
         .path(List.of(getSampleMarsPath(Map.entry(studyAccessionMap.isaFieldKey, studyAccessionMap.isaFieldValue),
             Map.entry(sampleAccessionMap.isaFieldKey, sampleAccessionMap.isaFieldValue))))
         .value(sampleAccessionMap.accession)
+        .build();
+  }
+
+  protected MarsAccession getAssayStudyMarsAccession(
+      final Entry<String, String> isaStudyKeyValue,
+      final ReceiptAccessionMap assayAccessionMap) {
+    return MarsAccession.builder()
+        .path(
+            List.of(
+                getAssayMarsPath(
+                    isaStudyKeyValue,
+                    Map.entry(assayAccessionMap.isaFieldKey, assayAccessionMap.isaFieldValue))))
+        .value(assayAccessionMap.accession)
         .build();
   }
 

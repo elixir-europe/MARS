@@ -3,7 +3,7 @@
     "errors": [
         {
             "type": "INVALID_METADATA",
-            "message": "ENA receipt: Accession number of Arabidopsis thaliana-0.5578006304577448 is NULL"
+            "message": "ENA receipt: Accession number of #assay/18_20_21-0.5578006304577448 is NULL"
         }
     ],
     "info": [

@@ -19,6 +19,13 @@
                         "key": "title",
                         "value": "Arabidopsis thaliana"
                     }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
                 }
             ]
         },

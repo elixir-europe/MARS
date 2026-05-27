@@ -4,10 +4,10 @@ package com.elixir.biohackaton.ISAToSRA.sra.service;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptProvider;
 import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
@@ -82,7 +82,9 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
     buildMarsReceipt(
         getAliasAccessionPairs(
-            Study.Fields.title,
+            // ENA study/project aliases are assay-based, so the returned accession path points to
+            // the assay rather than the parent study title.
+            Assay.Fields.id,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
         null,
         null,
@@ -131,7 +133,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   private String getPreRandomizedAlias(@NotNull ReceiptObject receiptObject) {
-    // Convert Arabidopsis thaliana-0.49105604184136276 -> Arabidopsis thaliana
+    // Convert #assay/18_20_21-0.49105604184136276 -> #assay/18_20_21
     final String alias = receiptObject.getAlias();
     final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
     return alias.substring(

@@ -411,9 +411,9 @@
               }
             ]
           },
-          {
-            "@id": "#protocol/20_20",
-            "name": "library construction",
+              {
+                "@id": "#protocol/20_20",
+                "name": "library construction",
             "protocolType": {
               "annotationValue": "library construction",
               "termAccession": "",
@@ -422,62 +422,70 @@
             "description": "",
             "uri": "",
             "version": "",
-            "parameters": [
-              {
-                "@id": "#parameter/349",
-                "parameterName": {
-                  "annotationValue": "library_construction_protocol",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/351",
-                "parameterName": {
-                  "annotationValue": "design_description",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/352",
-                "parameterName": {
-                  "annotationValue": "library source",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/353",
-                "parameterName": {
-                  "annotationValue": "library strategy",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/354",
-                "parameterName": {
-                  "annotationValue": "library selection",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/355",
-                "parameterName": {
-                  "annotationValue": "library layout",
-                  "termAccession": "",
-                  "termSource": ""
-                }
-              },
-              {
-                "@id": "#parameter/356",
-                "parameterName": {
-                  "annotationValue": "insert size",
-                  "termAccession": "",
-                  "termSource": ""
-                }
+              "parameters": [
+                {
+                  "@id": "#parameter/349",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_CONSTRUCTION_PROTOCOL",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/350",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_NAME",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/351",
+                  "parameterName": {
+                    "annotationValue": "DESIGN_DESCRIPTION",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/352",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_SOURCE",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/353",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_STRATEGY",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/354",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_SELECTION",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/355",
+                  "parameterName": {
+                    "annotationValue": "LIBRARY_LAYOUT",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/356",
+                  "parameterName": {
+                    "annotationValue": "NOMINAL_LENGTH",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
               }
             ],
             "components": [
@@ -491,9 +499,9 @@
               }
             ]
           },
-          {
-            "@id": "#protocol/21_21",
-            "name": "nucleic acid sequencing",
+              {
+                "@id": "#protocol/21_21",
+                "name": "nucleic acid sequencing",
             "protocolType": {
               "annotationValue": "nucleic acid sequencing",
               "termAccession": "",
@@ -502,14 +510,22 @@
             "description": "",
             "uri": "",
             "version": "",
-            "parameters": [
-              {
-                "@id": "#parameter/363",
-                "parameterName": {
-                  "annotationValue": "sequencing instrument",
-                  "termAccession": "",
-                  "termSource": ""
-                }
+              "parameters": [
+                {
+                  "@id": "#parameter/362",
+                  "parameterName": {
+                    "annotationValue": "PLATFORM",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                {
+                  "@id": "#parameter/363",
+                  "parameterName": {
+                    "annotationValue": "INSTRUMENT_MODEL",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
               }
             ],
             "components": [
@@ -601,6 +617,26 @@
               {
                 "name": "target_repository",
                 "value": "ena"
+              },
+              {
+                "name": "STUDY_TITLE",
+                "value": "Arabidopsis thaliana sequencing project"
+              },
+              {
+                "name": "STUDY_DESCRIPTION",
+                "value": "Nucleic acid sequencing and metabolomics and proteomics of Arabidopsis thaliana in specific experimental conditions to test a specific hypothesis."
+              },
+              {
+                "name": "STUDY_ABSTRACT",
+                "value": "Nucleic acid sequencing and metabolomics and proteomics of Arabidopsis thaliana in specific experimental conditions to test a specific hypothesis."
+              },
+              {
+                "name": "STUDY_TYPE",
+                "value": "Other"
+              },
+              {
+                "name": "new_study_type",
+                "value": "Amplicon sequencing"
               }
             ],
             "materials": {
@@ -714,7 +750,7 @@
                       "@id": "#parameter/349"
                     },
                     "value": {
-                      "annotationValue": "lib prep",
+                      "annotationValue": "PCR amplicon library preparation for Arabidopsis leaf DNA",
                       "termSource": "",
                       "termAccession": ""
                     },
@@ -726,10 +762,20 @@
                   },
                   {
                     "category": {
+                      "@id": "#parameter/350"
+                    },
+                    "value": {
+                      "annotationValue": "arabidopsis_leaf_amplicon_library",
+                      "termSource": "",
+                      "termAccession": ""
+                    }
+                  },
+                  {
+                    "category": {
                       "@id": "#parameter/351"
                     },
                     "value": {
-                      "annotationValue": "Test",
+                      "annotationValue": "Amplicon sequencing of Arabidopsis thaliana leaf DNA.",
                       "termSource": "",
                       "termAccession": ""
                     },
@@ -744,7 +790,7 @@
                       "@id": "#parameter/352"
                     },
                     "value": {
-                      "annotationValue": "OTHER",
+                      "annotationValue": "GENOMIC",
                       "termSource": "",
                       "termAccession": ""
                     }
@@ -754,7 +800,7 @@
                       "@id": "#parameter/353"
                     },
                     "value": {
-                      "annotationValue": "OTHER",
+                      "annotationValue": "AMPLICON",
                       "termSource": "",
                       "termAccession": ""
                     }
@@ -764,7 +810,7 @@
                       "@id": "#parameter/354"
                     },
                     "value": {
-                      "annotationValue": "RT-PCR",
+                      "annotationValue": "PCR",
                       "termSource": "",
                       "termAccession": ""
                     }
@@ -818,10 +864,20 @@
                 "parameterValues": [
                   {
                     "category": {
+                      "@id": "#parameter/362"
+                    },
+                    "value": {
+                      "annotationValue": "OXFORD_NANOPORE",
+                      "termSource": "",
+                      "termAccession": ""
+                    }
+                  },
+                  {
+                    "category": {
                       "@id": "#parameter/363"
                     },
                     "value": {
-                      "annotationValue": " MinION",
+                      "annotationValue": "MinION",
                       "termSource": "",
                       "termAccession": ""
                     },
