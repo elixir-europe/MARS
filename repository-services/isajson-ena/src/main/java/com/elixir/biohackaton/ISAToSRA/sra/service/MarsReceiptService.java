@@ -9,6 +9,7 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Output;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
@@ -22,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -120,6 +123,9 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
       final List<ReceiptObject> items, final IsaJson isaJson) {
     Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
     final Map<String, String> accessionMap = new HashMap<>();
+    final List<List<String>> sequencingProcessDataFiles =
+        getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
+    int sequencingProcessIndex = 0;
 
     Optional.ofNullable(items)
         .orElse(new ArrayList<>())
@@ -128,8 +134,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
         .forEach(
             receiptObject -> {
               final String processId = getPreRandomizedAlias(receiptObject);
-              getDataFileIdsForSequencingProcess(isaJson, processId)
-                  .forEach(dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
+              List<String> dataFileIds = getDataFileIdsForSequencingProcess(isaJson, processId);
+              if (dataFileIds.isEmpty()
+                  && sequencingProcessIndex < sequencingProcessDataFiles.size()) {
+                dataFileIds = sequencingProcessDataFiles.get(sequencingProcessIndex);
+              }
+
+              dataFileIds.forEach(
+                  dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
+              sequencingProcessIndex++;
             });
 
     return new ReceiptAccessionsMap() {
@@ -169,6 +182,77 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
                                             .forEach(dataFileIds::add))));
 
     return dataFileIds;
+  }
+
+  private List<List<String>> getSequencingProcessDataFileIdsInSubmissionOrder(final IsaJson isaJson) {
+    final List<List<String>> sequencingProcessDataFiles = new ArrayList<>();
+    final Set<String> processedSequencingProcesses = new HashSet<>();
+
+    Optional.ofNullable(isaJson.getInvestigation())
+        .map(investigation -> investigation.getStudies())
+        .orElse(new ArrayList<>())
+        .forEach(
+            study ->
+                Optional.ofNullable(study.getAssays())
+                    .orElse(new ArrayList<>())
+                    .forEach(assay -> addAssaySequencingProcessOutputs(
+                        sequencingProcessDataFiles, processedSequencingProcesses, assay)));
+
+    return sequencingProcessDataFiles;
+  }
+
+  private void addAssaySequencingProcessOutputs(
+      final List<List<String>> sequencingProcessDataFiles,
+      final Set<String> processedSequencingProcesses,
+      final Assay assay) {
+    if (assay.getDataFiles() == null || assay.getProcessSequence() == null) {
+      return;
+    }
+
+    for (final DataFile dataFile : assay.getDataFiles()) {
+      final ProcessSequence sequencingProcess =
+          findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
+      if (sequencingProcess == null || !processedSequencingProcesses.add(sequencingProcess.getId())) {
+        continue;
+      }
+
+      final List<String> dataFileIds = new ArrayList<>();
+      Optional.ofNullable(sequencingProcess.getOutputs())
+          .orElse(new ArrayList<>())
+          .stream()
+          .map(Output::getId)
+          .filter(id -> id != null && !id.isBlank())
+          .map(this::normalizeDataFileId)
+          .forEach(dataFileIds::add);
+      sequencingProcessDataFiles.add(dataFileIds);
+    }
+  }
+
+  private ProcessSequence findProcessByOutputId(
+      final List<ProcessSequence> processSequence, final String outputId) {
+    if (processSequence == null || outputId == null) {
+      return null;
+    }
+
+    final String normalizedOutputId = normalizeDataFileId(outputId);
+
+    for (final ProcessSequence process : processSequence) {
+      if (process.getOutputs() == null) {
+        continue;
+      }
+
+      for (final Output output : process.getOutputs()) {
+        if (output.getId() == null) {
+          continue;
+        }
+
+        if (normalizeDataFileId(output.getId()).equals(normalizedOutputId)) {
+          return process;
+        }
+      }
+    }
+
+    return null;
   }
 
   private String normalizeDataFileId(final String id) {
