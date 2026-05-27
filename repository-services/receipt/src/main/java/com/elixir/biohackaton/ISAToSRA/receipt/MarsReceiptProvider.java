@@ -210,6 +210,11 @@ public abstract class MarsReceiptProvider {
                                         ReceiptAccessionMap dataFileAccessionMap = getAccessionMapEntry(
                                             dataFilesAccessionsMap, dataFile, marsMessage);
                                         if (dataFileAccessionMap.accession != null) {
+                                          System.out.println(
+                                              "=== Adding ENA run accession to Mars receipt === "
+                                                  + dataFileAccessionMap.isaFieldValue
+                                                  + " -> "
+                                                  + dataFileAccessionMap.accession);
                                           marsAccessions.add(getDataFileMarsAccession(
                                               studyAccessionMap,
                                               assay.id,
@@ -221,6 +226,7 @@ public abstract class MarsReceiptProvider {
                 }
               }
             });
+    System.out.println("=== Final Mars accession count === " + marsAccessions.size());
   }
 
   // -------------------------
