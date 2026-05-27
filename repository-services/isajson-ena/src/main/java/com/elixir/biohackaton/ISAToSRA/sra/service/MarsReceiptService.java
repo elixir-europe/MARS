@@ -85,6 +85,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    System.out.println(
+        "=== Parsed ENA receipt counts === studies="
+            + Optional.ofNullable(receipt.getStudies()).orElse(new ArrayList<>()).size()
+            + ", projects="
+            + Optional.ofNullable(receipt.getProjects()).orElse(new ArrayList<>()).size()
+            + ", experiments="
+            + Optional.ofNullable(receipt.getExperiments()).orElse(new ArrayList<>()).size()
+            + ", runs="
+            + Optional.ofNullable(receipt.getRuns()).orElse(new ArrayList<>()).size());
     buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
@@ -141,6 +150,8 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
       dataFileIds.forEach(dataFileId -> accessionMap.put(dataFileId, receiptObject.getAccession()));
       sequencingProcessIndex++;
     }
+
+    System.out.println("=== ENA run accession map === " + accessionMap);
 
     return new ReceiptAccessionsMap() {
       {
