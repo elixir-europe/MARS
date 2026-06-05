@@ -411,9 +411,9 @@
               }
             ]
           },
-              {
-                "@id": "#protocol/20_20",
-                "name": "library construction",
+          {
+            "@id": "#protocol/20_20",
+            "name": "library construction",
             "protocolType": {
               "annotationValue": "library construction",
               "termAccession": "",
@@ -422,70 +422,70 @@
             "description": "",
             "uri": "",
             "version": "",
-              "parameters": [
-                {
-                  "@id": "#parameter/349",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_CONSTRUCTION_PROTOCOL",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/350",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_NAME",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/351",
-                  "parameterName": {
-                    "annotationValue": "DESIGN_DESCRIPTION",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/352",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_SOURCE",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/353",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_STRATEGY",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/354",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_SELECTION",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/355",
-                  "parameterName": {
-                    "annotationValue": "LIBRARY_LAYOUT",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/356",
-                  "parameterName": {
-                    "annotationValue": "NOMINAL_LENGTH",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
+            "parameters": [
+              {
+                "@id": "#parameter/349",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_CONSTRUCTION_PROTOCOL",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/350",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_NAME",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/351",
+                "parameterName": {
+                  "annotationValue": "DESIGN_DESCRIPTION",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/352",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_SOURCE",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/353",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_STRATEGY",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/354",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_SELECTION",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/355",
+                "parameterName": {
+                  "annotationValue": "LIBRARY_LAYOUT",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/356",
+                "parameterName": {
+                  "annotationValue": "NOMINAL_LENGTH",
+                  "termAccession": "",
+                  "termSource": ""
+                }
               }
             ],
             "components": [
@@ -499,9 +499,9 @@
               }
             ]
           },
-              {
-                "@id": "#protocol/21_21",
-                "name": "nucleic acid sequencing",
+          {
+            "@id": "#protocol/21_21",
+            "name": "nucleic acid sequencing",
             "protocolType": {
               "annotationValue": "nucleic acid sequencing",
               "termAccession": "",
@@ -510,22 +510,22 @@
             "description": "",
             "uri": "",
             "version": "",
-              "parameters": [
-                {
-                  "@id": "#parameter/362",
-                  "parameterName": {
-                    "annotationValue": "PLATFORM",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
-                },
-                {
-                  "@id": "#parameter/363",
-                  "parameterName": {
-                    "annotationValue": "INSTRUMENT_MODEL",
-                    "termAccession": "",
-                    "termSource": ""
-                  }
+            "parameters": [
+              {
+                "@id": "#parameter/362",
+                "parameterName": {
+                  "annotationValue": "PLATFORM",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/363",
+                "parameterName": {
+                  "annotationValue": "INSTRUMENT_MODEL",
+                  "termAccession": "",
+                  "termSource": ""
+                }
               }
             ],
             "components": [

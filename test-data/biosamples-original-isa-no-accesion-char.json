@@ -652,8 +652,8 @@
                   ],
                   "comments": [
                      {
-                         "name": "target_repository",
-                         "value": "ena"
+                        "name": "target_repository",
+                        "value": "ena"
                      }
                   ],
                   "materials": {
