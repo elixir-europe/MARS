@@ -13,12 +13,12 @@ import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 
 /**
- * Service for creating ENA STUDY XML elements from ISA-JSON assay comments.
+ * Service for creating ENA STUDY XML elements from ISA-JSON.
  *
  * <p>Each assay is treated as the ENA study unit so the ENA study alias can be mapped back to the
- * assay path in the MARS receipt. Study descriptor values are read directly from assay comments
- * using ENA-native field names such as STUDY_TITLE, STUDY_DESCRIPTION,
- * STUDY_ABSTRACT, STUDY_TYPE, and new_study_type.
+ * assay path in the MARS receipt. Core study descriptor values come from the ISA Study itself,
+ * while ENA-specific study fields such as STUDY_ABSTRACT, STUDY_TYPE, and new_study_type are read
+ * from assay comments.
  */
 @Service
 @Slf4j
@@ -26,8 +26,6 @@ public class WebinStudyXmlCreator {
   private static final Set<String> RESERVED_ASSAY_COMMENT_NAMES =
       Set.of(
           "target_repository",
-          "STUDY_TITLE",
-          "STUDY_DESCRIPTION",
           "STUDY_ABSTRACT",
           "STUDY_TYPE",
           "existing_study_type",
@@ -67,17 +65,21 @@ public class WebinStudyXmlCreator {
     final String assayId = requireAssayField(assay.getId(), "assay @id");
 
     final Element studyElement =
-        studySetElement.addElement("STUDY").addAttribute("alias", assayId + "-" + randomSubmissionIdentifier);
+        studySetElement
+            .addElement("STUDY")
+            .addAttribute("alias", assayId + "-" + randomSubmissionIdentifier);
 
     final Element studyDescriptorElement = studyElement.addElement("DESCRIPTOR");
     studyDescriptorElement
         .addElement("STUDY_TITLE")
-        .addText(requireAssayComment(assayCommentMap, "STUDY_TITLE", assayId));
+        .addText(requireStudyField(study != null ? study.getTitle() : null, "study title", assayId));
 
     addOptionalTextElement(
-        studyDescriptorElement, "STUDY_DESCRIPTION", assayCommentMap.get("STUDY_DESCRIPTION"));
+        studyDescriptorElement, "STUDY_DESCRIPTION", study != null ? study.getDescription() : null);
     addOptionalTextElement(
-        studyDescriptorElement, "STUDY_ABSTRACT", assayCommentMap.get("STUDY_ABSTRACT"));
+        studyDescriptorElement,
+        "STUDY_ABSTRACT",
+        firstNonBlank(assayCommentMap.get("STUDY_ABSTRACT"), study != null ? study.getDescription() : null));
 
     final Element studyTypeElement = studyDescriptorElement.addElement("STUDY_TYPE");
     studyTypeElement.addAttribute(
@@ -147,14 +149,11 @@ public class WebinStudyXmlCreator {
     }
   }
 
-  private String requireAssayComment(
-      final Map<String, String> assayCommentMap,
-      final String commentName,
-      final String assayId) {
-    final String value = assayCommentMap.get(commentName);
+  private String requireStudyField(
+      final String value, final String fieldName, final String assayId) {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException(
-          "Assay " + assayId + " is missing required ENA study comment " + commentName + ".");
+          "Assay " + assayId + " cannot create an ENA STUDY because the " + fieldName + " is missing.");
     }
     return value;
   }
@@ -176,5 +175,14 @@ public class WebinStudyXmlCreator {
       }
     }
     return commentNames[0];
+  }
+
+  private String firstNonBlank(final String... values) {
+    for (String value : values) {
+      if (value != null && !value.isBlank()) {
+        return value;
+      }
+    }
+    return null;
   }
 }
