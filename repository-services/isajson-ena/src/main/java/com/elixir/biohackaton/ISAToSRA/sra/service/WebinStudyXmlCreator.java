@@ -158,6 +158,18 @@ public class WebinStudyXmlCreator {
     return value;
   }
 
+  private String requireAssayComment(
+      final Map<String, String> assayCommentMap,
+      final String commentName,
+      final String assayId) {
+    final String value = assayCommentMap.get(commentName);
+    if (value == null || value.isBlank()) {
+      throw new IllegalArgumentException(
+          "Assay " + assayId + " is missing required ENA study comment " + commentName + ".");
+    }
+    return value;
+  }
+
   private String requireAssayField(final String value, final String fieldName) {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException(
