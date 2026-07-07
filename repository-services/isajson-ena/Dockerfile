@@ -1,26 +1,31 @@
-# Builder stage: Use gradle image to compile jar file
-FROM gradle:jdk11 AS builder
+# Builder stage
+FROM gradle:jdk17 AS builder
 
 WORKDIR /app
 
-COPY . .
+USER root
+COPY repository-services/receipt /app/receipt
+COPY repository-services/isajson-ena /app/isajson-ena
 
+# Build receipt first (dependency)
 WORKDIR /app/receipt
-RUN ./gradlew build
-RUN ./gradlew publishToMavenLocal
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    ./gradlew build && \
+    ./gradlew publishToMavenLocal
 
+# Build isajson-ena
 WORKDIR /app/isajson-ena
-RUN ./gradlew build -x test -x spotlessApply --info --stacktrace "-Dorg.gradle.jvmargs=--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+RUN sed -i 's/\r$//' gradlew && \
+    chmod +x gradlew && \
+    ./gradlew build -x test -x spotlessApply -x spotlessJavaCheck --info --stacktrace
 
-# Use a lightweight base image to run the jar file
-FROM openjdk:11-jre-slim
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+
 WORKDIR /app
 
-ARG JAR_FILE=/app/isajson-ena/build/libs/*.jar
+# Copy the built JAR
+COPY --from=builder /app/isajson-ena/build/libs/*.jar app.jar
 
-# Copy the JAR file from the builder stage
-COPY --from=builder ${JAR_FILE} app.jar
-
-# Set the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

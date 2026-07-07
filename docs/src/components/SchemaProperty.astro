@@ -1,0 +1,13 @@
+---
+const { name, property } = Astro.props;
+const propertyType = property.type ?? 'any';
+const propertyDefaultValue = property.default ?? 'N/A';
+const propertyTitle = property.title ?? 'Undefined';
+---
+<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+    <th class="px-6 py-4 text-center">{name}</th>
+    <td class="px-6 py-4 text-center">{propertyType}</td>
+    <td class="px-6 py-4 text-center">{property.description ?? 'N/A'}</td>
+    <td class="px-6 py-4 text-center">{property.required ? 'Yes' : 'No'}</td>
+    <td class="px-6 py-4 text-center">{propertyDefaultValue}</td>
+</tr>
