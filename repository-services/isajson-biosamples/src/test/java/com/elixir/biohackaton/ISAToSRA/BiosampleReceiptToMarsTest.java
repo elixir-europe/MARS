@@ -122,6 +122,41 @@ class BiosampleReceiptToMarsTest {
         hasAttribute(rootSample, "sample preservation", "flash frozen in liquid nitrogen"));
   }
 
+  @Test
+  void createBioSamplesSupportsMultipleChildSamplesFromTheSameSource() throws Exception {
+    final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    final ObjectMapper objectMapper = new ObjectMapper();
+    final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
+    final Study study = isaJson.getInvestigation().getStudies().get(0);
+
+    study.getMaterials().getSamples().stream()
+        .filter(sample -> "root 1".equals(sample.getName()))
+        .findFirst()
+        .orElseThrow()
+        .getDerivesFrom()
+        .get(0)
+        .setId("#source/330");
+    study.getProcessSequence().stream()
+        .filter(process -> "#process/sample_collection/431".equals(process.getId()))
+        .findFirst()
+        .orElseThrow()
+        .getInputs()
+        .get(0)
+        .setId("#source/330");
+
+    final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
+    bioSamplesSubmitter.createBioSamples(isaJson.getInvestigation().getStudies(), "test-token");
+
+    final BioSample leafSample = bioSamplesSubmitter.updatedSampleByName("leaf 1");
+    final BioSample rootSample = bioSamplesSubmitter.updatedSampleByName("root 1");
+
+    Assertions.assertEquals("SAMEA_TEST_1", derivedFromTarget(leafSample));
+    Assertions.assertEquals("SAMEA_TEST_1", derivedFromTarget(rootSample));
+    Assertions.assertTrue(hasAttribute(rootSample, "organism part", "root"));
+    Assertions.assertTrue(hasAttribute(rootSample, "collection method", "washed root excision"));
+  }
+
   private static String derivedFromTarget(final BioSample sample) {
     return sample.getRelationships().stream()
         .filter(relationship -> "derived from".equals(relationship.getType()))
