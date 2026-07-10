@@ -207,6 +207,64 @@ class WebinExperimentXmlCreatorTest {
   }
 
   @Test
+  void testExperimentMetadataCanComeFromOtherMaterialCharacteristics() throws Exception {
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final List<Study> studies = isaJson.getInvestigation().getStudies();
+    final Assay assay = studies.get(0).getAssays().get(0);
+    final String randomSubmissionIdentifier = "test-material-metadata";
+    final Map<String, String> bioSampleAccessions = new HashMap<>();
+    bioSampleAccessions.put("SOURCE", "SAMEA130793922");
+
+    final ProcessSequence libraryConstructionProcess =
+        assay.getProcessSequence().stream()
+            .filter(process -> "#process/library_construction/333".equals(process.getId()))
+            .findFirst()
+            .orElseThrow();
+    libraryConstructionProcess
+        .getParameterValues()
+        .removeIf(
+            parameterValue ->
+                parameterValue.getCategory() != null
+                    && "#parameter/353".equals(parameterValue.getCategory().getId()));
+
+    final CharacteristicCategory strategyCategory = new CharacteristicCategory();
+    strategyCategory.setId("#characteristic_category/library_strategy_test");
+    final CharacteristicType strategyType = new CharacteristicType();
+    strategyType.setAnnotationValue("LIBRARY_STRATEGY");
+    strategyCategory.setCharacteristicType(strategyType);
+    assay.getCharacteristicCategories().add(strategyCategory);
+
+    final OtherMaterial extract =
+        assay.getMaterials().getOtherMaterials().stream()
+            .filter(material -> "#other_material/332".equals(material.getId()))
+            .findFirst()
+            .orElseThrow();
+    final Characteristic strategyCharacteristic = new Characteristic();
+    final Category strategyCharacteristicCategory = new Category();
+    strategyCharacteristicCategory.setId("#characteristic_category/library_strategy_test");
+    strategyCharacteristic.setCategory(strategyCharacteristicCategory);
+    final Value strategyValue = new Value();
+    strategyValue.setAnnotationValue("WGS");
+    strategyCharacteristic.setValue(strategyValue);
+    extract.getCharacteristics().add(strategyCharacteristic);
+
+    experimentXmlCreator.createENAExperimentSetElement(
+        bioSampleAccessions, webinElement, studies, randomSubmissionIdentifier);
+
+    final Element experimentSet = webinElement.element("EXPERIMENT_SET");
+    @SuppressWarnings("unchecked")
+    final List<Element> experiments = experimentSet.elements("EXPERIMENT");
+    final Element libraryDescriptor =
+        experiments.get(0).element("DESIGN").element("LIBRARY_DESCRIPTOR");
+
+    Assertions.assertEquals(
+        "WGS",
+        libraryDescriptor.elementText("LIBRARY_STRATEGY"),
+        "LIBRARY_STRATEGY should come from other-material characteristics when process metadata is absent");
+  }
+
+  @Test
   void testCreateENAExperimentSetElementWithMultipleDataFiles() throws Exception {
     // This test verifies that multiple data files from the same library
     // only create one experiment (deduplication)

@@ -182,6 +182,12 @@ public class WebinExperimentXmlCreator {
         findMaterialLineageToSample(library, assay.getMaterials());
     final ProcessSequence libraryConstructionProcess =
         findProcessByOutputId(assay.getProcessSequence(), library.getId());
+    final List<ProcessSequence> experimentProcesses =
+        findExperimentProcesses(
+            assay.getProcessSequence(),
+            libraryConstructionProcess,
+            sequencingProcess,
+            materialLineage);
 
     createExperimentElement(
         root,
@@ -189,8 +195,7 @@ public class WebinExperimentXmlCreator {
         library,
         materialLineage,
         assay,
-        libraryConstructionProcess,
-        sequencingProcess,
+        experimentProcesses,
         protocolToParameterNameMap,
         bioSampleAccessions,
         experimentId,
@@ -253,6 +258,44 @@ public class WebinExperimentXmlCreator {
     return null;
   }
 
+  private List<ProcessSequence> findExperimentProcesses(
+      final List<ProcessSequence> assayProcesses,
+      final ProcessSequence libraryConstructionProcess,
+      final ProcessSequence sequencingProcess,
+      final List<OtherMaterial> materialLineage) {
+    final List<ProcessSequence> experimentProcesses = new ArrayList<>();
+    final Set<String> processIds = new HashSet<>();
+
+    addExperimentProcess(experimentProcesses, processIds, libraryConstructionProcess);
+    addExperimentProcess(experimentProcesses, processIds, sequencingProcess);
+
+    if (materialLineage == null) {
+      return experimentProcesses;
+    }
+
+    for (final OtherMaterial material : materialLineage) {
+      if (material == null || material.getId() == null) {
+        continue;
+      }
+
+      addExperimentProcess(
+          experimentProcesses, processIds, findProcessByOutputId(assayProcesses, material.getId()));
+    }
+
+    return experimentProcesses;
+  }
+
+  private void addExperimentProcess(
+      final List<ProcessSequence> experimentProcesses,
+      final Set<String> processIds,
+      final ProcessSequence process) {
+    if (process == null || process.getId() == null || !processIds.add(process.getId())) {
+      return;
+    }
+
+    experimentProcesses.add(process);
+  }
+
   private List<OtherMaterial> findMaterialLineageToSample(
       final OtherMaterial material, final Materials materials) {
     final List<OtherMaterial> materialLineage = new ArrayList<>();
@@ -313,19 +356,16 @@ public class WebinExperimentXmlCreator {
       final OtherMaterial library,
       final List<OtherMaterial> materialLineage,
       final Assay assay,
-      final ProcessSequence libraryConstructionProcess,
-      final ProcessSequence sequencingProcess,
+      final List<ProcessSequence> experimentProcesses,
       final Map<String, Map<String, String>> protocolToParameterNameMap,
       final Map<String, String> bioSampleAccessions,
       final String experimentId,
       final String randomSubmissionIdentifier) {
-    final Map<String, String> libraryParameters =
-        extractParameterValues(libraryConstructionProcess, protocolToParameterNameMap);
-    final Map<String, String> sequencingParameters =
-        extractParameterValues(sequencingProcess, protocolToParameterNameMap);
-    final Map<String, String> materialCharacteristics =
-        extractMaterialCharacteristicValues(
-            materialLineage, buildCharacteristicKeyLookup(study, assay));
+    final ExperimentMetadata experimentMetadata =
+        new ExperimentMetadata(
+            extractParameterValues(experimentProcesses, protocolToParameterNameMap),
+            extractMaterialCharacteristicValues(
+                materialLineage, buildCharacteristicKeyLookup(study, assay)));
 
     final Element experimentElement = root.addElement("EXPERIMENT");
     experimentElement.addAttribute("alias", experimentId);
@@ -333,11 +373,7 @@ public class WebinExperimentXmlCreator {
         .addElement("TITLE")
         .addText(
             firstNonBlank(
-                getMetadataValue(libraryParameters, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
-                getMetadataValue(
-                    sequencingParameters, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
-                getMetadataValue(
-                    materialCharacteristics, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
+                experimentMetadata.get("EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
                 library.getName()));
     experimentElement
         .addElement("STUDY_REF")
@@ -346,9 +382,7 @@ public class WebinExperimentXmlCreator {
     final Element designElement = experimentElement.addElement("DESIGN");
     designElement
         .addElement("DESIGN_DESCRIPTION")
-        .addText(
-            requireMetadataValue(
-                libraryParameters, materialCharacteristics, "DESIGN_DESCRIPTION"));
+        .addText(experimentMetadata.require("DESIGN_DESCRIPTION"));
 
     final String sampleAccession = resolveSampleAccessionForLibrary(study, assay, library);
     designElement
@@ -356,9 +390,8 @@ public class WebinExperimentXmlCreator {
         .addAttribute("accession", requireValue(sampleAccession, "BioSamples sample accession"));
 
     final Element libraryDescriptorElement = designElement.addElement("LIBRARY_DESCRIPTOR");
-    addLibraryDescriptor(
-        libraryDescriptorElement, library, libraryParameters, materialCharacteristics);
-    addPlatform(experimentElement, sequencingParameters, materialCharacteristics);
+    addLibraryDescriptor(libraryDescriptorElement, library, experimentMetadata);
+    addPlatform(experimentElement, experimentMetadata);
   }
 
   /**
@@ -561,6 +594,23 @@ public class WebinExperimentXmlCreator {
    * used directly in the ISA without an extra mapping layer.
    */
   private Map<String, String> extractParameterValues(
+      final List<ProcessSequence> processSequences,
+      final Map<String, Map<String, String>> protocolToParameterNameMap) {
+    final Map<String, String> parameterValuesByName = new HashMap<>();
+
+    if (processSequences == null) {
+      return parameterValuesByName;
+    }
+
+    for (final ProcessSequence processSequence : processSequences) {
+      extractParameterValues(processSequence, protocolToParameterNameMap)
+          .forEach(parameterValuesByName::putIfAbsent);
+    }
+
+    return parameterValuesByName;
+  }
+
+  private Map<String, String> extractParameterValues(
       final ProcessSequence processSequence,
       final Map<String, Map<String, String>> protocolToParameterNameMap) {
     final Map<String, String> parameterValuesByName = new HashMap<>();
@@ -584,7 +634,8 @@ public class WebinExperimentXmlCreator {
           || parameterValue.getCategory() == null
           || parameterValue.getCategory().getId() == null
           || parameterValue.getValue() == null
-          || parameterValue.getValue().getAnnotationValue() == null) {
+          || parameterValue.getValue().getAnnotationValue() == null
+          || parameterValue.getValue().getAnnotationValue().isBlank()) {
         continue;
       }
 
@@ -603,64 +654,49 @@ public class WebinExperimentXmlCreator {
   private void addLibraryDescriptor(
       final Element libraryDescriptorElement,
       final OtherMaterial library,
-      final Map<String, String> libraryParameters,
-      final Map<String, String> materialCharacteristics) {
+      final ExperimentMetadata experimentMetadata) {
     addOptionalTextElement(
         libraryDescriptorElement,
         "LIBRARY_NAME",
         firstNonBlank(
-            getMetadataValue(libraryParameters, "LIBRARY_NAME", "LIBRARY NAME"),
-            getMetadataValue(materialCharacteristics, "LIBRARY_NAME", "LIBRARY NAME"),
+            experimentMetadata.get("LIBRARY_NAME", "LIBRARY NAME"),
             library.getName()));
     libraryDescriptorElement
         .addElement("LIBRARY_STRATEGY")
-        .addText(
-            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_STRATEGY"));
+        .addText(experimentMetadata.require("LIBRARY_STRATEGY"));
     libraryDescriptorElement
         .addElement("LIBRARY_SOURCE")
-        .addText(
-            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_SOURCE"));
+        .addText(experimentMetadata.require("LIBRARY_SOURCE"));
     libraryDescriptorElement
         .addElement("LIBRARY_SELECTION")
-        .addText(
-            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_SELECTION"));
+        .addText(experimentMetadata.require("LIBRARY_SELECTION"));
 
     final Element libraryLayoutElement = libraryDescriptorElement.addElement("LIBRARY_LAYOUT");
-    final String layout =
-        requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_LAYOUT");
+    final String layout = experimentMetadata.require("LIBRARY_LAYOUT");
     final Element layoutElement = libraryLayoutElement.addElement(layout);
 
     if ("PAIRED".equals(layout)) {
       addOptionalAttribute(
-          layoutElement,
-          "NOMINAL_LENGTH",
-          resolveExperimentMetadata(libraryParameters, materialCharacteristics, "NOMINAL_LENGTH"));
+          layoutElement, "NOMINAL_LENGTH", experimentMetadata.get("NOMINAL_LENGTH"));
       addOptionalAttribute(
-          layoutElement,
-          "NOMINAL_SDEV",
-          resolveExperimentMetadata(libraryParameters, materialCharacteristics, "NOMINAL_SDEV"));
+          layoutElement, "NOMINAL_SDEV", experimentMetadata.get("NOMINAL_SDEV"));
     }
 
     addOptionalTextElement(
         libraryDescriptorElement,
         "POOLING_STRATEGY",
-        resolveExperimentMetadata(libraryParameters, materialCharacteristics, "POOLING_STRATEGY"));
+        experimentMetadata.get("POOLING_STRATEGY"));
     addOptionalTextElement(
         libraryDescriptorElement,
         "LIBRARY_CONSTRUCTION_PROTOCOL",
-        resolveExperimentMetadata(
-            libraryParameters, materialCharacteristics, "LIBRARY_CONSTRUCTION_PROTOCOL"));
+        experimentMetadata.get("LIBRARY_CONSTRUCTION_PROTOCOL"));
   }
 
   /** Populates the ENA PLATFORM block directly from sequencing-process parameters. */
   private void addPlatform(
-      final Element experimentElement,
-      final Map<String, String> sequencingParameters,
-      final Map<String, String> materialCharacteristics) {
-    final String platform =
-        requireMetadataValue(sequencingParameters, materialCharacteristics, "PLATFORM");
-    final String instrumentModel =
-        requireMetadataValue(sequencingParameters, materialCharacteristics, "INSTRUMENT_MODEL");
+      final Element experimentElement, final ExperimentMetadata experimentMetadata) {
+    final String platform = experimentMetadata.require("PLATFORM");
+    final String instrumentModel = experimentMetadata.require("INSTRUMENT_MODEL");
 
     final Element platformElement = experimentElement.addElement("PLATFORM");
     final Element platformTypeElement = platformElement.addElement(platform);
@@ -679,24 +715,6 @@ public class WebinExperimentXmlCreator {
     if (value != null && !value.isBlank()) {
       element.addAttribute(attributeName, value);
     }
-  }
-
-  private String requireMetadataValue(
-      final Map<String, String> processMetadata,
-      final Map<String, String> materialMetadata,
-      final String metadataName) {
-    return requireValue(
-        resolveExperimentMetadata(processMetadata, materialMetadata, metadataName),
-        "metadata " + metadataName);
-  }
-
-  private String resolveExperimentMetadata(
-      final Map<String, String> processMetadata,
-      final Map<String, String> materialMetadata,
-      final String metadataName) {
-    return firstNonBlank(
-        getMetadataValue(processMetadata, metadataName),
-        getMetadataValue(materialMetadata, metadataName));
   }
 
   private String getMetadataValue(final Map<String, String> metadata, final String... metadataNames) {
@@ -738,6 +756,27 @@ public class WebinExperimentXmlCreator {
     }
 
     return metadataKey.replaceAll("[^A-Za-z0-9]", "").toLowerCase(Locale.ROOT);
+  }
+
+  private class ExperimentMetadata {
+    private final Map<String, String> processMetadata;
+    private final Map<String, String> materialMetadata;
+
+    private ExperimentMetadata(
+        final Map<String, String> processMetadata, final Map<String, String> materialMetadata) {
+      this.processMetadata = processMetadata;
+      this.materialMetadata = materialMetadata;
+    }
+
+    private String get(final String... metadataNames) {
+      return firstNonBlank(
+          getMetadataValue(processMetadata, metadataNames),
+          getMetadataValue(materialMetadata, metadataNames));
+    }
+
+    private String require(final String metadataName) {
+      return requireValue(get(metadataName), "metadata " + metadataName);
+    }
   }
 
   private String requireValue(final String value, final String fieldName) {
