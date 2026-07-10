@@ -9,7 +9,6 @@ import com.elixir.biohackaton.ISAToSRA.receipt.ReceiptAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.EntityModel;
@@ -23,58 +22,52 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @Slf4j
 public class BioSamplesSubmitter {
+  private static final String ORGANISM_ATTRIBUTE = "organism";
+  private static final String TAX_ID_ATTRIBUTE = "tax_id";
+  private static final String COLLECTION_DATE_ATTRIBUTE = "collection date";
+  private static final String GEOGRAPHIC_LOCATION_ATTRIBUTE =
+      "geographic location (country and/or sea)";
+
   public BiosampleAccessionsMap createBioSamples(
       final List<Study> studies, final String webinToken) {
     final BiosampleAccessionsMap typeToBioSamplesAccessionMap = new BiosampleAccessionsMap();
 
     try {
-      final Map<String, BioSample> sourceBioSamplesById =
-          this.createSourceBioSamplesById(studies, webinToken);
-
       typeToBioSamplesAccessionMap.sourceAccessionsMap.isaItemName = Source.Fields.name;
-      sourceBioSamplesById
-          .values()
-          .forEach(
-              sourceBioSample ->
-                  typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
-                      sourceBioSample.getName(), sourceBioSample.getAccession()));
+      typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName = Sample.Fields.name;
 
-      studies.forEach(
-          study -> {
-            final Map<String, String> characteristicKeyLookup =
-                buildCharacteristicKeyLookup(study);
-            final Map<String, Map<String, String>> protocolToParameterNameMap =
-                buildProtocolToParameterNameLookup(study);
-            typeToBioSamplesAccessionMap.studyAccessionsMap =
-                new ReceiptAccessionsMap(Study.Fields.title, study.getTitle());
+      for (final Study study : studies) {
+        final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study);
+        final Map<String, Map<String, String>> protocolToParameterNameMap =
+            buildProtocolToParameterNameLookup(study);
+        // Keep the source lookup scoped to the study; ISA material ids are not safely global.
+        final Map<String, BioSample> sourceBioSamplesById =
+            createSourceBioSamplesById(study, characteristicKeyLookup, webinToken);
 
-            study
-                .getMaterials()
-                .getSamples()
-                .forEach(
-                    sample -> {
-                      final ProcessSequence sampleCollectionProcess =
-                          findProcessByOutputId(study.getProcessSequence(), sample.getId());
-                      final BioSample sourceBioSample =
-                          findSourceBioSampleForSample(
-                              sample, sampleCollectionProcess, sourceBioSamplesById);
-                      final BioSample persistedChildSample =
-                          this.createAndUpdateChildSampleWithRelationship(
-                              sample,
-                              sourceBioSample,
-                              webinToken,
-                              characteristicKeyLookup,
-                              protocolToParameterNameMap,
-                              sampleCollectionProcess);
+        addSourceAccessions(typeToBioSamplesAccessionMap, sourceBioSamplesById.values());
+        typeToBioSamplesAccessionMap.studyAccessionsMap =
+            new ReceiptAccessionsMap(Study.Fields.title, study.getTitle());
 
-                      if (persistedChildSample != null) {
-                        typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName =
-                            Sample.Fields.name;
-                        typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
-                            persistedChildSample.getName(), persistedChildSample.getAccession());
-                      }
-                    });
-          });
+        for (final Sample sample : study.getMaterials().getSamples()) {
+          final ProcessSequence sampleCollectionProcess =
+              findProcessByOutputId(study.getProcessSequence(), sample.getId());
+          final BioSample sourceBioSample =
+              findSourceBioSampleForSample(sample, sampleCollectionProcess, sourceBioSamplesById);
+          final BioSample persistedChildSample =
+              this.createAndUpdateChildSampleWithRelationship(
+                  sample,
+                  sourceBioSample,
+                  webinToken,
+                  characteristicKeyLookup,
+                  protocolToParameterNameMap,
+                  sampleCollectionProcess);
+
+          if (persistedChildSample != null) {
+            typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
+                persistedChildSample.getName(), persistedChildSample.getAccession());
+          }
+        }
+      }
     } catch (final Exception e) {
       throw new RuntimeException("Failed to parse ISA Json and create samples in BioSamples", e);
     }
@@ -90,16 +83,12 @@ public class BioSamplesSubmitter {
       final Map<String, Map<String, String>> protocolToParameterNameMap,
       final ProcessSequence sampleCollectionProcess) {
     final SortedSet<Attribute> childSampleAttributes =
-        buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
-    addAttributesIfMissing(
-        childSampleAttributes,
-        buildAttributesFromProcessParameters(
-            sampleCollectionProcess, protocolToParameterNameMap));
-    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "organism");
-    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, "tax_id");
-    copySourceAttributeIfMissing(childSampleAttributes, sourceBioSample, "collection date");
-    copySourceAttributeIfMissing(
-        childSampleAttributes, sourceBioSample, "geographic location (country and/or sea)");
+        buildChildSampleAttributes(
+            sample,
+            sourceBioSample,
+            characteristicKeyLookup,
+            protocolToParameterNameMap,
+            sampleCollectionProcess);
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
@@ -128,48 +117,73 @@ public class BioSamplesSubmitter {
     }
   }
 
+  private SortedSet<Attribute> buildChildSampleAttributes(
+      final Sample sample,
+      final BioSample sourceBioSample,
+      final Map<String, String> characteristicKeyLookup,
+      final Map<String, Map<String, String>> protocolToParameterNameMap,
+      final ProcessSequence sampleCollectionProcess) {
+    final SortedSet<Attribute> childSampleAttributes =
+        buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
+
+    // Direct sample characteristics are the most specific metadata; process parameters only fill
+    // BioSample attributes that are not already present on the output sample.
+    addAttributesIfMissing(
+        childSampleAttributes,
+        buildAttributesFromProcessParameters(
+            sampleCollectionProcess, protocolToParameterNameMap));
+
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, ORGANISM_ATTRIBUTE);
+    synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, TAX_ID_ATTRIBUTE);
+    copySourceAttributeIfMissing(
+        childSampleAttributes, sourceBioSample, COLLECTION_DATE_ATTRIBUTE);
+    copySourceAttributeIfMissing(
+        childSampleAttributes, sourceBioSample, GEOGRAPHIC_LOCATION_ATTRIBUTE);
+
+    return childSampleAttributes;
+  }
+
   private Map<String, BioSample> createSourceBioSamplesById(
-      final List<Study> studies, final String webinToken) {
+      final Study study,
+      final Map<String, String> characteristicKeyLookup,
+      final String webinToken) {
     final Map<String, BioSample> biosamplesBySourceId = new LinkedHashMap<>();
 
-    studies.forEach(
-        study ->
-            study
-                .getMaterials()
-                .getSources()
-                .forEach(
-                    source -> {
-                      final Map<String, String> characteristicKeyLookup =
-                          buildCharacteristicKeyLookup(study);
-                      final SortedSet<Attribute> attributes =
-                          buildAttributesFromCharacteristics(
-                              source.getCharacteristics(), characteristicKeyLookup);
-                          final BioSample sourceSample =
-                              new BioSample.Builder(source.getName())
-                                  .withRelease(Instant.now())
-                                  .withAttributes(attributes)
-                                  .build();
-                      biosamplesBySourceId.put(
-                          source.getId(), this.createSampleInBioSamples(sourceSample, webinToken));
-                    }));
+    for (final Source source : study.getMaterials().getSources()) {
+      final SortedSet<Attribute> attributes =
+          buildAttributesFromCharacteristics(source.getCharacteristics(), characteristicKeyLookup);
+      final BioSample sourceSample =
+          new BioSample.Builder(source.getName())
+              .withRelease(Instant.now())
+              .withAttributes(attributes)
+              .build();
+      biosamplesBySourceId.put(
+          source.getId(), this.createSampleInBioSamples(sourceSample, webinToken));
+    }
 
     return biosamplesBySourceId;
+  }
+
+  private void addSourceAccessions(
+      final BiosampleAccessionsMap typeToBioSamplesAccessionMap,
+      final Collection<BioSample> sourceBioSamples) {
+    sourceBioSamples.forEach(
+        sourceBioSample ->
+            typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
+                sourceBioSample.getName(), sourceBioSample.getAccession()));
   }
 
   private BioSample findSourceBioSampleForSample(
       final Sample sample,
       final ProcessSequence sampleCollectionProcess,
       final Map<String, BioSample> sourceBioSamplesById) {
-    final Optional<String> sampleSourceId =
-        findSourceIdFromSampleDerivesFrom(sample, sourceBioSamplesById);
-    if (sampleSourceId.isPresent()) {
-      return sourceBioSamplesById.get(sampleSourceId.get());
-    }
-
-    final Optional<String> processSourceId =
-        findSourceIdFromProcessInputs(sampleCollectionProcess, sourceBioSamplesById);
-    if (processSourceId.isPresent()) {
-      return sourceBioSamplesById.get(processSourceId.get());
+    // Prefer explicit material lineage, but fall back to the process input for ISA exports that
+    // only carry the source-to-sample relationship in processSequence.
+    final Optional<String> sourceId =
+        findSourceIdFromSampleDerivesFrom(sample, sourceBioSamplesById)
+            .or(() -> findSourceIdFromProcessInputs(sampleCollectionProcess, sourceBioSamplesById));
+    if (sourceId.isPresent()) {
+      return sourceBioSamplesById.get(sourceId.get());
     }
 
     if (sourceBioSamplesById.size() == 1) {
@@ -393,18 +407,14 @@ public class BioSamplesSubmitter {
       final SortedSet<Attribute> childAttributes,
       final BioSample sourceBioSample,
       final String attributeType) {
-    final boolean alreadyPresent =
-        childAttributes.stream()
-            .anyMatch(attribute -> attribute.getType().equalsIgnoreCase(attributeType));
-
-    if (alreadyPresent || sourceBioSample.getAttributes() == null) {
+    if (sourceBioSample.getAttributes() == null) {
       return;
     }
 
     sourceBioSample.getAttributes().stream()
         .filter(attribute -> attribute.getType().equalsIgnoreCase(attributeType))
         .findFirst()
-        .ifPresent(childAttributes::add);
+        .ifPresent(attribute -> addAttributeIfMissing(childAttributes, attribute));
   }
 
   private void synchronizeSharedAttribute(
@@ -431,21 +441,6 @@ public class BioSamplesSubmitter {
     if (childAttribute.isEmpty() && sourceAttribute.isPresent()) {
       childAttributes.add(sourceAttribute.get());
     }
-  }
-
-  private static Characteristic getBioSampleAccessionCharacteristic(
-      AtomicReference<BioSample> biosample) {
-    final Characteristic biosampleAccessionCharacteristic = new Characteristic();
-    final Category biosampleAccessionCategory = new Category();
-    final Value biosampleAccessionValue = new Value();
-
-    biosampleAccessionCategory.setId("#characteristic_category/accession");
-    biosampleAccessionValue.setAnnotationValue(biosample.get().getAccession());
-
-    biosampleAccessionCharacteristic.setCategory(biosampleAccessionCategory);
-    biosampleAccessionCharacteristic.setValue(biosampleAccessionValue);
-
-    return biosampleAccessionCharacteristic;
   }
 
   /**
