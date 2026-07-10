@@ -74,14 +74,29 @@ class BiosampleReceiptToMarsTest {
             .filter(sample -> "leaf 1".equals(sample.getName()))
             .findFirst()
             .orElseThrow();
+    final BioSample sourceSample = bioSamplesSubmitter.createdSampleByName("plant 1");
 
+    Assertions.assertTrue(hasAttribute(sourceSample, "genotype", "Col-0"));
+    Assertions.assertTrue(
+        hasAttribute(sourceSample, "growth condition", "16 h light / 8 h dark growth chamber"));
+    Assertions.assertTrue(hasAttribute(sourceSample, "dev_stage", "vegetative rosette stage"));
+    Assertions.assertTrue(hasAttribute(sourceSample, "isolation_source", "whole plant"));
+    Assertions.assertTrue(hasAttribute(leafSample, "organism part", "leaf"));
+    Assertions.assertTrue(
+        hasAttribute(
+            leafSample,
+            "sample description",
+            "young rosette leaf collected for DNA extraction"));
     Assertions.assertTrue(
         leafSample.getAttributes().stream()
             .anyMatch(
                 attribute ->
                     "isolation_source".equals(attribute.getType())
-                        && "seedling leaf tissue".equals(attribute.getValue())),
+                        && "leaf tissue".equals(attribute.getValue())),
         "Expected child BioSample to include the sample-collection process parameter.");
+    Assertions.assertTrue(hasAttribute(leafSample, "collection method", "sterile scalpel excision"));
+    Assertions.assertTrue(
+        hasAttribute(leafSample, "sample preservation", "flash frozen in liquid nitrogen"));
   }
 
   @Test
@@ -100,7 +115,11 @@ class BiosampleReceiptToMarsTest {
     Assertions.assertEquals("SAMEA_TEST_1", derivedFromTarget(leafSample));
     Assertions.assertEquals("SAMEA_TEST_2", derivedFromTarget(rootSample));
     Assertions.assertTrue(hasAttribute(rootSample, "collection date", "2022-01-03"));
-    Assertions.assertTrue(hasAttribute(rootSample, "isolation_source", "seedling root tissue"));
+    Assertions.assertTrue(hasAttribute(rootSample, "organism part", "root"));
+    Assertions.assertTrue(hasAttribute(rootSample, "isolation_source", "root tissue"));
+    Assertions.assertTrue(hasAttribute(rootSample, "collection method", "washed root excision"));
+    Assertions.assertTrue(
+        hasAttribute(rootSample, "sample preservation", "flash frozen in liquid nitrogen"));
   }
 
   private static String derivedFromTarget(final BioSample sample) {
@@ -121,14 +140,18 @@ class BiosampleReceiptToMarsTest {
   }
 
   private static class CapturingBioSamplesSubmitter extends BioSamplesSubmitter {
+    private final List<BioSample> createdSamples = new ArrayList<>();
     private final List<BioSample> updatedSamples = new ArrayList<>();
     private int accessionSequence = 1;
 
     @Override
     protected BioSample createSampleInBioSamples(final BioSample sample, final String webinToken) {
-      return BioSample.Builder.fromSample(sample)
-          .withAccession("SAMEA_TEST_" + accessionSequence++)
-          .build();
+      final BioSample createdSample =
+          BioSample.Builder.fromSample(sample)
+              .withAccession("SAMEA_TEST_" + accessionSequence++)
+              .build();
+      createdSamples.add(createdSample);
+      return createdSample;
     }
 
     @Override
@@ -140,6 +163,13 @@ class BiosampleReceiptToMarsTest {
 
     private BioSample updatedSampleByName(final String sampleName) {
       return updatedSamples.stream()
+          .filter(sample -> sampleName.equals(sample.getName()))
+          .findFirst()
+          .orElseThrow();
+    }
+
+    private BioSample createdSampleByName(final String sampleName) {
+      return createdSamples.stream()
           .filter(sample -> sampleName.equals(sample.getName()))
           .findFirst()
           .orElseThrow();
