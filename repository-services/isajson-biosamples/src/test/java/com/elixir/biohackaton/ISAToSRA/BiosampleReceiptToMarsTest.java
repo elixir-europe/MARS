@@ -84,6 +84,42 @@ class BiosampleReceiptToMarsTest {
         "Expected child BioSample to include the sample-collection process parameter.");
   }
 
+  @Test
+  void createBioSamplesKeepsEachChildSampleLinkedToItsOwnSource() throws Exception {
+    final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    final ObjectMapper objectMapper = new ObjectMapper();
+    final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
+    final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
+
+    bioSamplesSubmitter.createBioSamples(isaJson.getInvestigation().getStudies(), "test-token");
+
+    final BioSample leafSample = bioSamplesSubmitter.updatedSampleByName("leaf 1");
+    final BioSample rootSample = bioSamplesSubmitter.updatedSampleByName("root 1");
+
+    Assertions.assertEquals("SAMEA_TEST_1", derivedFromTarget(leafSample));
+    Assertions.assertEquals("SAMEA_TEST_2", derivedFromTarget(rootSample));
+    Assertions.assertTrue(hasAttribute(rootSample, "collection date", "2022-01-03"));
+    Assertions.assertTrue(hasAttribute(rootSample, "isolation_source", "seedling root tissue"));
+  }
+
+  private static String derivedFromTarget(final BioSample sample) {
+    return sample.getRelationships().stream()
+        .filter(relationship -> "derived from".equals(relationship.getType()))
+        .findFirst()
+        .orElseThrow()
+        .getTarget();
+  }
+
+  private static boolean hasAttribute(
+      final BioSample sample, final String attributeType, final String attributeValue) {
+    return sample.getAttributes().stream()
+        .anyMatch(
+            attribute ->
+                attributeType.equals(attribute.getType())
+                    && attributeValue.equals(attribute.getValue()));
+  }
+
   private static class CapturingBioSamplesSubmitter extends BioSamplesSubmitter {
     private final List<BioSample> updatedSamples = new ArrayList<>();
     private int accessionSequence = 1;
@@ -100,6 +136,13 @@ class BiosampleReceiptToMarsTest {
         final BioSample sampleWithRelationship, final String webinToken) {
       updatedSamples.add(sampleWithRelationship);
       return sampleWithRelationship;
+    }
+
+    private BioSample updatedSampleByName(final String sampleName) {
+      return updatedSamples.stream()
+          .filter(sample -> sampleName.equals(sample.getName()))
+          .findFirst()
+          .orElseThrow();
     }
   }
 }
