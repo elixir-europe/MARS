@@ -528,7 +528,16 @@
             "description": "",
             "uri": "",
             "version": "",
-            "parameters": [],
+            "parameters": [
+              {
+                "@id": "#parameter/sample_collection_isolation_source",
+                "parameterName": {
+                  "annotationValue": "isolation_source",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              }
+            ],
             "components": [
               {
                 "componentName": "",
@@ -718,7 +727,18 @@
                 "derivesFrom": []
               }
             ],
-            "parameterValues": [],
+            "parameterValues": [
+              {
+                "category": {
+                  "@id": "#parameter/sample_collection_isolation_source"
+                },
+                "value": {
+                  "annotationValue": "seedling leaf tissue",
+                  "termSource": "",
+                  "termAccession": ""
+                }
+              }
+            ],
             "nextProcess": {
               "inputs": [],
               "outputs": [],
@@ -758,7 +778,18 @@
                 "derivesFrom": []
               }
             ],
-            "parameterValues": [],
+            "parameterValues": [
+              {
+                "category": {
+                  "@id": "#parameter/sample_collection_isolation_source"
+                },
+                "value": {
+                  "annotationValue": "seedling root tissue",
+                  "termSource": "",
+                  "termAccession": ""
+                }
+              }
+            ],
             "nextProcess": {
               "inputs": [],
               "outputs": [],

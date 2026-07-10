@@ -429,7 +429,16 @@
                   "description": "",
                   "uri": "",
                   "version": "",
-                  "parameters": [],
+                  "parameters": [
+                     {
+                        "@id": "#parameter/sample_collection_isolation_source",
+                        "parameterName": {
+                           "annotationValue": "isolation_source",
+                           "termAccession": "",
+                           "termSource": ""
+                        }
+                     }
+                  ],
                   "components": [
                      {
                         "componentName": "",
@@ -584,7 +593,18 @@
                   "executesProtocol": {
                      "@id": "#protocol/18_10"
                   },
-                  "parameterValues": [],
+                  "parameterValues": [
+                     {
+                        "category": {
+                           "@id": "#parameter/sample_collection_isolation_source"
+                        },
+                        "value": {
+                           "annotationValue": "seedling leaf tissue",
+                           "termSource": "",
+                           "termAccession": ""
+                        }
+                     }
+                  ],
                   "performer": "",
                   "date": "",
                   "previousProcess": {},
