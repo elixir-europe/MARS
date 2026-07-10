@@ -28,12 +28,16 @@ public class BioSamplesSubmitter {
     final BiosampleAccessionsMap typeToBioSamplesAccessionMap = new BiosampleAccessionsMap();
 
     try {
-      /*TODO: check if it is guaranteed to have one source */
-      final BioSample sourceBioSample = this.createSourceBioSample(studies, webinToken).get(0);
+      final Map<String, BioSample> sourceBioSamplesById =
+          this.createSourceBioSamplesById(studies, webinToken);
 
       typeToBioSamplesAccessionMap.sourceAccessionsMap.isaItemName = Source.Fields.name;
-      typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
-          sourceBioSample.getName(), sourceBioSample.getAccession());
+      sourceBioSamplesById
+          .values()
+          .forEach(
+              sourceBioSample ->
+                  typeToBioSamplesAccessionMap.sourceAccessionsMap.accessionMap.put(
+                      sourceBioSample.getName(), sourceBioSample.getAccession()));
 
       studies.forEach(
           study -> {
@@ -49,6 +53,11 @@ public class BioSamplesSubmitter {
                 .getSamples()
                 .forEach(
                     sample -> {
+                      final ProcessSequence sampleCollectionProcess =
+                          findProcessByOutputId(study.getProcessSequence(), sample.getId());
+                      final BioSample sourceBioSample =
+                          findSourceBioSampleForSample(
+                              sample, sampleCollectionProcess, sourceBioSamplesById);
                       final BioSample persistedChildSample =
                           this.createAndUpdateChildSampleWithRelationship(
                               sample,
@@ -56,7 +65,7 @@ public class BioSamplesSubmitter {
                               webinToken,
                               characteristicKeyLookup,
                               protocolToParameterNameMap,
-                              findProcessByOutputId(study.getProcessSequence(), sample.getId()));
+                              sampleCollectionProcess);
 
                       if (persistedChildSample != null) {
                         typeToBioSamplesAccessionMap.sampleAccessionsMap.isaItemName =
@@ -119,9 +128,9 @@ public class BioSamplesSubmitter {
     }
   }
 
-  private List<BioSample> createSourceBioSample(
+  private Map<String, BioSample> createSourceBioSamplesById(
       final List<Study> studies, final String webinToken) {
-    List<BioSample> biosamples = new ArrayList<>();
+    final Map<String, BioSample> biosamplesBySourceId = new LinkedHashMap<>();
 
     studies.forEach(
         study ->
@@ -135,15 +144,66 @@ public class BioSamplesSubmitter {
                       final SortedSet<Attribute> attributes =
                           buildAttributesFromCharacteristics(
                               source.getCharacteristics(), characteristicKeyLookup);
-                      final BioSample sourceSample =
-                          new BioSample.Builder(source.getName())
-                              .withRelease(Instant.now())
-                              .withAttributes(attributes)
-                              .build();
-                      biosamples.add(this.createSampleInBioSamples(sourceSample, webinToken));
+                          final BioSample sourceSample =
+                              new BioSample.Builder(source.getName())
+                                  .withRelease(Instant.now())
+                                  .withAttributes(attributes)
+                                  .build();
+                      biosamplesBySourceId.put(
+                          source.getId(), this.createSampleInBioSamples(sourceSample, webinToken));
                     }));
 
-    return biosamples;
+    return biosamplesBySourceId;
+  }
+
+  private BioSample findSourceBioSampleForSample(
+      final Sample sample,
+      final ProcessSequence sampleCollectionProcess,
+      final Map<String, BioSample> sourceBioSamplesById) {
+    final Optional<String> sampleSourceId =
+        findSourceIdFromSampleDerivesFrom(sample, sourceBioSamplesById);
+    if (sampleSourceId.isPresent()) {
+      return sourceBioSamplesById.get(sampleSourceId.get());
+    }
+
+    final Optional<String> processSourceId =
+        findSourceIdFromProcessInputs(sampleCollectionProcess, sourceBioSamplesById);
+    if (processSourceId.isPresent()) {
+      return sourceBioSamplesById.get(processSourceId.get());
+    }
+
+    if (sourceBioSamplesById.size() == 1) {
+      return sourceBioSamplesById.values().iterator().next();
+    }
+
+    throw new IllegalArgumentException(
+        "Could not resolve source BioSample for sample " + sample.getId() + ".");
+  }
+
+  private Optional<String> findSourceIdFromSampleDerivesFrom(
+      final Sample sample, final Map<String, BioSample> sourceBioSamplesById) {
+    if (sample == null || sample.getDerivesFrom() == null) {
+      return Optional.empty();
+    }
+
+    return sample.getDerivesFrom().stream()
+        .filter(Objects::nonNull)
+        .map(DerivesFrom::getId)
+        .filter(sourceBioSamplesById::containsKey)
+        .findFirst();
+  }
+
+  private Optional<String> findSourceIdFromProcessInputs(
+      final ProcessSequence processSequence, final Map<String, BioSample> sourceBioSamplesById) {
+    if (processSequence == null || processSequence.getInputs() == null) {
+      return Optional.empty();
+    }
+
+    return processSequence.getInputs().stream()
+        .filter(Objects::nonNull)
+        .map(Input::getId)
+        .filter(sourceBioSamplesById::containsKey)
+        .findFirst();
   }
 
   private ProcessSequence findProcessByOutputId(
