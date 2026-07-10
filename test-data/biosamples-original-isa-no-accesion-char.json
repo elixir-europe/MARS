@@ -624,30 +624,6 @@
                            "termAccession": "",
                            "termSource": ""
                         }
-                     },
-                     {
-                        "@id": "#characteristic_category/submission_date_358",
-                        "characteristicType": {
-                           "annotationValue": "submission date",
-                           "termAccession": "",
-                           "termSource": ""
-                        }
-                     },
-                     {
-                        "@id": "#characteristic_category/status_359",
-                        "characteristicType": {
-                           "annotationValue": "status",
-                           "termAccession": "",
-                           "termSource": ""
-                        }
-                     },
-                     {
-                        "@id": "#characteristic_category/accession_360",
-                        "characteristicType": {
-                           "annotationValue": "accession",
-                           "termAccession": "",
-                           "termSource": ""
-                        }
                      }
                   ],
                   "comments": [
@@ -667,7 +643,18 @@
                            "@id": "#other_material/332",
                            "name": "extract 1",
                            "type": "Extract Name",
-                           "characteristics": [],
+                           "characteristics": [
+                              {
+                                 "category": {
+                                    "@id": "#characteristic_category/Title_350"
+                                 },
+                                 "value": {
+                                    "annotationValue": "Arabidopsis leaf amplicon sequencing experiment",
+                                    "termAccession": "",
+                                    "termSource": ""
+                                 }
+                              }
+                           ],
                            "derivesFrom": [
                               {
                                  "@id": "#sample/331"
@@ -678,68 +665,7 @@
                            "@id": "#other_material/333",
                            "name": "library 1",
                            "type": "Extract Name",
-                           "characteristics": [
-                              {
-                                 "category": {
-                                    "@id": "#characteristic_category/Title_350"
-                                 },
-                                 "value": {
-                                    "annotationValue": "library 1",
-                                    "termSource": "",
-                                    "termAccession": ""
-                                 },
-                                 "unit": {
-                                    "termSource": "",
-                                    "termAccession": "",
-                                    "comments": []
-                                 }
-                              },
-                              {
-                                 "category": {
-                                    "@id": "#characteristic_category/submission_date_358"
-                                 },
-                                 "value": {
-                                    "annotationValue": "",
-                                    "termSource": "",
-                                    "termAccession": ""
-                                 },
-                                 "unit": {
-                                    "termSource": "",
-                                    "termAccession": "",
-                                    "comments": []
-                                 }
-                              },
-                              {
-                                 "category": {
-                                    "@id": "#characteristic_category/status_359"
-                                 },
-                                 "value": {
-                                    "annotationValue": "",
-                                    "termSource": "",
-                                    "termAccession": ""
-                                 },
-                                 "unit": {
-                                    "termSource": "",
-                                    "termAccession": "",
-                                    "comments": []
-                                 }
-                              },
-                              {
-                                 "category": {
-                                    "@id": "#characteristic_category/accession_360"
-                                 },
-                                 "value": {
-                                    "annotationValue": "",
-                                    "termSource": "",
-                                    "termAccession": ""
-                                 },
-                                 "unit": {
-                                    "termSource": "",
-                                    "termAccession": "",
-                                    "comments": []
-                                 }
-                              }
-                           ],
+                           "characteristics": [],
                            "derivesFrom": [
                               {
                                  "@id": "#other_material/332"

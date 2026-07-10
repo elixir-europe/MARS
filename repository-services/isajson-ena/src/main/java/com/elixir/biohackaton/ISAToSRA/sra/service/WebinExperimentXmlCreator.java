@@ -2,6 +2,7 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
+import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Category;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.CharacteristicCategory;
@@ -16,9 +17,11 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ParameterValue;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Sample;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -156,7 +159,7 @@ public class WebinExperimentXmlCreator {
       final String randomSubmissionIdentifier,
       final Map<String, String> experimentSequence,
       final Study study,
-      final com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay assay,
+      final Assay assay,
       final DataFile dataFile) {
     final ProcessSequence sequencingProcess =
         findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
@@ -175,6 +178,8 @@ public class WebinExperimentXmlCreator {
     final String experimentId = library.getId() + "-" + randomSubmissionIdentifier;
     experimentSequence.put(library.getId(), experimentId);
 
+    final List<OtherMaterial> materialLineage =
+        findMaterialLineageToSample(library, assay.getMaterials());
     final ProcessSequence libraryConstructionProcess =
         findProcessByOutputId(assay.getProcessSequence(), library.getId());
 
@@ -182,6 +187,7 @@ public class WebinExperimentXmlCreator {
         root,
         study,
         library,
+        materialLineage,
         assay,
         libraryConstructionProcess,
         sequencingProcess,
@@ -247,12 +253,66 @@ public class WebinExperimentXmlCreator {
     return null;
   }
 
+  private List<OtherMaterial> findMaterialLineageToSample(
+      final OtherMaterial material, final Materials materials) {
+    final List<OtherMaterial> materialLineage = new ArrayList<>();
+    final Map<String, OtherMaterial> otherMaterialsById = buildOtherMaterialsById(materials);
+
+    collectMaterialLineage(material, otherMaterialsById, materialLineage, new HashSet<>());
+
+    return materialLineage;
+  }
+
+  private Map<String, OtherMaterial> buildOtherMaterialsById(final Materials materials) {
+    final Map<String, OtherMaterial> otherMaterialsById = new HashMap<>();
+    if (materials == null || materials.getOtherMaterials() == null) {
+      return otherMaterialsById;
+    }
+
+    for (final OtherMaterial otherMaterial : materials.getOtherMaterials()) {
+      if (otherMaterial != null && otherMaterial.getId() != null) {
+        otherMaterialsById.put(otherMaterial.getId(), otherMaterial);
+      }
+    }
+
+    return otherMaterialsById;
+  }
+
+  private void collectMaterialLineage(
+      final OtherMaterial material,
+      final Map<String, OtherMaterial> otherMaterialsById,
+      final List<OtherMaterial> materialLineage,
+      final Set<String> visitedIds) {
+    if (material == null || material.getId() == null || !visitedIds.add(material.getId())) {
+      return;
+    }
+
+    materialLineage.add(material);
+
+    if (material.getDerivesFrom() == null) {
+      return;
+    }
+
+    for (final DerivesFrom derivesFrom : material.getDerivesFrom()) {
+      if (derivesFrom == null || derivesFrom.getId() == null) {
+        continue;
+      }
+
+      collectMaterialLineage(
+          otherMaterialsById.get(derivesFrom.getId()),
+          otherMaterialsById,
+          materialLineage,
+          visitedIds);
+    }
+  }
+
   /** Creates one ENA EXPERIMENT element using ENA-native assay/process parameter names. */
   private void createExperimentElement(
       final Element root,
       final Study study,
       final OtherMaterial library,
-      final com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay assay,
+      final List<OtherMaterial> materialLineage,
+      final Assay assay,
       final ProcessSequence libraryConstructionProcess,
       final ProcessSequence sequencingProcess,
       final Map<String, Map<String, String>> protocolToParameterNameMap,
@@ -263,12 +323,22 @@ public class WebinExperimentXmlCreator {
         extractParameterValues(libraryConstructionProcess, protocolToParameterNameMap);
     final Map<String, String> sequencingParameters =
         extractParameterValues(sequencingProcess, protocolToParameterNameMap);
+    final Map<String, String> materialCharacteristics =
+        extractMaterialCharacteristicValues(
+            materialLineage, buildCharacteristicKeyLookup(study, assay));
 
     final Element experimentElement = root.addElement("EXPERIMENT");
     experimentElement.addAttribute("alias", experimentId);
     experimentElement
         .addElement("TITLE")
-        .addText(firstNonBlank(libraryParameters.get("TITLE"), libraryParameters.get("LIBRARY_NAME"), library.getName()));
+        .addText(
+            firstNonBlank(
+                getMetadataValue(libraryParameters, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
+                getMetadataValue(
+                    sequencingParameters, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
+                getMetadataValue(
+                    materialCharacteristics, "EXPERIMENT_TITLE", "EXPERIMENT TITLE", "TITLE"),
+                library.getName()));
     experimentElement
         .addElement("STUDY_REF")
         .addAttribute("refname", assay.getId() + "-" + randomSubmissionIdentifier);
@@ -276,7 +346,9 @@ public class WebinExperimentXmlCreator {
     final Element designElement = experimentElement.addElement("DESIGN");
     designElement
         .addElement("DESIGN_DESCRIPTION")
-        .addText(requireParameter(libraryParameters, "DESIGN_DESCRIPTION"));
+        .addText(
+            requireMetadataValue(
+                libraryParameters, materialCharacteristics, "DESIGN_DESCRIPTION"));
 
     final String sampleAccession = resolveSampleAccessionForLibrary(study, assay, library);
     designElement
@@ -284,8 +356,9 @@ public class WebinExperimentXmlCreator {
         .addAttribute("accession", requireValue(sampleAccession, "BioSamples sample accession"));
 
     final Element libraryDescriptorElement = designElement.addElement("LIBRARY_DESCRIPTOR");
-    addLibraryDescriptor(libraryDescriptorElement, library, libraryParameters);
-    addPlatform(experimentElement, sequencingParameters);
+    addLibraryDescriptor(
+        libraryDescriptorElement, library, libraryParameters, materialCharacteristics);
+    addPlatform(experimentElement, sequencingParameters, materialCharacteristics);
   }
 
   /**
@@ -293,7 +366,7 @@ public class WebinExperimentXmlCreator {
    */
   private String resolveSampleAccessionForLibrary(
       final Study study,
-      final com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay assay,
+      final Assay assay,
       final OtherMaterial library) {
     if (study == null || study.getMaterials() == null || study.getMaterials().getSamples() == null) {
       return "";
@@ -306,14 +379,8 @@ public class WebinExperimentXmlCreator {
       }
     }
 
-    final Map<String, OtherMaterial> otherMaterialsById = new HashMap<>();
-    if (assay.getMaterials() != null && assay.getMaterials().getOtherMaterials() != null) {
-      for (final OtherMaterial otherMaterial : assay.getMaterials().getOtherMaterials()) {
-        if (otherMaterial != null && otherMaterial.getId() != null) {
-          otherMaterialsById.put(otherMaterial.getId(), otherMaterial);
-        }
-      }
-    }
+    final Map<String, OtherMaterial> otherMaterialsById =
+        buildOtherMaterialsById(assay.getMaterials());
 
     final Sample sample =
         findSampleForMaterialId(library.getId(), samplesById, otherMaterialsById, new HashSet<>());
@@ -321,7 +388,7 @@ public class WebinExperimentXmlCreator {
       return "";
     }
 
-    final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study);
+    final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study, assay);
     return getCharacteristicAnnotation(sample.getCharacteristics(), characteristicKeyLookup);
   }
 
@@ -360,14 +427,28 @@ public class WebinExperimentXmlCreator {
     return null;
   }
 
-  private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
+  private Map<String, String> buildCharacteristicKeyLookup(final Study study, final Assay assay) {
     final Map<String, String> keyLookup = new HashMap<>();
 
-    if (study == null || study.characteristicCategories == null) {
-      return keyLookup;
+    if (study != null) {
+      addCharacteristicCategories(keyLookup, study.characteristicCategories);
     }
 
-    for (CharacteristicCategory characteristicCategory : study.characteristicCategories) {
+    if (assay != null) {
+      addCharacteristicCategories(keyLookup, assay.characteristicCategories);
+    }
+
+    return keyLookup;
+  }
+
+  private void addCharacteristicCategories(
+      final Map<String, String> keyLookup,
+      final List<CharacteristicCategory> characteristicCategories) {
+    if (characteristicCategories == null) {
+      return;
+    }
+
+    for (CharacteristicCategory characteristicCategory : characteristicCategories) {
       if (characteristicCategory == null
           || characteristicCategory.id == null
           || characteristicCategory.characteristicType == null
@@ -380,8 +461,6 @@ public class WebinExperimentXmlCreator {
           characteristicCategory.id,
           characteristicCategory.characteristicType.annotationValue);
     }
-
-    return keyLookup;
   }
 
   private String getCharacteristicAnnotation(
@@ -395,25 +474,86 @@ public class WebinExperimentXmlCreator {
         continue;
       }
 
-      final Category category = characteristic.category;
       final String characteristicName =
-          category.id != null ? characteristicKeyLookup.get(category.id) : null;
-      final boolean accessionCategoryNameMatches =
-          "accession".equalsIgnoreCase(characteristicName)
-              || (category.characteristicType != null
-                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
-      final boolean accessionCategoryIdMatches =
-          !accessionCategoryNameMatches
-              && category.id != null
-              && category.id.startsWith("#characteristic_category/accession");
+          getCharacteristicName(characteristic.category, characteristicKeyLookup);
 
-      if ((accessionCategoryIdMatches || accessionCategoryNameMatches)
-          && characteristic.value != null) {
+      if (metadataKeyMatches(characteristicName, "accession") && characteristic.value != null) {
         return characteristic.value.annotationValue;
       }
     }
 
     return "";
+  }
+
+  private Map<String, String> extractMaterialCharacteristicValues(
+      final List<OtherMaterial> materialLineage,
+      final Map<String, String> characteristicKeyLookup) {
+    final Map<String, String> characteristicValuesByName = new HashMap<>();
+
+    if (materialLineage == null) {
+      return characteristicValuesByName;
+    }
+
+    for (final OtherMaterial material : materialLineage) {
+      if (material == null || material.getCharacteristics() == null) {
+        continue;
+      }
+
+      for (final Characteristic characteristic : material.getCharacteristics()) {
+        if (characteristic == null
+            || characteristic.getValue() == null
+            || characteristic.getValue().getAnnotationValue() == null) {
+          continue;
+        }
+
+        final String characteristicName =
+            getCharacteristicName(characteristic.getCategory(), characteristicKeyLookup);
+        if (characteristicName == null || characteristicName.isBlank()) {
+          continue;
+        }
+
+        characteristicValuesByName.putIfAbsent(
+            characteristicName, characteristic.getValue().getAnnotationValue());
+      }
+    }
+
+    return characteristicValuesByName;
+  }
+
+  private String getCharacteristicName(
+      final Category category, final Map<String, String> characteristicKeyLookup) {
+    if (category == null) {
+      return null;
+    }
+
+    if (category.getId() != null) {
+      final String characteristicName = characteristicKeyLookup.get(category.getId());
+      if (characteristicName != null && !characteristicName.isBlank()) {
+        return characteristicName;
+      }
+    }
+
+    if (category.getCharacteristicType() != null
+        && category.getCharacteristicType().getAnnotationValue() != null
+        && !category.getCharacteristicType().getAnnotationValue().isBlank()) {
+      return category.getCharacteristicType().getAnnotationValue();
+    }
+
+    return characteristicCategoryIdToName(category.getId());
+  }
+
+  private String characteristicCategoryIdToName(final String characteristicCategoryId) {
+    if (characteristicCategoryId == null || characteristicCategoryId.isBlank()) {
+      return null;
+    }
+
+    final String prefix = "#characteristic_category/";
+    final String characteristicName =
+        characteristicCategoryId.startsWith(prefix)
+            ? characteristicCategoryId.substring(prefix.length())
+            : characteristicCategoryId;
+
+    return characteristicName.replaceFirst("_[0-9]+$", "");
   }
 
   /**
@@ -463,45 +603,64 @@ public class WebinExperimentXmlCreator {
   private void addLibraryDescriptor(
       final Element libraryDescriptorElement,
       final OtherMaterial library,
-      final Map<String, String> libraryParameters) {
+      final Map<String, String> libraryParameters,
+      final Map<String, String> materialCharacteristics) {
     addOptionalTextElement(
         libraryDescriptorElement,
         "LIBRARY_NAME",
-        firstNonBlank(libraryParameters.get("LIBRARY_NAME"), library.getName()));
+        firstNonBlank(
+            getMetadataValue(libraryParameters, "LIBRARY_NAME", "LIBRARY NAME"),
+            getMetadataValue(materialCharacteristics, "LIBRARY_NAME", "LIBRARY NAME"),
+            library.getName()));
     libraryDescriptorElement
         .addElement("LIBRARY_STRATEGY")
-        .addText(requireParameter(libraryParameters, "LIBRARY_STRATEGY"));
+        .addText(
+            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_STRATEGY"));
     libraryDescriptorElement
         .addElement("LIBRARY_SOURCE")
-        .addText(requireParameter(libraryParameters, "LIBRARY_SOURCE"));
+        .addText(
+            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_SOURCE"));
     libraryDescriptorElement
         .addElement("LIBRARY_SELECTION")
-        .addText(requireParameter(libraryParameters, "LIBRARY_SELECTION"));
+        .addText(
+            requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_SELECTION"));
 
     final Element libraryLayoutElement = libraryDescriptorElement.addElement("LIBRARY_LAYOUT");
-    final String layout = requireParameter(libraryParameters, "LIBRARY_LAYOUT");
+    final String layout =
+        requireMetadataValue(libraryParameters, materialCharacteristics, "LIBRARY_LAYOUT");
     final Element layoutElement = libraryLayoutElement.addElement(layout);
 
     if ("PAIRED".equals(layout)) {
-      addOptionalAttribute(layoutElement, "NOMINAL_LENGTH", libraryParameters.get("NOMINAL_LENGTH"));
-      addOptionalAttribute(layoutElement, "NOMINAL_SDEV", libraryParameters.get("NOMINAL_SDEV"));
+      addOptionalAttribute(
+          layoutElement,
+          "NOMINAL_LENGTH",
+          resolveExperimentMetadata(libraryParameters, materialCharacteristics, "NOMINAL_LENGTH"));
+      addOptionalAttribute(
+          layoutElement,
+          "NOMINAL_SDEV",
+          resolveExperimentMetadata(libraryParameters, materialCharacteristics, "NOMINAL_SDEV"));
     }
 
     addOptionalTextElement(
         libraryDescriptorElement,
         "POOLING_STRATEGY",
-        libraryParameters.get("POOLING_STRATEGY"));
+        resolveExperimentMetadata(libraryParameters, materialCharacteristics, "POOLING_STRATEGY"));
     addOptionalTextElement(
         libraryDescriptorElement,
         "LIBRARY_CONSTRUCTION_PROTOCOL",
-        libraryParameters.get("LIBRARY_CONSTRUCTION_PROTOCOL"));
+        resolveExperimentMetadata(
+            libraryParameters, materialCharacteristics, "LIBRARY_CONSTRUCTION_PROTOCOL"));
   }
 
   /** Populates the ENA PLATFORM block directly from sequencing-process parameters. */
   private void addPlatform(
-      final Element experimentElement, final Map<String, String> sequencingParameters) {
-    final String platform = requireParameter(sequencingParameters, "PLATFORM");
-    final String instrumentModel = requireParameter(sequencingParameters, "INSTRUMENT_MODEL");
+      final Element experimentElement,
+      final Map<String, String> sequencingParameters,
+      final Map<String, String> materialCharacteristics) {
+    final String platform =
+        requireMetadataValue(sequencingParameters, materialCharacteristics, "PLATFORM");
+    final String instrumentModel =
+        requireMetadataValue(sequencingParameters, materialCharacteristics, "INSTRUMENT_MODEL");
 
     final Element platformElement = experimentElement.addElement("PLATFORM");
     final Element platformTypeElement = platformElement.addElement(platform);
@@ -522,10 +681,63 @@ public class WebinExperimentXmlCreator {
     }
   }
 
-  private String requireParameter(
-      final Map<String, String> parameterValues, final String parameterName) {
+  private String requireMetadataValue(
+      final Map<String, String> processMetadata,
+      final Map<String, String> materialMetadata,
+      final String metadataName) {
     return requireValue(
-        parameterValues.get(parameterName), "parameter " + parameterName);
+        resolveExperimentMetadata(processMetadata, materialMetadata, metadataName),
+        "metadata " + metadataName);
+  }
+
+  private String resolveExperimentMetadata(
+      final Map<String, String> processMetadata,
+      final Map<String, String> materialMetadata,
+      final String metadataName) {
+    return firstNonBlank(
+        getMetadataValue(processMetadata, metadataName),
+        getMetadataValue(materialMetadata, metadataName));
+  }
+
+  private String getMetadataValue(final Map<String, String> metadata, final String... metadataNames) {
+    if (metadata == null || metadataNames == null) {
+      return null;
+    }
+
+    for (final String metadataName : metadataNames) {
+      final String metadataValue = metadata.get(metadataName);
+      if (metadataValue != null && !metadataValue.isBlank()) {
+        return metadataValue;
+      }
+    }
+
+    for (final String metadataName : metadataNames) {
+      for (final Map.Entry<String, String> metadataEntry : metadata.entrySet()) {
+        if (metadataEntry.getValue() == null || metadataEntry.getValue().isBlank()) {
+          continue;
+        }
+
+        if (metadataKeyMatches(metadataEntry.getKey(), metadataName)) {
+          return metadataEntry.getValue();
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private boolean metadataKeyMatches(final String metadataKey, final String expectedMetadataKey) {
+    final String normalizedMetadataKey = normalizeMetadataKey(metadataKey);
+    return !normalizedMetadataKey.isBlank()
+        && normalizedMetadataKey.equals(normalizeMetadataKey(expectedMetadataKey));
+  }
+
+  private String normalizeMetadataKey(final String metadataKey) {
+    if (metadataKey == null) {
+      return "";
+    }
+
+    return metadataKey.replaceAll("[^A-Za-z0-9]", "").toLowerCase(Locale.ROOT);
   }
 
   private String requireValue(final String value, final String fieldName) {

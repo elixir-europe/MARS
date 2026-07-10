@@ -75,7 +75,10 @@ class WebinExperimentXmlCreatorTest {
     // Verify TITLE element
     final Element titleElement = firstExperiment.element("TITLE");
     Assertions.assertNotNull(titleElement, "EXPERIMENT should have a TITLE element");
-    Assertions.assertFalse(titleElement.getText().isEmpty(), "TITLE should not be empty");
+    Assertions.assertEquals(
+        "Arabidopsis leaf amplicon sequencing experiment",
+        titleElement.getText(),
+        "TITLE should come from the upstream other-material Title characteristic");
 
     // Verify STUDY_REF element
     final Element studyRef = firstExperiment.element("STUDY_REF");
@@ -154,6 +157,56 @@ class WebinExperimentXmlCreatorTest {
   }
 
   @Test
+  void testExperimentTitleCanComeFromProcessMetadata() throws Exception {
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final List<Study> studies = isaJson.getInvestigation().getStudies();
+    final String randomSubmissionIdentifier = "test-process-title";
+    final Map<String, String> bioSampleAccessions = new HashMap<>();
+    bioSampleAccessions.put("SOURCE", "SAMEA130793922");
+
+    final Parameter titleParameter = new Parameter();
+    titleParameter.setId("#parameter/experiment_title_test");
+    final ParameterName titleParameterName = new ParameterName();
+    titleParameterName.setAnnotationValue("Experiment Title");
+    titleParameter.setParameterName(titleParameterName);
+
+    final Protocol libraryProtocol =
+        studies.get(0).getProtocols().stream()
+            .filter(protocol -> "#protocol/20_20".equals(protocol.getId()))
+            .findFirst()
+            .orElseThrow();
+    libraryProtocol.getParameters().add(titleParameter);
+
+    final ParameterValue titleParameterValue = new ParameterValue();
+    final Category titleCategory = new Category();
+    titleCategory.setId("#parameter/experiment_title_test");
+    titleParameterValue.setCategory(titleCategory);
+    final Value titleValue = new Value();
+    titleValue.setAnnotationValue("Process metadata experiment title");
+    titleParameterValue.setValue(titleValue);
+
+    final ProcessSequence libraryConstructionProcess =
+        studies.get(0).getAssays().get(0).getProcessSequence().stream()
+            .filter(process -> "#process/library_construction/333".equals(process.getId()))
+            .findFirst()
+            .orElseThrow();
+    libraryConstructionProcess.getParameterValues().add(titleParameterValue);
+
+    experimentXmlCreator.createENAExperimentSetElement(
+        bioSampleAccessions, webinElement, studies, randomSubmissionIdentifier);
+
+    final Element experimentSet = webinElement.element("EXPERIMENT_SET");
+    @SuppressWarnings("unchecked")
+    final List<Element> experiments = experimentSet.elements("EXPERIMENT");
+
+    Assertions.assertEquals(
+        "Process metadata experiment title",
+        experiments.get(0).elementText("TITLE"),
+        "TITLE should come from process metadata when present");
+  }
+
+  @Test
   void testCreateENAExperimentSetElementWithMultipleDataFiles() throws Exception {
     // This test verifies that multiple data files from the same library
     // only create one experiment (deduplication)
@@ -173,29 +226,12 @@ class WebinExperimentXmlCreatorTest {
     final Element experimentSet = webinElement.element("EXPERIMENT_SET");
     Assertions.assertNotNull(experimentSet);
 
-    // Count unique libraries in the ISA JSON
-    final long uniqueLibraries =
-        studies.stream()
-            .flatMap(study -> study.getAssays().stream())
-            .flatMap(
-                assay ->
-                    assay.getMaterials() != null && assay.getMaterials().getOtherMaterials() != null
-                        ? assay.getMaterials().getOtherMaterials().stream()
-                        : java.util.stream.Stream.empty())
-            .filter(
-                material ->
-                    WebinExperimentXmlCreator.OTHER_MATERIAL_LIBRARY_NAME_DETERMINES_EXPERIMENT
-                        .equalsIgnoreCase(material.getType()))
-            .map(OtherMaterial::getId)
-            .distinct()
-            .count();
-
     // The number of experiments should match the number of unique libraries
     @SuppressWarnings("unchecked")
     final List<Element> experiments = experimentSet.elements("EXPERIMENT");
     Assertions.assertEquals(
-        uniqueLibraries,
+        experimentSequence.size(),
         experiments.size(),
-        "Number of experiments should match number of unique libraries");
+        "Number of experiments should match the resolved experiment sequence");
   }
 }
