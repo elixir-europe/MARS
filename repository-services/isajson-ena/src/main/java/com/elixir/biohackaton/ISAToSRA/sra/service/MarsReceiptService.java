@@ -8,7 +8,6 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Output;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsError;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsErrorType;
@@ -20,11 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -171,12 +170,7 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
                                 .findFirst()
                                 .ifPresent(
                                     process ->
-                                        Optional.ofNullable(process.getOutputs())
-                                            .orElse(new ArrayList<>())
-                                            .stream()
-                                            .map(Output::getId)
-                                            .filter(id -> id != null && !id.isBlank())
-                                            .map(this::normalizeDataFileId)
+                                        IsaJsonGraphLookup.normalizedOutputIds(process)
                                             .forEach(dataFileIds::add))));
 
     return dataFileIds;
@@ -209,52 +203,15 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
 
     for (final DataFile dataFile : assay.getDataFiles()) {
       final ProcessSequence sequencingProcess =
-          findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
+          IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
       if (sequencingProcess == null || !processedSequencingProcesses.add(sequencingProcess.getId())) {
         continue;
       }
 
       final List<String> dataFileIds = new ArrayList<>();
-      Optional.ofNullable(sequencingProcess.getOutputs())
-          .orElse(new ArrayList<>())
-          .stream()
-          .map(Output::getId)
-          .filter(id -> id != null && !id.isBlank())
-          .map(this::normalizeDataFileId)
-          .forEach(dataFileIds::add);
+      IsaJsonGraphLookup.normalizedOutputIds(sequencingProcess).forEach(dataFileIds::add);
       sequencingProcessDataFiles.add(dataFileIds);
     }
-  }
-
-  private ProcessSequence findProcessByOutputId(
-      final List<ProcessSequence> processSequence, final String outputId) {
-    if (processSequence == null || outputId == null) {
-      return null;
-    }
-
-    final String normalizedOutputId = normalizeDataFileId(outputId);
-
-    for (final ProcessSequence process : processSequence) {
-      if (process.getOutputs() == null) {
-        continue;
-      }
-
-      for (final Output output : process.getOutputs()) {
-        if (output.getId() == null) {
-          continue;
-        }
-
-        if (normalizeDataFileId(output.getId()).equals(normalizedOutputId)) {
-          return process;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private String normalizeDataFileId(final String id) {
-    return id == null ? null : id.replace("#data_file/", "#data/");
   }
 
   private boolean aliasAccessionPairFilter(ReceiptObject item) {

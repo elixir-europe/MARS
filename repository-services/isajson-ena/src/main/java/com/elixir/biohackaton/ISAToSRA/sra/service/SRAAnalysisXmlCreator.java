@@ -4,8 +4,6 @@ package com.elixir.biohackaton.ISAToSRA.sra.service;
 import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
@@ -34,16 +32,7 @@ public class SRAAnalysisXmlCreator {
 
     // TODO top level analysis attributes (including type)
 
-    // Add samples
-    assay
-        .getMaterials()
-        .getSamples()
-        .forEach(
-            sample -> {} // TODO
-            );
-    // add_element(analysis_elemt, 'SAMPLE_REF',
-    //                        accession=sample_row.get('Sample Accession'),
-    //                        label=sample_row.get('Sample ID'))
+    // TODO add SAMPLE_REF elements once analysis submissions define sample accession handling.
 
     // Add files
     final Element filesElement = analysisElement.addElement("FILES");
@@ -52,7 +41,9 @@ public class SRAAnalysisXmlCreator {
 
   private void convertDataFileToFileElement(DataFile dataFile, Element filesElement) {
     // Analysis must use derived files
-    if (!dataFile.getType().equalsIgnoreCase(DERIVED_FILE_KEY)) {
+    if (dataFile == null
+        || dataFile.getType() == null
+        || !dataFile.getType().equalsIgnoreCase(DERIVED_FILE_KEY)) {
       return;
     }
 
@@ -62,27 +53,35 @@ public class SRAAnalysisXmlCreator {
     String filetype = dataFile.getName().substring(dataFile.getName().lastIndexOf('.'));
 
     // Files must have a checksum (stored in comments)
-    AtomicReference<String> checksum = new AtomicReference<>();
-    AtomicReference<String> checksumType = new AtomicReference<>();
-    dataFile
-        .getComments()
-        .forEach(
-            comment -> {
-              if (comment.getName().equalsIgnoreCase(CHECKSUM_KEY)) {
-                checksum.set(comment.getValue());
-              } else if (comment.getName().equalsIgnoreCase(CHECKSUM_TYPE_KEY)) {
-                checksumType.set(comment.getValue());
-              }
-            });
+    final String checksum = findCommentValue(dataFile.getComments(), CHECKSUM_KEY);
+    final String checksumType = findCommentValue(dataFile.getComments(), CHECKSUM_TYPE_KEY);
 
-    if (Objects.isNull(checksum.get()) || Objects.isNull(checksumType.get())) {
+    if (checksum == null || checksumType == null) {
       throw new MarsReceiptException("Checksum and checksum type not found");
-    } else {
-      Element fileElement = filesElement.addElement("FILE");
-      fileElement.addAttribute("filename", filename);
-      fileElement.addAttribute("filetype", filetype);
-      fileElement.addAttribute("checksum_method", checksumType.get());
-      fileElement.addAttribute("checksum", checksum.get());
     }
+
+    Element fileElement = filesElement.addElement("FILE");
+    fileElement.addAttribute("filename", filename);
+    fileElement.addAttribute("filetype", filetype);
+    fileElement.addAttribute("checksum_method", checksumType);
+    fileElement.addAttribute("checksum", checksum);
+  }
+
+  private String findCommentValue(final List<Comment> comments, final String commentName) {
+    if (comments == null) {
+      return null;
+    }
+
+    for (final Comment comment : comments) {
+      if (comment == null || comment.getName() == null) {
+        continue;
+      }
+
+      if (comment.getName().equalsIgnoreCase(commentName)) {
+        return comment.getValue();
+      }
+    }
+
+    return null;
   }
 }

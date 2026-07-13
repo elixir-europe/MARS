@@ -8,10 +8,8 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.CharacteristicCategory;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DerivesFrom;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Input;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Materials;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Output;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Parameter;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ParameterValue;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
@@ -31,8 +29,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class WebinExperimentXmlCreator {
-  public static final String OTHER_MATERIAL_LIBRARY_NAME_DETERMINES_EXPERIMENT = "Library Name";
-
   /**
    * Creates ENA EXPERIMENT XML from ISA-JSON assays.
    *
@@ -162,14 +158,15 @@ public class WebinExperimentXmlCreator {
       final Assay assay,
       final DataFile dataFile) {
     final ProcessSequence sequencingProcess =
-        findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
+        IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
 
     if (sequencingProcess == null) {
       return;
     }
 
     final OtherMaterial library =
-        findLibraryFromProcessInput(sequencingProcess, assay.getMaterials());
+        IsaJsonGraphLookup.findOtherMaterialFromProcessInput(
+            sequencingProcess, assay.getMaterials());
 
     if (library == null || experimentSequence.containsKey(library.getId())) {
       return;
@@ -181,7 +178,7 @@ public class WebinExperimentXmlCreator {
     final List<OtherMaterial> materialLineage =
         findMaterialLineageToSample(library, assay.getMaterials());
     final ProcessSequence libraryConstructionProcess =
-        findProcessByOutputId(assay.getProcessSequence(), library.getId());
+        IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), library.getId());
     final List<ProcessSequence> experimentProcesses =
         findExperimentProcesses(
             assay.getProcessSequence(),
@@ -200,62 +197,6 @@ public class WebinExperimentXmlCreator {
         bioSampleAccessions,
         experimentId,
         randomSubmissionIdentifier);
-  }
-
-  private ProcessSequence findProcessByOutputId(
-      final List<ProcessSequence> processSequence, final String outputId) {
-    if (processSequence == null || outputId == null) {
-      return null;
-    }
-
-    final String normalizedOutputId = normalizeDataFileId(outputId);
-
-    for (final ProcessSequence process : processSequence) {
-      if (process.getOutputs() == null) {
-        continue;
-      }
-
-      for (final Output output : process.getOutputs()) {
-        if (output.getId() == null) {
-          continue;
-        }
-
-        final String normalizedProcessOutputId = normalizeDataFileId(output.getId());
-        if (normalizedProcessOutputId.equals(normalizedOutputId)) {
-          return process;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private String normalizeDataFileId(final String id) {
-    if (id == null) {
-      return null;
-    }
-    return id.replace("#data_file/", "#data/");
-  }
-
-  private OtherMaterial findLibraryFromProcessInput(
-      final ProcessSequence process, final Materials materials) {
-    if (process.getInputs() == null || materials == null || materials.getOtherMaterials() == null) {
-      return null;
-    }
-
-    for (final Input input : process.getInputs()) {
-      if (input.getId() == null) {
-        continue;
-      }
-
-      for (final OtherMaterial otherMaterial : materials.getOtherMaterials()) {
-        if (otherMaterial.getId() != null && otherMaterial.getId().equals(input.getId())) {
-          return otherMaterial;
-        }
-      }
-    }
-
-    return null;
   }
 
   private List<ProcessSequence> findExperimentProcesses(
@@ -279,7 +220,9 @@ public class WebinExperimentXmlCreator {
       }
 
       addExperimentProcess(
-          experimentProcesses, processIds, findProcessByOutputId(assayProcesses, material.getId()));
+          experimentProcesses,
+          processIds,
+          IsaJsonGraphLookup.findProcessByOutputId(assayProcesses, material.getId()));
     }
 
     return experimentProcesses;
@@ -296,29 +239,18 @@ public class WebinExperimentXmlCreator {
     experimentProcesses.add(process);
   }
 
+  /**
+   * Returns the library and upstream otherMaterials until the chain reaches a Study sample.
+   */
   private List<OtherMaterial> findMaterialLineageToSample(
       final OtherMaterial material, final Materials materials) {
     final List<OtherMaterial> materialLineage = new ArrayList<>();
-    final Map<String, OtherMaterial> otherMaterialsById = buildOtherMaterialsById(materials);
+    final Map<String, OtherMaterial> otherMaterialsById =
+        IsaJsonGraphLookup.buildOtherMaterialsById(materials);
 
     collectMaterialLineage(material, otherMaterialsById, materialLineage, new HashSet<>());
 
     return materialLineage;
-  }
-
-  private Map<String, OtherMaterial> buildOtherMaterialsById(final Materials materials) {
-    final Map<String, OtherMaterial> otherMaterialsById = new HashMap<>();
-    if (materials == null || materials.getOtherMaterials() == null) {
-      return otherMaterialsById;
-    }
-
-    for (final OtherMaterial otherMaterial : materials.getOtherMaterials()) {
-      if (otherMaterial != null && otherMaterial.getId() != null) {
-        otherMaterialsById.put(otherMaterial.getId(), otherMaterial);
-      }
-    }
-
-    return otherMaterialsById;
   }
 
   private void collectMaterialLineage(
@@ -361,6 +293,7 @@ public class WebinExperimentXmlCreator {
       final Map<String, String> bioSampleAccessions,
       final String experimentId,
       final String randomSubmissionIdentifier) {
+    // Process parameters are closest to ENA submission fields; material characteristics fill gaps.
     final ExperimentMetadata experimentMetadata =
         new ExperimentMetadata(
             extractParameterValues(experimentProcesses, protocolToParameterNameMap),
@@ -384,7 +317,8 @@ public class WebinExperimentXmlCreator {
         .addElement("DESIGN_DESCRIPTION")
         .addText(experimentMetadata.require("DESIGN_DESCRIPTION"));
 
-    final String sampleAccession = resolveSampleAccessionForLibrary(study, assay, library);
+    final String sampleAccession =
+        resolveSampleAccessionForLibrary(study, assay, library, bioSampleAccessions);
     designElement
         .addElement("SAMPLE_DESCRIPTOR")
         .addAttribute("accession", requireValue(sampleAccession, "BioSamples sample accession"));
@@ -400,9 +334,10 @@ public class WebinExperimentXmlCreator {
   private String resolveSampleAccessionForLibrary(
       final Study study,
       final Assay assay,
-      final OtherMaterial library) {
+      final OtherMaterial library,
+      final Map<String, String> bioSampleAccessions) {
     if (study == null || study.getMaterials() == null || study.getMaterials().getSamples() == null) {
-      return "";
+      return getBioSampleAccessionFallback(bioSampleAccessions, null);
     }
 
     final Map<String, Sample> samplesById = new HashMap<>();
@@ -413,16 +348,42 @@ public class WebinExperimentXmlCreator {
     }
 
     final Map<String, OtherMaterial> otherMaterialsById =
-        buildOtherMaterialsById(assay.getMaterials());
+        IsaJsonGraphLookup.buildOtherMaterialsById(assay.getMaterials());
 
     final Sample sample =
         findSampleForMaterialId(library.getId(), samplesById, otherMaterialsById, new HashSet<>());
     if (sample == null) {
-      return "";
+      return getBioSampleAccessionFallback(bioSampleAccessions, null);
     }
 
     final Map<String, String> characteristicKeyLookup = buildCharacteristicKeyLookup(study, assay);
-    return getCharacteristicAnnotation(sample.getCharacteristics(), characteristicKeyLookup);
+    return firstNonBlank(
+        getCharacteristicAnnotation(sample.getCharacteristics(), characteristicKeyLookup),
+        getBioSampleAccessionFallback(bioSampleAccessions, sample));
+  }
+
+  private String getBioSampleAccessionFallback(
+      final Map<String, String> bioSampleAccessions, final Sample sample) {
+    if (bioSampleAccessions == null || bioSampleAccessions.isEmpty()) {
+      return "";
+    }
+
+    if (sample != null) {
+      final String sampleAccession =
+          firstNonBlank(
+              getBioSampleAccessionByKey(bioSampleAccessions, sample.getId()),
+              getBioSampleAccessionByKey(bioSampleAccessions, sample.getName()));
+      if (sampleAccession != null) {
+        return sampleAccession;
+      }
+    }
+
+    return firstNonBlank(bioSampleAccessions.get("SAMPLE"), bioSampleAccessions.get("SOURCE"));
+  }
+
+  private String getBioSampleAccessionByKey(
+      final Map<String, String> bioSampleAccessions, final String key) {
+    return key == null ? null : bioSampleAccessions.get(key);
   }
 
   private Sample findSampleForMaterialId(

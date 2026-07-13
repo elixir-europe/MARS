@@ -2,7 +2,6 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class WebinRunXmlCreator {
                                 dataFile -> {
                                   // Find the process that produced this data file
                                   final ProcessSequence sequencingProcess =
-                                      findProcessByOutputId(
+                                      IsaJsonGraphLookup.findProcessByOutputId(
                                           assay.getProcessSequence(), dataFile.getId());
 
                                   if (sequencingProcess != null) {
@@ -45,7 +44,7 @@ public class WebinRunXmlCreator {
 
                                     // Find the library (experiment) that was input to sequencing
                                     final OtherMaterial library =
-                                        findLibraryFromProcessInput(
+                                        IsaJsonGraphLookup.findOtherMaterialFromProcessInput(
                                             sequencingProcess, assay.getMaterials());
 
                                     if (library != null
@@ -53,7 +52,7 @@ public class WebinRunXmlCreator {
                                       final String experimentId =
                                           experimentSequenceMap.get(library.getId());
                                       final List<DataFile> runDataFiles =
-                                          findDataFilesFromProcessOutputs(
+                                          IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
                                               sequencingProcess, assay.getDataFiles());
                                       createRunElement(
                                           runSetElement,
@@ -66,87 +65,6 @@ public class WebinRunXmlCreator {
                                 });
                       }
                     }));
-  }
-
-  /**
-   * Finds a process that has the given output ID. Handles both #data_file/334 and #data/334
-   * formats.
-   */
-  private ProcessSequence findProcessByOutputId(
-      final List<ProcessSequence> processSequence, final String outputId) {
-    if (processSequence == null || outputId == null) {
-      return null;
-    }
-
-    // Normalize the outputId (handle both #data_file/334 and #data/334)
-    final String normalizedOutputId = normalizeDataFileId(outputId);
-
-    for (final ProcessSequence process : processSequence) {
-      if (process.getOutputs() != null) {
-        for (final Output output : process.getOutputs()) {
-          if (output.getId() != null) {
-            final String normalizedProcessOutputId = normalizeDataFileId(output.getId());
-            if (normalizedProcessOutputId.equals(normalizedOutputId)) {
-              return process;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  /** Normalizes data file IDs to handle both #data_file/334 and #data/334 formats. */
-  private String normalizeDataFileId(final String id) {
-    if (id == null) {
-      return null;
-    }
-    // Convert #data_file/334 to #data/334 for comparison
-    return id.replace("#data_file/", "#data/");
-  }
-
-  /** Finds the Library (OtherMaterial) that was used as input to a process. */
-  private OtherMaterial findLibraryFromProcessInput(
-      final ProcessSequence process, final Materials materials) {
-    if (process.getInputs() == null || materials == null || materials.getOtherMaterials() == null) {
-      return null;
-    }
-
-    for (final Input input : process.getInputs()) {
-      if (input.getId() != null) {
-        for (final OtherMaterial otherMaterial : materials.getOtherMaterials()) {
-          if (otherMaterial.getId() != null && otherMaterial.getId().equals(input.getId())) {
-            return otherMaterial;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  /** Resolves the assay data files referenced by a sequencing process outputs list. */
-  private List<DataFile> findDataFilesFromProcessOutputs(
-      final ProcessSequence process, final List<DataFile> assayDataFiles) {
-    final List<DataFile> dataFiles = new ArrayList<>();
-    if (process.getOutputs() == null || assayDataFiles == null) {
-      return dataFiles;
-    }
-
-    for (final Output output : process.getOutputs()) {
-      if (output.getId() == null) {
-        continue;
-      }
-
-      final String normalizedOutputId = normalizeDataFileId(output.getId());
-      for (final DataFile dataFile : assayDataFiles) {
-        if (dataFile.getId() != null
-            && normalizeDataFileId(dataFile.getId()).equals(normalizedOutputId)) {
-          dataFiles.add(dataFile);
-        }
-      }
-    }
-
-    return dataFiles;
   }
 
   /** Creates one ENA RUN element from all data files produced by a sequencing process. */
