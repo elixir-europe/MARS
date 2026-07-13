@@ -9,6 +9,7 @@ import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.IsaJson;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
 import com.elixir.biohackaton.ISAToSRA.receipt.marsmodel.MarsReceipt;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
@@ -39,7 +40,7 @@ class BiosampleReceiptToMarsTest {
       // Mapping inputs to the proper objects
       ObjectMapper jsonMapper = new ObjectMapper();
       BioSamplesSubmitter bioSamplesSubmitter = new BioSamplesSubmitter();
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = isaJsonObjectMapper();
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
       final List<Study> studies = isaJson.getInvestigation().getStudies();
@@ -63,7 +64,7 @@ class BiosampleReceiptToMarsTest {
       throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
-    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
 
@@ -103,7 +104,7 @@ class BiosampleReceiptToMarsTest {
   void createBioSamplesKeepsEachChildSampleLinkedToItsOwnSource() throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
-    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
 
@@ -126,7 +127,7 @@ class BiosampleReceiptToMarsTest {
   void createBioSamplesSupportsMultipleChildSamplesFromTheSameSource() throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
-    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final Study study = isaJson.getInvestigation().getStudies().get(0);
 
@@ -172,6 +173,12 @@ class BiosampleReceiptToMarsTest {
             attribute ->
                 attributeType.equals(attribute.getType())
                     && attributeValue.equals(attribute.getValue()));
+  }
+
+  private static ObjectMapper isaJsonObjectMapper() {
+    final ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return objectMapper;
   }
 
   private static class CapturingBioSamplesSubmitter extends BioSamplesSubmitter {

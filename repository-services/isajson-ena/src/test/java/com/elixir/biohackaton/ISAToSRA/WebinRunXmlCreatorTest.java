@@ -4,6 +4,7 @@ package com.elixir.biohackaton.ISAToSRA;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinExperimentXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinRunXmlCreator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
@@ -34,6 +35,7 @@ class WebinRunXmlCreatorTest {
     runXmlCreator = new WebinRunXmlCreator();
     experimentXmlCreator = new WebinExperimentXmlCreator();
     objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     // Load ISA JSON file
     String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";

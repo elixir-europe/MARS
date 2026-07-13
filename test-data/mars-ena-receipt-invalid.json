@@ -22,7 +22,7 @@
                     "key": "studies",
                     "where": {
                         "key": "title",
-                        "value": "Arabidopsis thaliana"
+                        "value": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions"
                     }
                 },
                 {
@@ -54,7 +54,7 @@
                     "key": "studies",
                     "where": {
                         "key": "title",
-                        "value": "Arabidopsis thaliana"
+                        "value": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions"
                     }
                 },
                 {
@@ -72,6 +72,35 @@
                     "where": {
                         "key": "@id",
                         "value": "#other_material/333"
+                    }
+                }
+            ]
+        },
+        {
+            "value": "ERR13930853",
+            "path": [
+                {
+                    "key": "investigation"
+                },
+                {
+                    "key": "studies",
+                    "where": {
+                        "key": "title",
+                        "value": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions"
+                    }
+                },
+                {
+                    "key": "assays",
+                    "where": {
+                        "key": "@id",
+                        "value": "#assay/18_20_21"
+                    }
+                },
+                {
+                    "key": "dataFiles",
+                    "where": {
+                        "key": "@id",
+                        "value": "#data/334"
                     }
                 }
             ]
