@@ -25,6 +25,7 @@ class WebinExperimentXmlCreatorTest {
   private WebinExperimentXmlCreator experimentXmlCreator;
   private ObjectMapper objectMapper;
   private IsaJson isaJson;
+  private IsaJson multiIsaJson;
 
   @BeforeEach
   void setUp() throws Exception {
@@ -35,6 +36,10 @@ class WebinExperimentXmlCreatorTest {
     String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
     String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
+
+    String multiIsaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    String multiIsaJsonFile = Files.readString(new File(multiIsaJsonFilePath).toPath());
+    multiIsaJson = objectMapper.readValue(multiIsaJsonFile, IsaJson.class);
   }
 
   @Test
@@ -266,11 +271,11 @@ class WebinExperimentXmlCreatorTest {
 
   @Test
   void testCreateENAExperimentSetElementWithMultipleDataFiles() throws Exception {
-    // This test verifies that multiple data files from the same library
-    // only create one experiment (deduplication)
+    // Paired data files from one library should deduplicate to one experiment, while a second
+    // library in the same assay should still create its own experiment.
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = document.addElement("WEBIN");
-    final List<Study> studies = isaJson.getInvestigation().getStudies();
+    final List<Study> studies = multiIsaJson.getInvestigation().getStudies();
     final String randomSubmissionIdentifier = "test-456";
     final Map<String, String> bioSampleAccessions = new HashMap<>();
     bioSampleAccessions.put("SOURCE", "SAMEA130793922");
@@ -288,8 +293,16 @@ class WebinExperimentXmlCreatorTest {
     @SuppressWarnings("unchecked")
     final List<Element> experiments = experimentSet.elements("EXPERIMENT");
     Assertions.assertEquals(
+        2, experimentSequence.size(), "Expected two unique libraries in the multi ISA fixture");
+    Assertions.assertEquals(
         experimentSequence.size(),
         experiments.size(),
         "Number of experiments should match the resolved experiment sequence");
+    Assertions.assertTrue(
+        experimentSequence.containsKey("#other_material/333"),
+        "Expected the paired-end data files to resolve to library 1");
+    Assertions.assertTrue(
+        experimentSequence.containsKey("#other_material/338"),
+        "Expected the single-end data file to resolve to library 2");
   }
 }
