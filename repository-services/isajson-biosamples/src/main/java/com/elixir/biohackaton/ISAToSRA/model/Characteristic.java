@@ -9,3 +9,4 @@ public class Characteristic {
   public Value value;
   public Unit unit;
 }
+
