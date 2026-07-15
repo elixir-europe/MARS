@@ -13,11 +13,11 @@
         "description": ""
       }
     ],
-    "filename": "i_Multi-omics_in_chickens.txt",
+    "filename": "i_Multi-omics in chickens.txt",
     "comments": [
       {
         "name": "ISAjson export time",
-        "value": "2026-05-06T09:33:02Z"
+        "value": "2026-07-14T07:43:27Z"
       },
       {
         "name": "SEEK Project name",
@@ -32,7 +32,31 @@
         "value": "80"
       }
     ],
-    "publications": [],
+    "publications": [
+      {
+        "pubMedID": null,
+        "doi": "10.3389/fphys.2022.884925",
+        "status": {
+          "termAccession": "",
+          "termSource": "",
+          "annotationValue": ""
+        },
+        "title": "Novel strategies to improve chicken performance and welfare by unveiling host-microbiota interactions through hologenomics",
+        "author_list": "",
+        "comments": [
+          {
+            "@id": "#publication_comment/6_",
+            "name": "linked_assays",
+            "value": "[]"
+          },
+          {
+            "@id": "#publication_comment/6_",
+            "name": "linked_studies",
+            "value": "[]"
+          }
+        ]
+      }
+    ],
     "people": [
       {
         "@id": "#people/3",
@@ -67,15 +91,15 @@
         "description": "Hologenomic approach to understand the impact of host–microbiota interactions on chicken production by analysing multiomic data, phenotypic characteristics, and associated metadata in response to novel feeds.",
         "submissionDate": "",
         "publicReleaseDate": "",
-        "filename": "s_Impact_of_host–microbiota_on_chicken_production.txt",
+        "filename": "s_Impact of host–microbiota on chicken production.txt",
         "comments": [
           {
-            "@id": "#study_comment/98_80815c40-2b5c-013f-80d5-0242ac120005",
+            "@id": "#study_comment/98_6173e59f-94cb-4217-83c7-11b92725a970",
             "name": "SEEK Study ID",
             "value": "98"
           },
           {
-            "@id": "#study_comment/98_80816580-2b5c-013f-80d6-0242ac120005",
+            "@id": "#study_comment/98_5152b3fc-0fda-4d8a-84ce-5378d2081757",
             "name": "SEEK creation date",
             "value": "2026-04-21T14:24:53Z"
           }
@@ -298,7 +322,7 @@
         "protocols": [
           {
             "@id": "#protocol/study_98_2908",
-            "name": "Sample collection",
+            "name": "sampling from animal",
             "protocolType": {
               "annotationValue": "sample collection",
               "termAccession": "",
@@ -315,35 +339,11 @@
                   "termAccession": "",
                   "termSource": ""
                 }
-              }
-            ],
-            "components": [
+              },
               {
-                "componentName": "",
-                "componentType": {
-                  "annotationValue": "",
-                  "termSource": "",
-                  "termAccession": ""
-                }
-              }
-            ]
-          },
-          {
-            "@id": "#protocol/study_98_2908",
-            "name": "Sample collection",
-            "protocolType": {
-              "annotationValue": "sample collection",
-              "termAccession": "",
-              "termSource": ""
-            },
-            "description": "how caecum content has been sampled from chickens; how ileum mucosa has been sampled from chickens",
-            "uri": "",
-            "version": "",
-            "parameters": [
-              {
-                "@id": "#parameter/2910",
+                "@id": "#parameter/2959",
                 "parameterName": {
-                  "annotationValue": "collection date",
+                  "annotationValue": "Sampling site",
                   "termAccession": "",
                   "termSource": ""
                 }
@@ -362,16 +362,24 @@
           },
           {
             "@id": "#protocol/assay_262_86",
-            "name": "Library construction",
+            "name": "Library construction protocol",
             "protocolType": {
-              "annotationValue": "library construction",
-              "termAccession": "",
-              "termSource": ""
+              "annotationValue": "nucleic acid library construction protocol",
+              "termAccession": "http://www.ebi.ac.uk/efo/EFO_0004184",
+              "termSource": "EFO"
             },
             "description": "Library construction for HoloFood shotgun chicken transcriptomics",
             "uri": "",
             "version": "",
             "parameters": [
+              {
+                "@id": "#parameter/2984",
+                "parameterName": {
+                  "annotationValue": "design_description",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
               {
                 "@id": "#parameter/2919",
                 "parameterName": {
@@ -436,14 +444,166 @@
             "@id": "#protocol/assay_263_2926",
             "name": "Sequencing protocol",
             "protocolType": {
-              "annotationValue": "nucleic acid sequencing",
+              "annotationValue": "nucleic acid sequencing protocol",
+              "termAccession": "http://www.ebi.ac.uk/efo/EFO_0004170",
+              "termSource": "EFO"
+            },
+            "description": "",
+            "uri": "",
+            "version": "",
+            "parameters": [],
+            "components": [
+              {
+                "componentName": "",
+                "componentType": {
+                  "annotationValue": "",
+                  "termSource": "",
+                  "termAccession": ""
+                }
+              }
+            ]
+          },
+          {
+            "@id": "#protocol/assay_268_87",
+            "name": "Metabolites extraction",
+            "protocolType": {
+              "annotationValue": "metabolite extraction protocol",
+              "termAccession": "http://www.ebi.ac.uk/efo/EFO_0022981",
+              "termSource": "EFO"
+            },
+            "description": "HoloFood metabolites extraction",
+            "uri": "",
+            "version": "",
+            "parameters": [
+              {
+                "@id": "#parameter/2962",
+                "parameterName": {
+                  "annotationValue": "Post extraction",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2963",
+                "parameterName": {
+                  "annotationValue": "Derivatization",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              }
+            ],
+            "components": [
+              {
+                "componentName": "",
+                "componentType": {
+                  "annotationValue": "",
+                  "termSource": "",
+                  "termAccession": ""
+                }
+              }
+            ]
+          },
+          {
+            "@id": "#protocol/assay_269_88",
+            "name": "Chromatography",
+            "protocolType": {
+              "annotationValue": "Chromatography protocol",
+              "termAccession": "",
+              "termSource": ""
+            },
+            "description": "HoloFood chromatography",
+            "uri": "",
+            "version": "",
+            "parameters": [
+              {
+                "@id": "#parameter/2967",
+                "parameterName": {
+                  "annotationValue": "Chromatography Instrument",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2968",
+                "parameterName": {
+                  "annotationValue": "Column model",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2969",
+                "parameterName": {
+                  "annotationValue": "Column type",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              }
+            ],
+            "components": [
+              {
+                "componentName": "",
+                "componentType": {
+                  "annotationValue": "",
+                  "termSource": "",
+                  "termAccession": ""
+                }
+              }
+            ]
+          },
+          {
+            "@id": "#protocol/assay_270_2972",
+            "name": "Mass spectrometry",
+            "protocolType": {
+              "annotationValue": "MS Protocol",
               "termAccession": "",
               "termSource": ""
             },
             "description": "",
             "uri": "",
             "version": "",
-            "parameters": [],
+            "parameters": [
+              {
+                "@id": "#parameter/2973",
+                "parameterName": {
+                  "annotationValue": "scan polarity",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2974",
+                "parameterName": {
+                  "annotationValue": "scan m/z range",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2975",
+                "parameterName": {
+                  "annotationValue": "instrument",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2976",
+                "parameterName": {
+                  "annotationValue": "ion source",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              },
+              {
+                "@id": "#parameter/2977",
+                "parameterName": {
+                  "annotationValue": "mass analyzer",
+                  "termAccession": "",
+                  "termSource": ""
+                }
+              }
+            ],
             "components": [
               {
                 "componentName": "",
@@ -765,7 +925,7 @@
                     "@id": "#characteristic_category/Trial_timepoint_2911"
                   },
                   "value": {
-                    "annotationValue": 35.0,
+                    "annotationValue": 35,
                     "termSource": "",
                     "termAccession": ""
                   },
@@ -883,7 +1043,7 @@
                     "@id": "#characteristic_category/Trial_timepoint_2911"
                   },
                   "value": {
-                    "annotationValue": 35.0,
+                    "annotationValue": 35,
                     "termSource": "",
                     "termAccession": ""
                   },
@@ -981,6 +1141,21 @@
                   "termAccession": "",
                   "comments": []
                 }
+              },
+              {
+                "category": {
+                  "@id": "#parameter/2959"
+                },
+                "value": {
+                  "annotationValue": "animal body",
+                  "termSource": "",
+                  "termAccession": ""
+                },
+                "unit": {
+                  "termSource": "",
+                  "termAccession": "",
+                  "comments": []
+                }
               }
             ],
             "performer": "",
@@ -1009,6 +1184,21 @@
                 },
                 "value": {
                   "annotationValue": "14/10/2019",
+                  "termSource": "",
+                  "termAccession": ""
+                },
+                "unit": {
+                  "termSource": "",
+                  "termAccession": "",
+                  "comments": []
+                }
+              },
+              {
+                "category": {
+                  "@id": "#parameter/2959"
+                },
+                "value": {
+                  "annotationValue": "animal body",
                   "termSource": "",
                   "termAccession": ""
                 },
@@ -1051,6 +1241,10 @@
               {
                 "name": "target_repository",
                 "value": "ena"
+              },
+              {
+                "name": "study type",
+                "value": "Transcriptome Sequencing"
               }
             ],
             "technologyPlatform": "",
@@ -1131,6 +1325,21 @@
                   "@id": "#protocol/assay_262_86"
                 },
                 "parameterValues": [
+                  {
+                    "category": {
+                      "@id": "#parameter/2984"
+                    },
+                    "value": {
+                      "annotationValue": "rna library for sequencing",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
                   {
                     "category": {
                       "@id": "#parameter/2919"
@@ -1337,6 +1546,328 @@
                   {
                     "name": "bam_ftp",
                     "value": "ftp.sra.ebi.ac.uk/vol1/err/ERR951/008/ERR9516968.bam"
+                  }
+                ]
+              }
+            ],
+            "unitCategories": []
+          },
+          {
+            "@id": "#assay/268_269_270",
+            "filename": "a_metabolomics_267_268_269_270.txt",
+            "measurementType": {
+              "annotationValue": "",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "technologyType": {
+              "annotationValue": "",
+              "termSource": "",
+              "termAccession": ""
+            },
+            "comments": [
+              {
+                "name": "target_repository",
+                "value": "metabolights"
+              },
+              {
+                "name": "assay type",
+                "value": "LC-MS"
+              },
+              {
+                "name": "key words",
+                "value": "HoloFood"
+              }
+            ],
+            "technologyPlatform": "",
+            "characteristicCategories": [],
+            "materials": {
+              "samples": [
+                {
+                  "@id": "#sample/3065"
+                }
+              ],
+              "otherMaterials": [
+                {
+                  "@id": "#other_material/3207",
+                  "name": "1167_C",
+                  "type": "Extract Name",
+                  "characteristics": [],
+                  "derivesFrom": [
+                    {
+                      "@id": "#sample/3065"
+                    }
+                  ]
+                },
+                {
+                  "@id": "#other_material/3208",
+                  "name": "1167_C",
+                  "type": "Labeled Extract Name",
+                  "characteristics": [],
+                  "derivesFrom": [
+                    {
+                      "@id": "#other_material/3207"
+                    }
+                  ]
+                }
+              ]
+            },
+            "processSequence": [
+              {
+                "@id": "#process/Extraction/3207",
+                "name": "",
+                "executesProtocol": {
+                  "@id": "#protocol/assay_268_87"
+                },
+                "parameterValues": [
+                  {
+                    "category": {
+                      "@id": "#parameter/2962"
+                    },
+                    "value": {
+                      "annotationValue": "",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2963"
+                    },
+                    "value": {
+                      "annotationValue": "",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  }
+                ],
+                "performer": "",
+                "date": "",
+                "inputs": [
+                  {
+                    "@id": "#sample/3065"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "@id": "#other_material/3207"
+                  }
+                ],
+                "previousProcess": {
+                  "@id": "#process/sample_collection/3207"
+                },
+                "nextProcess": {
+                  "@id": "#process/Chromatography_protocol/3207"
+                }
+              },
+              {
+                "@id": "#process/Chromatography_protocol/3208",
+                "name": "",
+                "executesProtocol": {
+                  "@id": "#protocol/assay_269_88"
+                },
+                "parameterValues": [
+                  {
+                    "category": {
+                      "@id": "#parameter/2967"
+                    },
+                    "value": {
+                      "annotationValue": "Thermo Scientific Dionex UltiMate 3000 RSLCnano System ",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2968"
+                    },
+                    "value": {
+                      "annotationValue": "Acclaim PepMap RSLC C18 (3 µm, 0.075 mm x 150 mm; Thermo Scientific)",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2969"
+                    },
+                    "value": {
+                      "annotationValue": "",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  }
+                ],
+                "performer": "",
+                "date": "",
+                "inputs": [
+                  {
+                    "@id": "#other_material/3207"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "@id": "#other_material/3208"
+                  }
+                ],
+                "previousProcess": {
+                  "@id": "#process/Extraction/3208"
+                },
+                "nextProcess": {
+                  "@id": "#process/MS_Protocol/3208"
+                }
+              },
+              {
+                "@id": "#process/MS_Protocol/3209",
+                "name": "",
+                "executesProtocol": {
+                  "@id": "#protocol/assay_270_2972"
+                },
+                "parameterValues": [
+                  {
+                    "category": {
+                      "@id": "#parameter/2973"
+                    },
+                    "value": {
+                      "annotationValue": "positive",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2974"
+                    },
+                    "value": {
+                      "annotationValue": "165-2000",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2975"
+                    },
+                    "value": {
+                      "annotationValue": "Thermo Scientific Q Exactive HF",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2976"
+                    },
+                    "value": {
+                      "annotationValue": "nanoelectrospray",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  },
+                  {
+                    "category": {
+                      "@id": "#parameter/2977"
+                    },
+                    "value": {
+                      "annotationValue": "orbitrap",
+                      "termSource": "",
+                      "termAccession": ""
+                    },
+                    "unit": {
+                      "termSource": "",
+                      "termAccession": "",
+                      "comments": []
+                    }
+                  }
+                ],
+                "performer": "",
+                "date": "",
+                "inputs": [
+                  {
+                    "@id": "#other_material/3208"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "@id": "#data_file/3209"
+                  }
+                ],
+                "previousProcess": {
+                  "@id": "#process/Chromatography_protocol/3209"
+                },
+                "nextProcess": {}
+              }
+            ],
+            "dataFiles": [
+              {
+                "@id": "#data_file/3209",
+                "name": "FILES/RAW_FILES/1167_C.raw",
+                "type": "Raw Spectral Data File",
+                "comments": [
+                  {
+                    "name": "MS Assay Name",
+                    "value": "1167_C"
+                  },
+                  {
+                    "name": "Data transformation protocol",
+                    "value": "Data transformation"
+                  },
+                  {
+                    "name": "Derived Spectral Data File",
+                    "value": "FILES/DERIVED_FILES/1167_C.mzML"
+                  },
+                  {
+                    "name": "Metabolite Identification protocol",
+                    "value": "Metabolite identification"
+                  },
+                  {
+                    "name": "Metabolite Assignment File",
+                    "value": "m_MTBLS6988_LC-MS_positive_reverse-phase_metabolite_profiling_v2_maf.tsv"
                   }
                 ]
               }
