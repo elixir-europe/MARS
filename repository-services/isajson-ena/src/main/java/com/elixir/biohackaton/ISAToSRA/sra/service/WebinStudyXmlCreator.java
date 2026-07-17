@@ -4,10 +4,10 @@ package com.elixir.biohackaton.ISAToSRA.sra.service;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Comment;
 import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
@@ -101,7 +101,7 @@ public class WebinStudyXmlCreator {
   }
 
   private Map<String, String> buildCommentMap(final List<Comment> comments) {
-    final Map<String, String> commentMap = new HashMap<>();
+    final Map<String, String> commentMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     if (comments == null) {
       return commentMap;
@@ -131,7 +131,8 @@ public class WebinStudyXmlCreator {
           if (comment == null
               || comment.getName() == null
               || comment.getValue() == null
-              || namesToSkip.contains(comment.getName())) {
+              || namesToSkip.stream()
+                  .anyMatch(name -> name.equalsIgnoreCase(comment.getName()))) {
             return;
           }
 
