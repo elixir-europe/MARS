@@ -159,6 +159,7 @@ public class WebinIsaToXmlSubmissionController {
     final String receiptXml =
         webinHttpSubmissionService.performWebinSubmission(
             webinUserName, document.asXML(), webinPassword);
+    log.info("ENA Webin receipt:\n{}", receiptXml);
 
     // Step 6: Convert ENA XML receipt to JSON
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
