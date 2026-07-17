@@ -42,7 +42,7 @@
           "annotationValue": ""
         },
         "title": "Novel strategies to improve chicken performance and welfare by unveiling host-microbiota interactions through hologenomics",
-        "author_list": "",
+        "authorList": "",
         "comments": [
           {
             "@id": "#publication_comment/6_",
@@ -1243,7 +1243,7 @@
                 "value": "ena"
               },
               {
-                "name": "study type",
+                "name": "STUDY_TYPE",
                 "value": "Transcriptome Sequencing"
               }
             ],
@@ -1276,7 +1276,7 @@
                 {
                   "@id": "#other_material/3067",
                   "name": "CC08.13B1a_HostT",
-                  "type": "title",
+                  "type": "Extract Name",
                   "characteristics": [
                     {
                       "category": {
