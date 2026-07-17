@@ -101,23 +101,6 @@ final class IsaJsonGraphLookup {
     return dataFiles;
   }
 
-  static List<String> normalizedOutputIds(final ProcessSequence process) {
-    final List<String> outputIds = new ArrayList<>();
-    if (process == null || process.getOutputs() == null) {
-      return outputIds;
-    }
-
-    for (final Output output : process.getOutputs()) {
-      if (output == null || output.getId() == null || output.getId().isBlank()) {
-        continue;
-      }
-
-      outputIds.add(normalizeDataFileId(output.getId()));
-    }
-
-    return outputIds;
-  }
-
   static Map<String, OtherMaterial> buildOtherMaterialsById(final Materials materials) {
     final Map<String, OtherMaterial> otherMaterialsById = new HashMap<>();
     if (materials == null || materials.getOtherMaterials() == null) {

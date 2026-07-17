@@ -170,7 +170,10 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
                                 .findFirst()
                                 .ifPresent(
                                     process ->
-                                        IsaJsonGraphLookup.normalizedOutputIds(process)
+                                        IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
+                                                process, assay.getDataFiles())
+                                            .stream()
+                                            .map(DataFile::getId)
                                             .forEach(dataFileIds::add))));
 
     return dataFileIds;
@@ -209,7 +212,11 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
       }
 
       final List<String> dataFileIds = new ArrayList<>();
-      IsaJsonGraphLookup.normalizedOutputIds(sequencingProcess).forEach(dataFileIds::add);
+      IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
+              sequencingProcess, assay.getDataFiles())
+          .stream()
+          .map(DataFile::getId)
+          .forEach(dataFileIds::add);
       sequencingProcessDataFiles.add(dataFileIds);
     }
   }
