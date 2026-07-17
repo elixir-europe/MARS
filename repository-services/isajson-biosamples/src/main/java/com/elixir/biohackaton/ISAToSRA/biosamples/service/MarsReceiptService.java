@@ -44,6 +44,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
    */
   public MarsReceipt convertReceiptToMars(
       final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
+    // The service is a singleton, so discard accessions collected for an earlier request.
+    resetMarsReceipt();
     buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
