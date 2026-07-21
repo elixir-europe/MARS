@@ -1,9 +1,10 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Investigation;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
+
+import com.elixir.mars.repository.models.isa.Investigation;
 
 /**
  * Service for creating ENA PROJECT XML elements from ISA-JSON Investigation objects.
