@@ -7,15 +7,12 @@ const schema = model.schema ?? {};
 const schemaDefs = schema.$defs ?? [];
 ---
 
-<Layout>
-  {/* Let typography handle headings & text */}
-  <article class="prose prose-slate dark:prose-invert max-w-none">
-    <h1>MARS ISA-JSON model</h1>
+<Layout title="ISA-JSON model">
+  <h1>ISA-JSON model</h1>
 
-    {
-      Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
-        <SchemaTable title={key} schema={schemadefinition} />
-      ))
-    }
-  </article>
+  {
+    Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
+      <SchemaTable title={key} schema={schemadefinition} />
+    ))
+  }
 </Layout>

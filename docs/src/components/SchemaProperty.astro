@@ -1,13 +1,61 @@
 ---
-const { name, property } = Astro.props;
+type JsonSchema = {
+  default?: unknown;
+  description?: string;
+  title?: string;
+  type?: string | string[];
+};
+
+type Field = {
+  label: string;
+  value: unknown;
+  valueClass?: string;
+};
+
+const { name, property, isRequired = false, layout = 'row' } = Astro.props as {
+  name: string;
+  property: JsonSchema;
+  isRequired?: boolean;
+  layout?: 'row' | 'card';
+};
+
 const propertyType = property.type ?? 'any';
 const propertyDefaultValue = property.default ?? 'N/A';
-const propertyTitle = property.title ?? 'Undefined';
+const propertyDescription = property.description ?? property.title ?? 'N/A';
+const requiredLabel = isRequired ? 'Yes' : 'No';
+const requiredClass = isRequired
+  ? 'inline-flex w-fit rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
+  : 'inline-flex w-fit rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+const fields: Field[] = [
+  { label: 'Type', value: propertyType, valueClass: 'text-gray-800 dark:text-gray-200 font-mono text-xs' },
+  { label: 'Description', value: propertyDescription },
+  { label: 'Required', value: requiredLabel, valueClass: requiredClass },
+  { label: 'Default', value: propertyDefaultValue, valueClass: 'text-gray-800 dark:text-gray-200 font-mono text-xs' },
+];
 ---
-<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-    <th class="px-6 py-4 text-center">{name}</th>
-    <td class="px-6 py-4 text-center">{propertyType}</td>
-    <td class="px-6 py-4 text-center">{property.description ?? 'N/A'}</td>
-    <td class="px-6 py-4 text-center">{property.required ? 'Yes' : 'No'}</td>
-    <td class="px-6 py-4 text-center">{propertyDefaultValue}</td>
-</tr>
+
+{
+  layout === 'card' ? (
+    <article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <p class="m-0 text-xs font-semibold text-gray-500 dark:text-gray-400">Field</p>
+      <h4 class="m-0 mt-1 break-words text-base font-semibold text-gray-950 dark:text-white">{name}</h4>
+
+      <dl class="mt-4 grid gap-3 text-sm">
+        {fields.map(({ label, value, valueClass }) => (
+          <div class={label === 'Description' ? 'grid gap-1' : 'grid grid-cols-[6.5rem_1fr] gap-3'}>
+            <dt class="text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</dt>
+            <dd class={`m-0 min-w-0 break-words ${valueClass ?? 'text-gray-800 dark:text-gray-200'}`}>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  ) : (
+    <tr class="border-b border-gray-200 bg-white last:border-b-0 dark:border-gray-700 dark:bg-gray-800">
+      <th scope="row" class="break-words px-4 py-3 text-left align-top font-semibold text-gray-950 dark:text-white">{name}</th>
+      <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">{propertyType}</td>
+      <td class="break-words px-4 py-3 text-left align-top text-gray-700 dark:text-gray-300">{propertyDescription}</td>
+      <td class="px-4 py-3 text-left align-top"><span class={requiredClass}>{requiredLabel}</span></td>
+      <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">{propertyDefaultValue}</td>
+    </tr>
+  )
+}

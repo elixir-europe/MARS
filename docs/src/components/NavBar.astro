@@ -7,33 +7,67 @@ const homeUrl = `${astroConfig.base}`;
 const isaJsonSpecsUrl = `${astroConfig.base}mars-isa-json`;
 const stakeholdersUrl = `${astroConfig.base}stakeholders`;
 const repositoryApiUrl = `${astroConfig.base}repository-services/repository-api`;
+
+const normalizePath = (path: string) => {
+  const normalized = path.replace(/\/+$/, "");
+  return normalized || "/";
+};
+
+const currentPath = normalizePath(Astro.url.pathname);
+
+const navItems = [
+  { href: homeUrl, label: "Home" },
+  { href: isaJsonSpecsUrl, label: "ISA-JSON model" },
+  { href: stakeholdersUrl, label: "Stakeholders" },
+  { href: repositoryApiUrl, label: "Repository API" },
+].map((item) => ({
+  ...item,
+  isActive: currentPath === normalizePath(item.href) || (item.href === homeUrl && currentPath === "/"),
+}));
+
+const getLinkClass = (isActive: boolean, isMobile = false) => [
+  isMobile ? "block px-3 py-3 text-base" : "px-3 py-2 text-sm",
+  "rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-white/70",
+  isActive
+    ? "bg-white/15 text-white shadow-sm"
+    : "text-gray-300 hover:bg-white/5 hover:text-white",
+].join(" ");
 ---
 
-<nav class="relative dark:bg-gray-800 dark:border-gray-600 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10">
-  <div class="mx-auto max-w-5xl px-2 sm:px-6 lg:px-8">
-    <div class="relative flex h-16 items-center justify-between">
+<nav class="sticky top-0 z-40 bg-gray-900 text-white shadow-sm after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10">
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative flex min-h-16 items-center justify-between gap-3 py-2 md:h-16 md:py-0">
       {/* Logo + desktop links */}
-      <div class="flex flex-1 items-center sm:items-stretch sm:justify-start">
+      <div class="flex min-w-0 flex-1 items-center md:items-stretch md:justify-start">
         <div class="flex shrink-0 items-center">
-          <Image src={logo} alt="Small MARS logo" style="width: 64px;" />
+          <a href={homeUrl} class="inline-flex items-center" aria-label="MARS home">
+            <Image src={logo} alt="Small MARS logo" class="h-12 w-16 object-contain" />
+          </a>
         </div>
 
         {/* Desktop nav */}
-        <div class="hidden sm:ml-6 sm:block">
-          <div class="flex space-x-4">
-            <a href={homeUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
-            <a href={isaJsonSpecsUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">ISA-JSON model</a>
-            <a href={stakeholdersUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Stakeholders</a>
-            <a href={repositoryApiUrl} class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Repository API</a>
+        <div class="hidden md:ml-6 md:flex md:min-w-0 md:items-center">
+          <div class="flex flex-wrap items-center gap-1 lg:gap-3">
+            {
+              navItems.map((item) => (
+                <a
+                  href={item.href}
+                  class={getLinkClass(item.isActive)}
+                  aria-current={item.isActive ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+              ))
+            }
           </div>
         </div>
       </div>
 
       {/* Mobile menu button */}
-      <div class="flex sm:hidden">
+      <div class="flex md:hidden">
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-md p-2 text-gray-300 hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 text-gray-300 hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
           aria-controls="mobile-menu"
           aria-expanded="false"
           data-mobile-menu-toggle
@@ -54,28 +88,54 @@ const repositoryApiUrl = `${astroConfig.base}repository-services/repository-api`
   {/* Mobile menu */}
   <div
     id="mobile-menu"
-    class="sm:hidden hidden"
+    class="hidden border-t border-white/10 md:hidden"
     data-mobile-menu
   >
-    <div class="space-y-1 px-2 pt-2 pb-3">
-      <a href={homeUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
-      <a href={isaJsonSpecsUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">ISA-JSON model</a>
-      <a href={stakeholdersUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Stakeholders</a>
-      <a href={repositoryApiUrl} class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Repository API</a>
+    <div class="mx-auto max-w-5xl space-y-1 px-4 py-3 sm:px-6 lg:px-8">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class={getLinkClass(item.isActive, true)}
+            aria-current={item.isActive ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
     </div>
   </div>
 </nav>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  const setupMobileMenu = () => {
     const toggle = document.querySelector("[data-mobile-menu-toggle]");
     const menu = document.querySelector("[data-mobile-menu]");
 
     if (!toggle || !menu) return;
 
+    const closeMenu = () => {
+      menu.classList.add("hidden");
+      toggle.setAttribute("aria-expanded", "false");
+    };
+
     toggle.addEventListener("click", () => {
       const isHidden = menu.classList.toggle("hidden"); // true if now hidden
       toggle.setAttribute("aria-expanded", String(!isHidden));
     });
-  });
+
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupMobileMenu, { once: true });
+  } else {
+    setupMobileMenu();
+  }
 </script>

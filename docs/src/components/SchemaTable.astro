@@ -1,32 +1,68 @@
 ---
 import SchemaProperty from './SchemaProperty.astro';
 
-const { title, schema } = Astro.props;
+type JsonSchema = {
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+};
+
+const { title, schema } = Astro.props as {
+  title: string;
+  schema: JsonSchema;
+};
+
 const schemaProperties = Object.entries(schema.properties ?? {});
+const requiredFields = new Set(Array.isArray(schema.required) ? schema.required : []);
+const schemaRows = schemaProperties.map(([name, property]) => ({
+  name,
+  property,
+  isRequired: requiredFields.has(name),
+}));
 ---
 
 
 <section class="my-8">
   <h3>{title}</h3>
 
-  <div class="relative mt-4 max-w-full overflow-x-auto not-prose rounded-lg border border-gray-200 dark:border-gray-600">
-    <table class="min-w-[640px] w-full text-xs sm:text-sm text-left rtl:text-right bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-      <thead>
-        <tr>
-          <th scope="col" class="px-3 py-2 sm:px-6 sm:py-3 text-center font-extrabold">Field</th>
-          <th scope="col" class="px-3 py-2 sm:px-6 sm:py-3 text-center font-extrabold">Type</th>
-          <th scope="col" class="px-3 py-2 sm:px-6 sm:py-3 text-center font-extrabold">Description</th>
-          <th scope="col" class="px-3 py-2 sm:px-6 sm:py-3 text-center font-extrabold">Required</th>
-          <th scope="col" class="px-3 py-2 sm:px-6 sm:py-3 text-center font-extrabold">Default value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          schemaProperties.map(([name, property]) => (
-            <SchemaProperty name={name} property={property} />
-          ))
-        }
-      </tbody>
-    </table>
+  <div class="relative mt-4 not-prose">
+    <ul class="m-0 list-none space-y-3 p-0 md:hidden" aria-label={`${title} fields`}>
+      {
+        schemaRows.map(({ name, property, isRequired }) => (
+          <li>
+            <SchemaProperty name={name} property={property} isRequired={isRequired} layout="card" />
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="hidden overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600 md:block">
+      <div class="max-w-full overflow-x-auto">
+        <table class="w-full min-w-[720px] table-fixed text-left text-sm bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+          <colgroup>
+            <col class="w-[16%]" />
+            <col class="w-[18%]" />
+            <col class="w-[40%]" />
+            <col class="w-[10%]" />
+            <col class="w-[16%]" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200">Field</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200">Type</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200">Description</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200">Required</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200">Default value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              schemaRows.map(({ name, property, isRequired }) => (
+                <SchemaProperty name={name} property={property} isRequired={isRequired} />
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>

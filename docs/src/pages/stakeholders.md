@@ -2,7 +2,7 @@
 layout: ../layouts/Layout.astro
 ---
 
-# Stakeholders in MARS
+# Stakeholders
 
 MARS framework is comprised of distinct stakeholders, each representing key roles in the data submission process. Together, they form the essential building blocks of MARS framework, enabling cohesive and reliable data submission to multiple repositories.
 Each stakeholder has a specific role, performs specific functions and carries distinct responsibilities essential for the smooth operation of the system.

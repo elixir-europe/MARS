@@ -1,2 +1,66 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+@layer components {
+  .prose {
+    max-width: 100%;
+  }
+
+  .prose :where(img, svg) {
+    height: auto;
+    max-width: 100%;
+  }
+
+  .prose :where(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .prose :where(code) {
+    overflow-wrap: anywhere;
+  }
+
+  .prose :where(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: normal;
+  }
+
+  .prose :where(th, td) {
+    min-width: 8rem;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+  }
+
+  .prose :where(th:first-child, td:first-child) {
+    min-width: 10rem;
+  }
+
+  @media (max-width: 767px) {
+    .prose :where(h1) {
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+
+    .prose :where(h2) {
+      font-size: 1.5rem;
+      line-height: 1.25;
+    }
+
+    .prose :where(table) {
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+
+    .prose :where(th, td) {
+      padding: 0.625rem 0.75rem;
+    }
+  }
+}
