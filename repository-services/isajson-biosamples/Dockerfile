@@ -1,18 +1,23 @@
-# Builder stage: Use gradle image to compile jar file
+# Builder stage
 FROM gradle:jdk17 AS builder
 
-WORKDIR /app
-
+WORKDIR /lib
 USER root
-COPY repository-services/receipt /app/receipt
-COPY repository-services/isajson-biosamples /app/isajson-biosamples
 
-# Build receipt first (dependency)
-WORKDIR /app/receipt
+# Install git and clone the mars-repository-lib repository
+RUN apk add --no-cache git || apt-get update && apt-get install -y git
+RUN git clone https://github.com/elixir-europe/mars-repository-lib.git
+
+# Build and publish mars-repository-lib to the local Maven repository
+WORKDIR /lib/mars-repository-lib
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
     ./gradlew build && \
     ./gradlew publishToMavenLocal
+
+WORKDIR /app
+# Copy the isajson-biosamples source code to the builder stage
+COPY repository-services/isajson-biosamples /app/isajson-biosamples
 
 # Build isajson-biosamples
 WORKDIR /app/isajson-biosamples
@@ -22,13 +27,11 @@ RUN sed -i 's/\r$//' gradlew && \
 
 # Use a lightweight base image to run the jar file
 FROM eclipse-temurin:17-jre-alpine
+
 WORKDIR /app
 
-ARG JAR_FILE=/app/isajson-biosamples/build/libs/*.jar
-
 # Copy the JAR file from the builder stage
-COPY --from=builder ${JAR_FILE} app.jar
+COPY --from=builder /app/isajson-biosamples/build/libs/*.jar app.jar
 
 # Set the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

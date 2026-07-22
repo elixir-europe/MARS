@@ -1,20 +1,21 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.MarsReceiptException;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Assay;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Category;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Characteristic;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.CharacteristicCategory;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DataFile;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.DerivesFrom;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Materials;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.OtherMaterial;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Parameter;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ParameterValue;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.ProcessSequence;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Sample;
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.Study;
+import com.elixir.mars.repository.MarsReceiptException;
+import com.elixir.mars.repository.IsaJsonGraphLookup;
+import com.elixir.mars.repository.models.isa.Assay;
+import com.elixir.mars.repository.models.isa.Category;
+import com.elixir.mars.repository.models.isa.Characteristic;
+import com.elixir.mars.repository.models.isa.CharacteristicCategory;
+import com.elixir.mars.repository.models.isa.DataFile;
+import com.elixir.mars.repository.models.isa.DerivesFrom;
+import com.elixir.mars.repository.models.isa.Materials;
+import com.elixir.mars.repository.models.isa.OtherMaterial;
+import com.elixir.mars.repository.models.isa.Parameter;
+import com.elixir.mars.repository.models.isa.ParameterValue;
+import com.elixir.mars.repository.models.isa.ProcessSequence;
+import com.elixir.mars.repository.models.isa.Sample;
+import com.elixir.mars.repository.models.isa.Study;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

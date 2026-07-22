@@ -51,4 +51,3 @@ Full documentation and concepts are hosted on the MARS website: https://elixir-e
 - **schemas**: JSON schema representation of the pydantic models used for syntactic validation of the ISA-JSON
 - **test-data**: Test data to be used in a submission.
 - **README.md**: This file.
-

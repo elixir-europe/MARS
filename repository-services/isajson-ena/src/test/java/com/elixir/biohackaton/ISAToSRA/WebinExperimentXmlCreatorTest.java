@@ -1,7 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
 
-import com.elixir.biohackaton.ISAToSRA.receipt.isamodel.*;
+import com.elixir.mars.repository.models.isa.*;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinExperimentXmlCreator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
