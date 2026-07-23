@@ -173,6 +173,13 @@ public class BioSamplesSubmitter {
                 sourceBioSample.getName(), sourceBioSample.getAccession()));
   }
 
+  /**
+   * Resolves the BioSamples source record for a study sample.
+   *
+   * <p>ISA exports can express source-to-sample lineage either directly through
+   * {@code sample.derivesFrom} or indirectly through the sample collection process input. When a
+   * study has a single source, that source is used as a final fallback.
+   */
   private BioSample findSourceBioSampleForSample(
       final Sample sample,
       final ProcessSequence sampleCollectionProcess,
@@ -194,6 +201,12 @@ public class BioSamplesSubmitter {
         "Could not resolve source BioSample for sample " + sample.getId() + ".");
   }
 
+  /**
+   * Finds a source ID from the sample's explicit ISA material lineage.
+   *
+   * <p>The {@code derivesFrom} entries store IDs, so they are resolved against the source
+   * BioSamples that were already created for the current study.
+   */
   private Optional<String> findSourceIdFromSampleDerivesFrom(
       final Sample sample, final Map<String, BioSample> sourceBioSamplesById) {
     if (sample == null || sample.getDerivesFrom() == null) {
@@ -207,6 +220,12 @@ public class BioSamplesSubmitter {
         .findFirst();
   }
 
+  /**
+   * Finds a source ID from the inputs of the process that produced the sample.
+   *
+   * <p>Some ISA exports keep source-to-sample lineage in {@code processSequence} instead of
+   * {@code sample.derivesFrom}, so this is the fallback lookup for that representation.
+   */
   private Optional<String> findSourceIdFromProcessInputs(
       final ProcessSequence processSequence, final Map<String, BioSample> sourceBioSamplesById) {
     if (processSequence == null || processSequence.getInputs() == null) {
@@ -220,6 +239,12 @@ public class BioSamplesSubmitter {
         .findFirst();
   }
 
+  /**
+   * Finds the process that produced the given sample output.
+   *
+   * <p>BioSamples uses this to locate the sample collection process, whose inputs can identify the
+   * source material for the child sample.
+   */
   private ProcessSequence findProcessByOutputId(
       final List<ProcessSequence> processSequence, final String outputId) {
     if (processSequence == null || outputId == null) {

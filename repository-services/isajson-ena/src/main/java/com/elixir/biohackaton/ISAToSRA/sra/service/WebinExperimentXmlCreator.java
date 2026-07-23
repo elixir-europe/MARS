@@ -200,6 +200,13 @@ public class WebinExperimentXmlCreator {
         randomSubmissionIdentifier);
   }
 
+  /**
+   * Collects the ISA processes that describe one ENA experiment.
+   *
+   * <p>An ENA experiment is built around the library material. The relevant ISA process context is
+   * the process that constructed that library, the sequencing process that produced the data file,
+   * and any upstream material-producing processes in the library-to-sample lineage.
+   */
   private List<ProcessSequence> findExperimentProcesses(
       final List<ProcessSequence> assayProcesses,
       final ProcessSequence libraryConstructionProcess,
@@ -241,7 +248,11 @@ public class WebinExperimentXmlCreator {
   }
 
   /**
-   * Returns the library and upstream otherMaterials until the chain reaches a Study sample.
+   * Returns the library and upstream other materials until the chain reaches a study sample.
+   *
+   * <p>ISA material lineage is represented as {@code derivesFrom} ID references. This helper keeps
+   * the ENA experiment metadata close to the full library lineage while stopping before biological
+   * samples, which are handled through BioSamples accessions.
    */
   private List<OtherMaterial> findMaterialLineageToSample(
       final OtherMaterial material, final Materials materials) {
@@ -254,6 +265,11 @@ public class WebinExperimentXmlCreator {
     return materialLineage;
   }
 
+  /**
+   * Recursively follows {@code derivesFrom} links between other materials.
+   *
+   * <p>The visited set prevents loops in malformed ISA graphs from causing unbounded recursion.
+   */
   private void collectMaterialLineage(
       final OtherMaterial material,
       final Map<String, OtherMaterial> otherMaterialsById,
@@ -387,6 +403,13 @@ public class WebinExperimentXmlCreator {
     return key == null ? null : bioSampleAccessions.get(key);
   }
 
+  /**
+   * Finds the biological sample at the start of an other-material lineage.
+   *
+   * <p>Libraries and other materials can derive from other materials before eventually reaching a
+   * study sample. This resolves those ID links recursively so the experiment can reference the
+   * correct BioSamples accession.
+   */
   private Sample findSampleForMaterialId(
       final String materialId,
       final Map<String, Sample> samplesById,
