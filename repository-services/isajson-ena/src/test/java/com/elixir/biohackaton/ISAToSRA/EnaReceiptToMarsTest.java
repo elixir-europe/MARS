@@ -62,6 +62,51 @@ class EnaReceiptToMarsTest {
         "The HoloFood RUN accession should be returned for both paired data files");
   }
 
+  @Test
+  void convertReceiptToMarsResetsStateBetweenConversions() throws Exception {
+    ObjectMapper jsonMapper = new ObjectMapper();
+    MarsReceiptService marsReceiptService = new MarsReceiptService();
+
+    IsaJson arabidopsisIsaJson =
+        jsonMapper.readValue(
+            Files.readString(new File("../../test-data/biosamples-modified-isa.json").toPath()),
+            IsaJson.class);
+    Receipt arabidopsisReceipt =
+        jsonMapper.readValue(
+            Files.readString(new File("../../test-data/ena-receipt.json").toPath()), Receipt.class);
+    marsReceiptService.convertReceiptToMars(arabidopsisReceipt, arabidopsisIsaJson);
+
+    IsaJson holoFoodIsaJson =
+        jsonMapper.readValue(
+            Files.readString(new File("../../test-data/HoloFoodinISA_v1.0.json").toPath()),
+            IsaJson.class);
+
+    ReceiptObject run = new ReceiptObject();
+    run.setAlias("#process/nucleic_acid_sequencing/3068_3069-0.4084468977467368");
+    run.setAccession("ERR17594887");
+
+    Messages messages = new Messages();
+    messages.setInfoMessages(List.of());
+    messages.setErrorMessages(List.of());
+
+    Receipt holoFoodReceipt = new Receipt();
+    holoFoodReceipt.setRuns(List.of(run));
+    holoFoodReceipt.setMessages(messages);
+
+    MarsReceipt holoFoodMarsReceipt =
+        marsReceiptService.convertReceiptToMars(holoFoodReceipt, holoFoodIsaJson);
+
+    Assertions.assertTrue(
+        holoFoodMarsReceipt.getAccessions().stream()
+            .noneMatch(accession -> "PRJEB101337".equals(accession.getValue())),
+        "The second conversion should not include accessions from the first conversion");
+    Assertions.assertEquals(
+        2,
+        holoFoodMarsReceipt.getAccessions().stream()
+            .filter(accession -> "ERR17594887".equals(accession.getValue()))
+            .count());
+  }
+
   void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
     MarsReceiptService marsReceiptService = new MarsReceiptService();
