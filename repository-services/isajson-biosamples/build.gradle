@@ -40,6 +40,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+jar {
+    enabled = false
+}
+
 spotless {
     java {
         target 'src/**/*.java'

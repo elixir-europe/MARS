@@ -53,6 +53,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+jar {
+    enabled = false
+}
+
 // Skip spotlessJavaCheck during build (only run spotlessApply manually)
 afterEvaluate {
     tasks.named('spotlessJavaCheck').configure {
