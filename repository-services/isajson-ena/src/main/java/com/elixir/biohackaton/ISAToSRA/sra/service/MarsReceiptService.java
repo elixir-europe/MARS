@@ -85,6 +85,8 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    // The service is a singleton, so discard accessions collected for an earlier request.
+    resetMarsReceipt();
     buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
