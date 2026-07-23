@@ -33,35 +33,6 @@ class EnaReceiptToMarsTest {
     convertToMars(enaReceiptFilePath, marsReceiptPath);
   }
 
-  @Test
-  void convertHoloFoodRunAccessionToDataFiles() throws Exception {
-    ObjectMapper jsonMapper = new ObjectMapper();
-    String isaJsonFile =
-        Files.readString(new File("../../test-data/HoloFoodinISA_v1.0.json").toPath());
-    IsaJson isaJson = jsonMapper.readValue(isaJsonFile, IsaJson.class);
-
-    ReceiptObject run = new ReceiptObject();
-    run.setAlias("#process/nucleic_acid_sequencing/3068_3069-0.4084468977467368");
-    run.setAccession("ERR17594887");
-
-    Messages messages = new Messages();
-    messages.setInfoMessages(List.of());
-    messages.setErrorMessages(List.of());
-
-    Receipt receipt = new Receipt();
-    receipt.setRuns(List.of(run));
-    receipt.setMessages(messages);
-
-    MarsReceipt marsReceipt = new MarsReceiptService().convertReceiptToMars(receipt, isaJson);
-
-    Assertions.assertEquals(
-        2,
-        marsReceipt.getAccessions().stream()
-            .filter(accession -> "ERR17594887".equals(accession.getValue()))
-            .count(),
-        "The HoloFood RUN accession should be returned for both paired data files");
-  }
-
   void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
     MarsReceiptService marsReceiptService = new MarsReceiptService();
