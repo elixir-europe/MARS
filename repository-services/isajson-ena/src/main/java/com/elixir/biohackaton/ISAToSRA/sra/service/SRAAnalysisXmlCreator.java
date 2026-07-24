@@ -12,6 +12,12 @@ import com.elixir.mars.repository.models.isa.Comment;
 import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.Study;
 
+/**
+ * Creates ENA ANALYSIS XML from ISA derived data files.
+ *
+ * <p>The analysis path is intentionally limited to derived data files and expects checksum metadata
+ * to be supplied through ISA data-file comments.
+ */
 @Service
 @Slf4j
 public class SRAAnalysisXmlCreator {
@@ -21,6 +27,7 @@ public class SRAAnalysisXmlCreator {
 
   private static final String CHECKSUM_TYPE_KEY = "checksum type";
 
+  /** Creates the ENA ANALYSIS_SET element for derived data files in each submitted assay. */
   public void createENAAnalysisSetElement(final Element webinElement, final List<Study> studies) {
     final Element analysisSetElement = webinElement.addElement("ANALYSIS_SET");
 
@@ -43,6 +50,11 @@ public class SRAAnalysisXmlCreator {
     assay.getDataFiles().forEach(dataFile -> convertDataFileToFileElement(dataFile, filesElement));
   }
 
+  /**
+   * Converts a derived ISA data file into an ENA analysis FILE element.
+   *
+   * <p>Primary/raw data files are ignored here because they are submitted through ENA RUN XML.
+   */
   private void convertDataFileToFileElement(DataFile dataFile, Element filesElement) {
     // Analysis must use derived files
     if (dataFile == null
@@ -71,6 +83,7 @@ public class SRAAnalysisXmlCreator {
     fileElement.addAttribute("checksum", checksum);
   }
 
+  /** Finds a data-file comment value using ENA's case-insensitive metadata convention. */
   private String findCommentValue(final List<Comment> comments, final String commentName) {
     if (comments == null) {
       return null;

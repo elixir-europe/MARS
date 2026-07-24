@@ -10,8 +10,20 @@ import java.util.Set;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 
+/**
+ * Creates ENA RUN XML from ISA sequencing processes.
+ *
+ * <p>Runs are grouped by the sequencing process that produced one or more data files and are linked
+ * back to the ENA experiment generated for the input library.
+ */
 @Service
 public class WebinRunXmlCreator {
+  /**
+   * Creates the ENA RUN_SET element for every submitted assay.
+   *
+   * <p>The traversal starts at ISA data files, resolves the sequencing process that produced them,
+   * and emits one ENA RUN for each sequencing process instead of one run per data file.
+   */
   public void createENARunSetElement(
       final Element webinElement,
       final List<Study> studies,

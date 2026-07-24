@@ -445,6 +445,12 @@ public class WebinExperimentXmlCreator {
     return null;
   }
 
+  /**
+   * Builds a lookup from study and assay characteristic category IDs to human-readable names.
+   *
+   * <p>Assay-level definitions are included because library and other-material characteristics can
+   * use categories declared outside the parent study.
+   */
   private Map<String, String> buildCharacteristicKeyLookup(final Study study, final Assay assay) {
     final Map<String, String> keyLookup = new HashMap<>();
 
@@ -481,8 +487,12 @@ public class WebinExperimentXmlCreator {
     }
   }
 
+  /**
+   * Reads a sample accession from sample characteristics when it is already present in the ISA.
+   */
   private String getCharacteristicAnnotation(
-      final List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
+      final List<Characteristic> characteristics,
+      final Map<String, String> characteristicKeyLookup) {
     if (characteristics == null) {
       return "";
     }
@@ -503,6 +513,12 @@ public class WebinExperimentXmlCreator {
     return "";
   }
 
+  /**
+   * Extracts library and upstream material characteristics as fallback ENA experiment metadata.
+   *
+   * <p>The first value in the library-to-sample lineage wins so metadata closest to the library is
+   * preferred over less specific upstream material metadata.
+   */
   private Map<String, String> extractMaterialCharacteristicValues(
       final List<OtherMaterial> materialLineage,
       final Map<String, String> characteristicKeyLookup) {
@@ -538,6 +554,12 @@ public class WebinExperimentXmlCreator {
     return characteristicValuesByName;
   }
 
+  /**
+   * Resolves the display name for an ISA characteristic category.
+   *
+   * <p>Generated ISA category IDs are only used as a last resort when no declared characteristic
+   * type is available.
+   */
   private String getCharacteristicName(
       final Category category, final Map<String, String> characteristicKeyLookup) {
     if (category == null) {
@@ -702,7 +724,14 @@ public class WebinExperimentXmlCreator {
     }
   }
 
-  private String getMetadataValue(final Map<String, String> metadata, final String... metadataNames) {
+  /**
+   * Looks up ENA metadata by exact field name first, then by normalized field name.
+   *
+   * <p>This accepts ISA metadata written with minor spacing or punctuation differences, such as
+   * {@code LIBRARY_LAYOUT} and {@code library layout}.
+   */
+  private String getMetadataValue(
+      final Map<String, String> metadata, final String... metadataNames) {
     if (metadata == null || metadataNames == null) {
       return null;
     }

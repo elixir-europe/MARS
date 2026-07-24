@@ -19,6 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Converts ISA source and sample materials into BioSamples records.
+ *
+ * <p>Sources are created first so child samples can be linked back to their source BioSample via a
+ * BioSamples relationship and the resulting MARS receipt can preserve ISA material accessions.
+ */
 @Service
 @Slf4j
 public class BioSamplesSubmitter {
@@ -28,6 +34,12 @@ public class BioSamplesSubmitter {
   private static final String GEOGRAPHIC_LOCATION_ATTRIBUTE =
       "geographic location (country and/or sea)";
 
+  /**
+   * Creates BioSamples records for all ISA sources and samples in the submitted studies.
+   *
+   * <p>The returned map is keyed by the ISA names expected by the MARS receipt provider so
+   * repository accessions can be written back to the matching ISA items.
+   */
   public BiosampleAccessionsMap createBioSamples(
       final List<Study> studies, final String webinToken) {
     final BiosampleAccessionsMap typeToBioSamplesAccessionMap = new BiosampleAccessionsMap();
@@ -75,6 +87,10 @@ public class BioSamplesSubmitter {
     return typeToBioSamplesAccessionMap;
   }
 
+  /**
+   * Persists a child sample and then updates it with a {@code derived from} relationship to its
+   * source BioSample.
+   */
   private BioSample createAndUpdateChildSampleWithRelationship(
       final Sample sample,
       final BioSample sourceBioSample,
@@ -117,6 +133,10 @@ public class BioSamplesSubmitter {
     }
   }
 
+  /**
+   * Builds BioSamples attributes for a child sample from direct characteristics, sample collection
+   * process parameters, and selected source attributes.
+   */
   private SortedSet<Attribute> buildChildSampleAttributes(
       final Sample sample,
       final BioSample sourceBioSample,
@@ -143,6 +163,7 @@ public class BioSamplesSubmitter {
     return childSampleAttributes;
   }
 
+  /** Creates source BioSamples and indexes them by ISA source id for lineage lookup. */
   private Map<String, BioSample> createSourceBioSamplesById(
       final Study study,
       final Map<String, String> characteristicKeyLookup,
@@ -266,8 +287,10 @@ public class BioSamplesSubmitter {
     return null;
   }
 
+  /** Converts ISA characteristics to BioSamples attributes using human-readable names. */
   private SortedSet<Attribute> buildAttributesFromCharacteristics(
-      final List<Characteristic> characteristics, final Map<String, String> characteristicKeyLookup) {
+      final List<Characteristic> characteristics,
+      final Map<String, String> characteristicKeyLookup) {
     final SortedSet<Attribute> attributes = new TreeSet<>();
 
     if (characteristics == null) {
@@ -294,6 +317,12 @@ public class BioSamplesSubmitter {
     return attributes;
   }
 
+  /**
+   * Converts sample collection process parameters to BioSamples attributes.
+   *
+   * <p>ISA parameter values point at parameter category IDs, so this uses the protocol declaration
+   * to resolve the user-facing parameter name.
+   */
   private SortedSet<Attribute> buildAttributesFromProcessParameters(
       final ProcessSequence processSequence,
       final Map<String, Map<String, String>> protocolToParameterNameMap) {
@@ -335,6 +364,9 @@ public class BioSamplesSubmitter {
     return attributes;
   }
 
+  /**
+   * Builds a lookup from ISA characteristic category IDs to their declared human-readable names.
+   */
   private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
     final Map<String, String> keyLookup = new HashMap<>();
 
@@ -360,6 +392,9 @@ public class BioSamplesSubmitter {
     return keyLookup;
   }
 
+  /**
+   * Builds a lookup from protocol ID to parameter category ID to declared parameter name.
+   */
   private Map<String, Map<String, String>> buildProtocolToParameterNameLookup(final Study study) {
     final Map<String, Map<String, String>> protocolToParameterNameMap = new HashMap<>();
 
@@ -442,6 +477,9 @@ public class BioSamplesSubmitter {
         .ifPresent(attribute -> addAttributeIfMissing(childAttributes, attribute));
   }
 
+  /**
+   * Keeps shared biological identity attributes aligned between source and child BioSamples.
+   */
   private void synchronizeSharedAttribute(
       final SortedSet<Attribute> childAttributes,
       final BioSample sourceBioSample,

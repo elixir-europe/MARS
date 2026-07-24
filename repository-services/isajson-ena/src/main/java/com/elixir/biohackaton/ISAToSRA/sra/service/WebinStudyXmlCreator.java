@@ -100,6 +100,9 @@ public class WebinStudyXmlCreator {
         studyAttributesElement, assay.getComments(), RESERVED_ASSAY_COMMENT_NAMES);
   }
 
+  /**
+   * Indexes ISA comments case-insensitively because ENA-specific fields are supplied as comments.
+   */
   private Map<String, String> buildCommentMap(final List<Comment> comments) {
     final Map<String, String> commentMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -118,6 +121,12 @@ public class WebinStudyXmlCreator {
     return commentMap;
   }
 
+  /**
+   * Copies non-reserved ISA comments into ENA STUDY_ATTRIBUTE entries.
+   *
+   * <p>Reserved comments are consumed as structured ENA study fields and should not be duplicated
+   * as free-form attributes.
+   */
   private void addCommentsAsStudyAttributes(
       final Element studyAttributesElement,
       final List<Comment> comments,

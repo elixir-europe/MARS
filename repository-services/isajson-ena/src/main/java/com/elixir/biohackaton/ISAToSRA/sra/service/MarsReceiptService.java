@@ -34,6 +34,13 @@ import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * Converts ENA Webin receipt objects into the repository-neutral MARS receipt format.
+ *
+ * <p>ENA returns accessions keyed by generated submission aliases. This service strips the random
+ * submission suffix and maps those accessions back onto the ISA study, library, and data file items
+ * used by the MARS receipt model.
+ */
 @Service
 public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
 
@@ -103,6 +110,12 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return getMarsReceipt();
   }
 
+  /**
+   * Extracts receipt alias/accession pairs for a single ISA item type.
+   *
+   * <p>The alias stored in the ENA receipt includes the random submission suffix, so keys are
+   * normalized back to the original ISA IDs before building the MARS accession map.
+   */
   private ReceiptAccessionsMap getAliasAccessionPairs(
       String keyNameInput, final List<ReceiptObject> items) {
     Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
@@ -121,6 +134,12 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     };
   }
 
+  /**
+   * Maps ENA RUN accessions back to ISA data file IDs.
+   *
+   * <p>ENA RUN aliases are generated from sequencing process IDs, while MARS receipts need the run
+   * accession attached to each submitted data file produced by that process.
+   */
   private ReceiptAccessionsMap getRunAliasAccessionPairs(
       final List<ReceiptObject> items, final IsaJson isaJson) {
     Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
@@ -153,6 +172,9 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     };
   }
 
+  /**
+   * Resolves all ISA data files produced by a specific sequencing process.
+   */
   private List<String> getDataFileIdsForSequencingProcess(
       final IsaJson isaJson, final String sequencingProcessId) {
     final List<String> dataFileIds = new ArrayList<>();
@@ -182,7 +204,14 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return dataFileIds;
   }
 
-  private List<List<String>> getSequencingProcessDataFileIdsInSubmissionOrder(final IsaJson isaJson) {
+  /**
+   * Records sequencing-process output data files in the same order runs are submitted to ENA.
+   *
+   * <p>This gives receipt conversion a fallback when an ENA run alias cannot be matched back to a
+   * sequencing process ID but receipt objects still arrive in submission order.
+   */
+  private List<List<String>> getSequencingProcessDataFileIdsInSubmissionOrder(
+      final IsaJson isaJson) {
     final List<List<String>> sequencingProcessDataFiles = new ArrayList<>();
     final Set<String> processedSequencingProcesses = new HashSet<>();
 
@@ -199,6 +228,9 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return sequencingProcessDataFiles;
   }
 
+  /**
+   * Adds one output data-file group for each sequencing process in an assay.
+   */
   private void addAssaySequencingProcessOutputs(
       final List<List<String>> sequencingProcessDataFiles,
       final Set<String> processedSequencingProcesses,
@@ -242,6 +274,9 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
     return valid;
   }
 
+  /**
+   * Removes the generated submission suffix from an ENA alias to recover the original ISA item ID.
+   */
   private String getPreRandomizedAlias(@NotNull ReceiptObject receiptObject) {
     // Convert #assay/18_20_21-0.49105604184136276 -> #assay/18_20_21
     final String alias = receiptObject.getAlias();
