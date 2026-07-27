@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class BioSampleSubmissionController {
   @Autowired private BioSamplesSubmitter bioSamplesSubmitter;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private MarsReceiptService marsReceiptService;
+  @Autowired private ObjectProvider<MarsReceiptService> marsReceiptServiceProvider;
 
   @ApiResponses(
       value = {
@@ -56,6 +57,7 @@ public class BioSampleSubmissionController {
 
     final BiosampleAccessionsMap accessionsMap =
         this.bioSamplesSubmitter.createBioSamples(studies, webinToken);
+    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(accessionsMap, isaJson);
 
     return marsReceiptService.convertMarsReceiptToJson(marsReceipt);

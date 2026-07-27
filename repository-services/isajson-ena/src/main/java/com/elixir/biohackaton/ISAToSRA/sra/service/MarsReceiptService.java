@@ -21,10 +21,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
+@Scope("prototype")
 @Service
 public class MarsReceiptService extends MarsReceiptProvider {
 
