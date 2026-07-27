@@ -12,7 +12,7 @@ RUN git clone https://github.com/elixir-europe/mars-repository-lib.git
 WORKDIR /lib/mars-repository-lib
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    ./gradlew build -x spotlessApply -x spotlessJavaCheck && \
+    ./gradlew build && \
     ./gradlew publishToMavenLocal
 
 WORKDIR /app
