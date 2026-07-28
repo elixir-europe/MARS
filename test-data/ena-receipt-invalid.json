@@ -22,7 +22,7 @@
     ],
     "studies":[
         {
-            "alias":"Arabidopsis thaliana-0.5578006304577448",
+            "alias":"#assay/18_20_21-0.5578006304577448",
             "status":"PRIVATE",
             "holdUntilDate": "2023-01-01Z",
             "externalAccession": {
@@ -33,7 +33,7 @@
     ],
     "projects": [
         {
-            "alias": "Bob's investigation-0.5578006304577448",
+            "alias": "#assay/18_20_21-0.5578006304577448",
             "accession": "PRJEB82365",
             "status": "PRIVATE",
             "holdUntilDate": "2023-01-01Z",
