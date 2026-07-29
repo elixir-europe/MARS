@@ -29,7 +29,7 @@
     ],
     "projects": [
         {
-            "alias": "Arabidopsis thaliana",
+            "alias": "#assay/18_20_21",
             "accession": "PRJEB101337",
             "status": "PRIVATE",
             "holdUntilDate": "2023-01-01Z",

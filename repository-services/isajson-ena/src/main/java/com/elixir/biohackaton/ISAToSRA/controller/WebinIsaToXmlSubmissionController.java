@@ -9,7 +9,6 @@ import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.elixir.biohackaton.ISAToSRA.sra.service.ReceiptConversionService;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinExperimentXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinHttpSubmissionService;
-import com.elixir.biohackaton.ISAToSRA.sra.service.WebinProjectXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinRunXmlCreator;
 import com.elixir.biohackaton.ISAToSRA.sra.service.WebinStudyXmlCreator;
 import com.elixir.mars.repository.models.isa.Category;
@@ -48,14 +47,14 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <ol>
  *   <li>Parse ISA-JSON payload
- *   <li>Convert ISA-JSON elements to ENA XML (Study, Project, Experiment, Run)
+ *   <li>Convert ISA-JSON elements to ENA XML (Study, Experiment, Run)
  *   <li>Submit XML to ENA Webin API
  *   <li>Convert ENA receipt to MARS receipt format
  *   <li>Return MARS receipt as JSON
  * </ol>
  *
  * <p>The conversion follows a bottom-up approach for Experiments and Runs (starting from DataFiles
- * and working up), while Study and Project use a top-down approach.
+ * and working up), while Study uses a top-down approach.
  */
 @Slf4j
 @RestController
@@ -63,8 +62,6 @@ public class WebinIsaToXmlSubmissionController {
   @Autowired private WebinStudyXmlCreator webinStudyXmlCreator;
 
   @Autowired private WebinExperimentXmlCreator webinExperimentXmlCreator;
-
-  @Autowired private WebinProjectXmlCreator webinProjectXmlCreator;
 
   @Autowired private WebinRunXmlCreator webinRunXmlCreator;
 
@@ -97,7 +94,6 @@ public class WebinIsaToXmlSubmissionController {
    *   <li>Get BioSamples accessions for study samples
    *   <li>Convert Library → ENA EXPERIMENT (bottom-up: DataFile → Library)
    *   <li>Convert DataFile → ENA RUN (bottom-up: DataFile → Experiment reference)
-   *   <li>Convert Investigation → ENA PROJECT (top-down)
    *   <li>Submit XML to ENA Webin API
    *   <li>Convert ENA receipt to MARS receipt format
    * </ol>
@@ -161,28 +157,26 @@ public class WebinIsaToXmlSubmissionController {
     this.webinRunXmlCreator.createENARunSetElement(
         webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
 
-    // Step 5: Convert Investigation → ENA PROJECT (top-down approach)
-    this.webinProjectXmlCreator.createENAProjectSetElement(
-        webinElement, getInvestigation(isaJson), randomSubmissionIdentifier);
-
     // Debug: Print generated XML to console
     final OutputFormat format = OutputFormat.createPrettyPrint();
     final XMLWriter writer = new XMLWriter(System.out, format);
     writer.write(document);
 
-    // Step 6: Submit XML to ENA Webin API
+    // Step 5: Submit XML to ENA Webin API
     final String receiptXml =
         webinHttpSubmissionService.performWebinSubmission(
             webinUserName, document.asXML(), webinPassword);
+    log.info("ENA Webin receipt:\n{}", receiptXml);
 
-    // Step 7: Convert ENA XML receipt to JSON
+    // Step 6: Convert ENA XML receipt to JSON
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
 
-    // Step 8: Convert ENA receipt to MARS receipt format
     final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
+    
+    // Step 7: Convert ENA receipt to MARS receipt format
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 
-    // Step 9: Return MARS receipt as JSON
+    // Step 8: Return MARS receipt as JSON
     return marsReceiptService.convertMarsReceiptToJson(marsReceipt);
   }
 
@@ -203,26 +197,10 @@ public class WebinIsaToXmlSubmissionController {
   }
 
   /**
-   * Extracts Investigation object from ISA-JSON.
-   *
-   * @param isaJson the parsed ISA-JSON object
-   * @return Investigation object, or null if extraction fails
-   */
-  public Investigation getInvestigation(final IsaJson isaJson) {
-    try {
-      return isaJson.getInvestigation();
-    } catch (final Exception e) {
-      log.error("Failed to parse ISA JSON and get investigation", e);
-    }
-
-    return null;
-  }
-
-  /**
    * Parses BioSamples accessions from input parameter or extracts from ISA-JSON.
    *
    * <p>If the bioSampleAccessions JSON string is provided, it will be parsed and used. Otherwise,
-   * falls back to extracting from ISA-JSON Study samples first, then sources.
+   * falls back to extracting from ISA-JSON Study samples.
    *
    * <p>Expected format: JSON string with "SOURCE" as key, e.g., {@code {"SOURCE":"SAMEA130793922"}}
    *

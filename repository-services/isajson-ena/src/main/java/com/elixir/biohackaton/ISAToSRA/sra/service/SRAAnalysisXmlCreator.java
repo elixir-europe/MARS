@@ -2,17 +2,22 @@
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 
 import com.elixir.mars.repository.MarsReceiptException;
 import com.elixir.mars.repository.models.isa.Assay;
+import com.elixir.mars.repository.models.isa.Comment;
 import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.Study;
 
+/**
+ * Creates ENA ANALYSIS XML from ISA derived data files.
+ *
+ * <p>The analysis path is intentionally limited to derived data files and expects checksum metadata
+ * to be supplied through ISA data-file comments.
+ */
 @Service
 @Slf4j
 public class SRAAnalysisXmlCreator {
@@ -22,6 +27,7 @@ public class SRAAnalysisXmlCreator {
 
   private static final String CHECKSUM_TYPE_KEY = "checksum type";
 
+  /** Creates the ENA ANALYSIS_SET element for derived data files in each submitted assay. */
   public void createENAAnalysisSetElement(final Element webinElement, final List<Study> studies) {
     final Element analysisSetElement = webinElement.addElement("ANALYSIS_SET");
 
@@ -37,25 +43,23 @@ public class SRAAnalysisXmlCreator {
 
     // TODO top level analysis attributes (including type)
 
-    // Add samples
-    assay
-        .getMaterials()
-        .getSamples()
-        .forEach(
-            sample -> {} // TODO
-            );
-    // add_element(analysis_elemt, 'SAMPLE_REF',
-    //                        accession=sample_row.get('Sample Accession'),
-    //                        label=sample_row.get('Sample ID'))
+    // TODO add SAMPLE_REF elements once analysis submissions define sample accession handling.
 
     // Add files
     final Element filesElement = analysisElement.addElement("FILES");
     assay.getDataFiles().forEach(dataFile -> convertDataFileToFileElement(dataFile, filesElement));
   }
 
+  /**
+   * Converts a derived ISA data file into an ENA analysis FILE element.
+   *
+   * <p>Primary/raw data files are ignored here because they are submitted through ENA RUN XML.
+   */
   private void convertDataFileToFileElement(DataFile dataFile, Element filesElement) {
     // Analysis must use derived files
-    if (!dataFile.getType().equalsIgnoreCase(DERIVED_FILE_KEY)) {
+    if (dataFile == null
+        || dataFile.getType() == null
+        || !dataFile.getType().equalsIgnoreCase(DERIVED_FILE_KEY)) {
       return;
     }
 
@@ -65,27 +69,36 @@ public class SRAAnalysisXmlCreator {
     String filetype = dataFile.getName().substring(dataFile.getName().lastIndexOf('.'));
 
     // Files must have a checksum (stored in comments)
-    AtomicReference<String> checksum = new AtomicReference<>();
-    AtomicReference<String> checksumType = new AtomicReference<>();
-    dataFile
-        .getComments()
-        .forEach(
-            comment -> {
-              if (comment.getName().equalsIgnoreCase(CHECKSUM_KEY)) {
-                checksum.set(comment.getValue());
-              } else if (comment.getName().equalsIgnoreCase(CHECKSUM_TYPE_KEY)) {
-                checksumType.set(comment.getValue());
-              }
-            });
+    final String checksum = findCommentValue(dataFile.getComments(), CHECKSUM_KEY);
+    final String checksumType = findCommentValue(dataFile.getComments(), CHECKSUM_TYPE_KEY);
 
-    if (Objects.isNull(checksum.get()) || Objects.isNull(checksumType.get())) {
+    if (checksum == null || checksumType == null) {
       throw new MarsReceiptException("Checksum and checksum type not found");
-    } else {
-      Element fileElement = filesElement.addElement("FILE");
-      fileElement.addAttribute("filename", filename);
-      fileElement.addAttribute("filetype", filetype);
-      fileElement.addAttribute("checksum_method", checksumType.get());
-      fileElement.addAttribute("checksum", checksum.get());
     }
+
+    Element fileElement = filesElement.addElement("FILE");
+    fileElement.addAttribute("filename", filename);
+    fileElement.addAttribute("filetype", filetype);
+    fileElement.addAttribute("checksum_method", checksumType);
+    fileElement.addAttribute("checksum", checksum);
+  }
+
+  /** Finds a data-file comment value using ENA's case-insensitive metadata convention. */
+  private String findCommentValue(final List<Comment> comments, final String commentName) {
+    if (comments == null) {
+      return null;
+    }
+
+    for (final Comment comment : comments) {
+      if (comment == null || comment.getName() == null) {
+        continue;
+      }
+
+      if (comment.getName().equalsIgnoreCase(commentName)) {
+        return comment.getValue();
+      }
+    }
+
+    return null;
   }
 }
