@@ -17,7 +17,6 @@ import com.elixir.mars.repository.models.isa.CharacteristicCategory;
 import com.elixir.mars.repository.models.isa.Investigation;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.Sample;
-import com.elixir.mars.repository.models.isa.Source;
 import com.elixir.mars.repository.models.isa.Study;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -71,7 +71,7 @@ public class WebinIsaToXmlSubmissionController {
 
   @Autowired private ReceiptConversionService receiptConversionService;
 
-  @Autowired private MarsReceiptService marsReceiptService;
+  @Autowired private ObjectProvider<MarsReceiptService> marsReceiptServiceProvider;
 
   @ApiResponses(
       value = {
@@ -171,6 +171,8 @@ public class WebinIsaToXmlSubmissionController {
     // Step 6: Convert ENA XML receipt to JSON
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
 
+    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
+    
     // Step 7: Convert ENA receipt to MARS receipt format
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 

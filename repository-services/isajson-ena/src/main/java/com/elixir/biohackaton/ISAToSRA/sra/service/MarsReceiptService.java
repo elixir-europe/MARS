@@ -28,11 +28,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Converts ENA Webin receipt objects into the repository-neutral MARS receipt format.
@@ -41,8 +40,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * submission suffix and maps those accessions back onto the ISA study, library, and data file items
  * used by the MARS receipt model.
  */
+@Validated
+@Scope("prototype")
 @Service
-public class MarsReceiptService extends MarsReceiptProvider implements HandlerInterceptor {
+public class MarsReceiptService extends MarsReceiptProvider {
 
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -53,17 +54,8 @@ public class MarsReceiptService extends MarsReceiptProvider implements HandlerIn
   }
 
   public MarsReceiptService() {
-    super("ena"); // TODO decide whether to use instead
-    // https://registry.identifiers.org/registry/ena.embl
+    super("ena");
     setupJsonMapper();
-  }
-
-  // Reset MARS receipt per request
-  @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-      throws Exception {
-    resetMarsReceipt();
-    return HandlerInterceptor.super.preHandle(request, response, handler);
   }
 
   public String convertMarsReceiptToJson(final MarsReceipt marsReceipt) {
