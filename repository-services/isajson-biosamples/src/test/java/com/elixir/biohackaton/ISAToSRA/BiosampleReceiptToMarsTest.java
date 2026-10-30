@@ -28,7 +28,9 @@ class BiosampleReceiptToMarsTest {
 
       // Reading Inputs
       String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
-      String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+      // The test data has the investigation at its root; the service expects it wrapped
+      String isaJsonFile =
+          "{\"investigation\": " + Files.readString(new File(isaJsonFilePath).toPath()) + "}";
 
       // Try
       // https://wwwdev.ebi.ac.uk/ena/submit/webin/auth/swagger-ui/index.html#/AuthenticationAPI/getToken
@@ -63,7 +65,9 @@ class BiosampleReceiptToMarsTest {
   void createBioSamplesUsesSampleCollectionProcessParametersForChildSampleAttributes()
       throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
-    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    // The test data has the investigation at its root; the service expects it wrapped
+    final String isaJsonFile =
+        "{\"investigation\": " + Files.readString(new File(isaJsonFilePath).toPath()) + "}";
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
@@ -103,7 +107,9 @@ class BiosampleReceiptToMarsTest {
   @Test
   void createBioSamplesKeepsEachChildSampleLinkedToItsOwnSource() throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
-    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    // The test data has the investigation at its root; the service expects it wrapped
+    final String isaJsonFile =
+        "{\"investigation\": " + Files.readString(new File(isaJsonFilePath).toPath()) + "}";
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
@@ -126,7 +132,9 @@ class BiosampleReceiptToMarsTest {
   @Test
   void createBioSamplesSupportsMultipleChildSamplesFromTheSameSource() throws Exception {
     final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
-    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    // The test data has the investigation at its root; the service expects it wrapped
+    final String isaJsonFile =
+        "{\"investigation\": " + Files.readString(new File(isaJsonFilePath).toPath()) + "}";
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final Study study = isaJson.getInvestigation().getStudies().get(0);

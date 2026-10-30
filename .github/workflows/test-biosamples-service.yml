@@ -1,0 +1,63 @@
+name: Test BioSamples service
+
+on:
+  push:
+    paths:
+      - "repository-services/isajson-biosamples/**"
+      - "test-data/**"
+      - ".github/workflows/test-biosamples-service.yml"
+  pull_request:
+    paths:
+      - "repository-services/isajson-biosamples/**"
+      - "test-data/**"
+      - ".github/workflows/test-biosamples-service.yml"
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  # Keep in sync with MARS_REPOSITORY_LIB_REF in repository-services/isajson-biosamples/Dockerfile
+  MARS_REPOSITORY_LIB_REF: v0.0.2
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Checkout mars-repository-lib
+        uses: actions/checkout@v5
+        with:
+          repository: elixir-europe/mars-repository-lib
+          ref: ${{ env.MARS_REPOSITORY_LIB_REF }}
+          path: mars-repository-lib
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish mars-repository-lib to the local Maven repository
+        working-directory: mars-repository-lib
+        run: |
+          chmod +x gradlew
+          ./gradlew publishToMavenLocal
+
+      - name: Run tests
+        working-directory: repository-services/isajson-biosamples
+        run: |
+          chmod +x gradlew
+          ./gradlew test
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: biosamples-test-reports
+          path: repository-services/isajson-biosamples/build/reports/tests/
