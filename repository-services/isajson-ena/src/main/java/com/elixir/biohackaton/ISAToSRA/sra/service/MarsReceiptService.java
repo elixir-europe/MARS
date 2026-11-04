@@ -171,8 +171,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
       final IsaJson isaJson, final String sequencingProcessId) {
     final List<String> dataFileIds = new ArrayList<>();
 
-    Optional.ofNullable(isaJson.getInvestigation())
-        .map(investigation -> investigation.getStudies())
+    Optional.ofNullable(isaJson.getStudies())
         .orElse(new ArrayList<>())
         .forEach(
             study ->
@@ -207,8 +206,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
     final List<List<String>> sequencingProcessDataFiles = new ArrayList<>();
     final Set<String> processedSequencingProcesses = new HashSet<>();
 
-    Optional.ofNullable(isaJson.getInvestigation())
-        .map(investigation -> investigation.getStudies())
+    Optional.ofNullable(isaJson.getStudies())
         .orElse(new ArrayList<>())
         .forEach(
             study ->

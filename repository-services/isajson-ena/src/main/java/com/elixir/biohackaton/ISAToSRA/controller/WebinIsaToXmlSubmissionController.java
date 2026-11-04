@@ -14,7 +14,6 @@ import com.elixir.biohackaton.ISAToSRA.sra.service.WebinStudyXmlCreator;
 import com.elixir.mars.repository.models.isa.Category;
 import com.elixir.mars.repository.models.isa.Characteristic;
 import com.elixir.mars.repository.models.isa.CharacteristicCategory;
-import com.elixir.mars.repository.models.isa.Investigation;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.Sample;
 import com.elixir.mars.repository.models.isa.Study;
@@ -188,7 +187,7 @@ public class WebinIsaToXmlSubmissionController {
    */
   public List<Study> getStudies(final IsaJson isaJson) {
     try {
-      return isaJson.getInvestigation().getStudies();
+      return isaJson.getStudies();
     } catch (final Exception e) {
       log.error("Failed to parse ISA JSON and get studies", e);
     }

@@ -65,7 +65,7 @@ public class BioSampleSubmissionController {
 
   public List<Study> getStudies(final IsaJson isaJson) {
     try {
-      return isaJson.getInvestigation().getStudies();
+      return isaJson.getStudies();
     } catch (final Exception e) {
       log.info("Failed to parse ISA JSON and get studies", e);
     }
