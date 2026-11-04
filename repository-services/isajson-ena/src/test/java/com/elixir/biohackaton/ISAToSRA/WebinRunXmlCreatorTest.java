@@ -39,15 +39,11 @@ class WebinRunXmlCreatorTest {
 
     // Load ISA JSON file
     String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
-    // The test data has the investigation at its root; the service expects it wrapped
-    String isaJsonFile =
-        "{\"investigation\": " + Files.readString(new File(isaJsonFilePath).toPath()) + "}";
+    String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
 
     String multiIsaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
-    // The test data has the investigation at its root; the service expects it wrapped
-    String multiIsaJsonFile =
-        "{\"investigation\": " + Files.readString(new File(multiIsaJsonFilePath).toPath()) + "}";
+    String multiIsaJsonFile = Files.readString(new File(multiIsaJsonFilePath).toPath());
     multiIsaJson = objectMapper.readValue(multiIsaJsonFile, IsaJson.class);
   }
 
