@@ -1,6 +1,6 @@
 # Builder stage
 FROM gradle:jdk17 AS builder
-ARG MARS_REPOSITORY_LIB_REF=v0.0.2
+ARG MARS_REPOSITORY_LIB_REF=v0.0.3
 
 WORKDIR /lib
 USER root

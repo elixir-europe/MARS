@@ -44,7 +44,7 @@ class BiosampleReceiptToMarsTest {
       ObjectMapper objectMapper = isaJsonObjectMapper();
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
-      final List<Study> studies = isaJson.getInvestigation().getStudies();
+      final List<Study> studies = isaJson.getStudies();
       final BiosampleAccessionsMap accessionsMap = bioSamplesSubmitter.createBioSamples(studies, webinToken);
 
       // Converting Biosample receipt to MARS receipt
@@ -68,7 +68,7 @@ class BiosampleReceiptToMarsTest {
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
 
-    bioSamplesSubmitter.createBioSamples(isaJson.getInvestigation().getStudies(), "test-token");
+    bioSamplesSubmitter.createBioSamples(isaJson.getStudies(), "test-token");
 
     final BioSample leafSample =
         bioSamplesSubmitter.updatedSamples.stream()
@@ -108,7 +108,7 @@ class BiosampleReceiptToMarsTest {
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
 
-    bioSamplesSubmitter.createBioSamples(isaJson.getInvestigation().getStudies(), "test-token");
+    bioSamplesSubmitter.createBioSamples(isaJson.getStudies(), "test-token");
 
     final BioSample leafSample = bioSamplesSubmitter.updatedSampleByName("leaf 1");
     final BioSample rootSample = bioSamplesSubmitter.updatedSampleByName("root 1");
@@ -129,7 +129,7 @@ class BiosampleReceiptToMarsTest {
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
-    final Study study = isaJson.getInvestigation().getStudies().get(0);
+    final Study study = isaJson.getStudies().get(0);
 
     study.getMaterials().getSamples().stream()
         .filter(sample -> "root 1".equals(sample.getName()))
@@ -147,7 +147,7 @@ class BiosampleReceiptToMarsTest {
         .setId("#source/330");
 
     final CapturingBioSamplesSubmitter bioSamplesSubmitter = new CapturingBioSamplesSubmitter();
-    bioSamplesSubmitter.createBioSamples(isaJson.getInvestigation().getStudies(), "test-token");
+    bioSamplesSubmitter.createBioSamples(isaJson.getStudies(), "test-token");
 
     final BioSample leafSample = bioSamplesSubmitter.updatedSampleByName("leaf 1");
     final BioSample rootSample = bioSamplesSubmitter.updatedSampleByName("root 1");

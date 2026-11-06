@@ -52,7 +52,7 @@ class WebinRunXmlCreatorTest {
     // Arrange
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = document.addElement("WEBIN");
-    final List<Study> studies = isaJson.getInvestigation().getStudies();
+    final List<Study> studies = isaJson.getStudies();
     final String randomSubmissionIdentifier = "test-123";
     final Map<String, String> bioSampleAccessions = new HashMap<>();
     bioSampleAccessions.put("SOURCE", "SAMEA130793922");
@@ -138,7 +138,7 @@ class WebinRunXmlCreatorTest {
     // single-end experiment creates its own run.
     final Document document = DocumentHelper.createDocument();
     final Element webinElement = document.addElement("WEBIN");
-    final List<Study> studies = multiIsaJson.getInvestigation().getStudies();
+    final List<Study> studies = multiIsaJson.getStudies();
     final String randomSubmissionIdentifier = "test-456";
     final Map<String, String> bioSampleAccessions = new HashMap<>();
     bioSampleAccessions.put("SOURCE", "SAMEA130793922");
