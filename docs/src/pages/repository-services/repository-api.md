@@ -12,14 +12,15 @@ There are two required endpoints, `initiate` and `submit`. Authentication and da
 If the repository requires authentication to submit data, the below endpoints must allow authentication via an authorization header.
 
 ## Data deposition
-Data deposition is managed by the brokering platform and should be possible by FTP or Globus. It should take place after initiation but before submission.
+Data deposition is done by FTP or Globus and is managed by the brokering platform. It should take place after initiation but before metadata submission.
 
 ## Initiate endpoint
 `POST /initiate`
 
-This endpoint is used to initiate a submission to the target repository.
+This endpoint is used to initiate a submission to the target repository. It is also used to fetch data upload information for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
+The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id.
 
 ### Response
 The response must be JSON of the following format:
@@ -47,7 +48,7 @@ where:
 ## Submit endpoint
 `POST /submit`
 
-This endpoint is used to perform a submission to the target repository.
+This endpoint is used to perform a submission to the target repository. It is also used to poll for status for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
 The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository. If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay.
@@ -59,15 +60,13 @@ The response must be JSON in the following format:
 ```jsonc
 {
     "targetRepository": "repo_id",
+    "status": "status",
     "accessions": [
         // accession objects
     ],
     "errors": [ 
         // error objects
     ],
-    "status": {
-      // status object
-    },
     "info": [ 
         // info objects
     ]
@@ -75,11 +74,12 @@ The response must be JSON in the following format:
 ```
 where:
 * `targetRepository` is the identifier used to annotate the ISA-JSON and should take values from [identifiers.org](http://identifiers.org/)
-* Exactly one of the following:
-  * `accessions`: list of objects defined [here](#accession-object)
-  * `errors`: list of objects defined [here](#error-object)
-  * `status`: object defined [here](#status-object)
-* Presence of `accession`, `errors`, or `status` indicates whether the submission was a success, failure, or is still pending (asynchronous response).
+* `status`: is one of the following string values:
+  * **SUCCESS**: the submission has completed successfully, accessions are returned.
+  * **FAILURE**: the submission has failed, errors are returned.
+  * **PENDING**: the submission is still being processed, client should query `submit` again to get the final status.
+* `accessions`: list of objects defined [here](#accession-object). Must be present only if status is `SUCCESS`.
+* `errors`: list of objects defined [here](#error-object). Must be present only if status is `FAILURE`.
 * (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response.
 
 This object is frequently referred to as the "receipt" or the "MARS receipt".
@@ -127,18 +127,6 @@ The error objects being returned by the repository may be used by developers to 
 
 Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
 
-#### Status object
-The status object looks like the following:
-```jsonc
-{
-  "statusUrl": "...",
-  "submissionId": "..."
-}
-```
-where:
-* `statusUrl` is a URL that can be queried to determine the completion status of the submission (see [status endpoint](#submission-status-endpoint) section below)
-* `submissionId` is an identifier for the submission
-
 #### Info object
 The info object looks like the following:
 ```jsonc
@@ -165,18 +153,7 @@ The comment object allows target repositories to request arbitrary information t
 where:
 * `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
 * `value` is the value for the comment.
-* `path` describes where in the ISA-JSON the comment should be placed.
-
-## Submission status endpoint
-`GET /{submission_id}/status`
-
-(The endpoint path is only a suggestion, the actual path can differ as long as it is accurately returned in the `status` field of the receipt.)
-
-This endpoint is used to poll for the status of a previous submission. It should be used whenever the time from data and metadata submission until the issuing of accessions exceeds a reasonable duration, and it must be returned in the `status` field of the receipt.
-
-### Response
-
-The response must be the same format as for the submit endpoint (i.e. the [MARS receipt](#response-mars-receipt)), again indicating whether the submission is complete and successful, complete with errors, or still pending.
+* `path` describes where in the ISA-JSON the comment should be placed. Note repositories should only provide comments within their assay.
 
 ## Examples
 
@@ -188,6 +165,7 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
+ "status": "SUCCESS",
  "info": [
    {
      "name": "Submission date",
@@ -265,6 +243,7 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
+ "status": "FAILURE",
  "errors": [
    {
      "type": "INVALID_METADATA",
@@ -295,16 +274,5 @@ For illustration only.
      ]
    }
  ]
-}
-```
-
-### Status response
-```json
-{
-  "targetRepository": "eva",
-  "status": {
-    "id": "123-456",
-    "statusUrl": "https://ebi.ac.uk/eva/submission/123-456/status"
-  }
 }
 ```
