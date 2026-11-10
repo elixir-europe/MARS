@@ -1,4 +1,5 @@
 {
+  "@id": "#investigation/bobs_investigation",
   "identifier": "investigation1",
   "title": "Bob's investigation project",
   "description": "Arabidopsis thaliana sequencing project for MARS PoC validation.",
@@ -54,6 +55,7 @@
   ],
   "studies": [
     {
+      "@id": "#study/arabidopsis_thaliana",
       "identifier": "study1",
       "title": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions",
       "description": "A coordinated multi-omics study combining sequencing-based and molecular profiling approaches to characterize Arabidopsis thaliana responses under controlled experimental conditions.\r\n",
@@ -770,10 +772,10 @@
               "performer": "",
               "date": "",
               "previousProcess": {
-                "@id": "#process/sample_collection/332"
+                "@id": "#process/sample_collection/331"
               },
               "nextProcess": {
-                "@id": "#process/library_construction/332"
+                "@id": "#process/library_construction/333"
               },
               "inputs": [
                 {
@@ -887,10 +889,10 @@
               "performer": "",
               "date": "",
               "previousProcess": {
-                "@id": "#process/nucleic_acid_extraction/333"
+                "@id": "#process/nucleic_acid_extraction/332"
               },
               "nextProcess": {
-                "@id": "#process/nucleic_acid_sequencing/333"
+                "@id": "#process/nucleic_acid_sequencing/334"
               },
               "inputs": [
                 {
@@ -939,7 +941,7 @@
               "performer": "",
               "date": "",
               "previousProcess": {
-                "@id": "#process/library_construction/334"
+                "@id": "#process/library_construction/333"
               },
               "nextProcess": {},
               "inputs": [
@@ -956,7 +958,7 @@
           ],
           "dataFiles": [
             {
-              "@id": "#data/334",
+              "@id": "#data_file/334",
               "name": "ENA_TEST2.R2.fastq.gz",
               "type": "Raw Data File",
               "comments": [

@@ -39,7 +39,7 @@ class WebinExperimentXmlCreatorTest {
     String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
 
-    String multiIsaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    String multiIsaJsonFilePath = "../../test-data/ena-complete.json";
     String multiIsaJsonFile = Files.readString(new File(multiIsaJsonFilePath).toPath());
     multiIsaJson = objectMapper.readValue(multiIsaJsonFile, IsaJson.class);
   }

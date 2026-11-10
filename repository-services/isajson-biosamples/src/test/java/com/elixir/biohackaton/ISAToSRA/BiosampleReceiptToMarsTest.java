@@ -102,7 +102,7 @@ class BiosampleReceiptToMarsTest {
 
   @Test
   void createBioSamplesKeepsEachChildSampleLinkedToItsOwnSource() throws Exception {
-    final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    final String isaJsonFilePath = "../../test-data/ena-complete.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
@@ -125,7 +125,7 @@ class BiosampleReceiptToMarsTest {
 
   @Test
   void createBioSamplesSupportsMultipleChildSamplesFromTheSameSource() throws Exception {
-    final String isaJsonFilePath = "../../test-data/biosamples-input-isa-multi.json";
+    final String isaJsonFilePath = "../../test-data/ena-complete.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);

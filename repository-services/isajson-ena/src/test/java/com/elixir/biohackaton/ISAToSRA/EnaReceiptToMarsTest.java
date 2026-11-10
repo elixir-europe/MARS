@@ -8,6 +8,7 @@ import com.elixir.biohackaton.ISAToSRA.sra.model.Messages;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
@@ -35,6 +36,9 @@ class EnaReceiptToMarsTest {
 
   void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
+    // Like the Spring-configured mapper the service uses: the ISA model does not map
+    // every ISA-JSON field (e.g. the investigation and study '@id').
+    jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MarsReceiptService marsReceiptService = new MarsReceiptService();
     try {
       try {

@@ -1,4 +1,5 @@
 {
+   "@id": "#investigation/bobs_investigation",
    "identifier": "",
    "title": "Bob's investigation",
    "description": "",
@@ -54,6 +55,7 @@
    ],
    "studies": [
       {
+         "@id": "#study/arabidopsis_thaliana",
          "identifier": "",
          "title": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions",
          "description": "A coordinated multi-omics study combining sequencing-based and molecular profiling approaches to characterize Arabidopsis thaliana responses under controlled experimental conditions.\r\n",
@@ -434,7 +436,7 @@
                            "@id": "#characteristic_category/accession_329"
                         },
                         "value": {
-                           "annotationValue": "",
+                           "annotationValue": "SAMEA130788488",
                            "termSource": "",
                            "termAccession": ""
                         },
@@ -442,14 +444,6 @@
                            "termSource": "",
                            "termAccession": "",
                            "comments": []
-                        }
-                     },
-                     {
-                        "category": {
-                           "@id": "#characteristic_category/accession"
-                        },
-                        "value": {
-                           "annotationValue": "SAMEA130788488"
                         }
                      }
                   ],
@@ -487,7 +481,7 @@
                      },
                      {
                         "category": {
-                           "@id": "#characteristic_category/accession"
+                           "@id": "#characteristic_category/accession_329"
                         },
                         "value": {
                            "annotationValue": "SAMEA130788489"
@@ -865,10 +859,10 @@
                      "performer": "",
                      "date": "",
                      "previousProcess": {
-                        "@id": "#process/sample_collection/332"
+                        "@id": "#process/sample_collection/331"
                      },
                      "nextProcess": {
-                        "@id": "#process/library_construction/332"
+                        "@id": "#process/library_construction/333"
                      },
                      "inputs": [
                         {
@@ -1012,10 +1006,10 @@
                      "performer": "",
                      "date": "",
                      "previousProcess": {
-                        "@id": "#process/nucleic_acid_extraction/333"
+                        "@id": "#process/nucleic_acid_extraction/332"
                      },
                      "nextProcess": {
-                        "@id": "#process/nucleic_acid_sequencing/333"
+                        "@id": "#process/nucleic_acid_sequencing/334"
                      },
                      "inputs": [
                         {
@@ -1069,7 +1063,7 @@
                      "performer": "",
                      "date": "",
                      "previousProcess": {
-                        "@id": "#process/library_construction/334"
+                        "@id": "#process/library_construction/333"
                      },
                      "nextProcess": {},
                      "inputs": [
@@ -1111,7 +1105,7 @@
                            "value": ""
                         }
                      ],
-                     "@id": "#data/334"
+                     "@id": "#data_file/334"
                   }
                ],
                "unitCategories": [],
