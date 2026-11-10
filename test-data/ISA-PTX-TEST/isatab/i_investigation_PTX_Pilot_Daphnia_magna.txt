@@ -1,0 +1,94 @@
+ONTOLOGY SOURCE REFERENCE
+Term Source Name	BAO	EFO	STATO	PATO	NCBITax	MSIO	CHEBI	GO	OBI	UO	UBERON	MESH
+Term Source File												
+Term Source Version												
+Term Source Description	BioAssay Ontology.	Experimental Factor Ontology.	STATO is the statistical methods ontology.	An ontology of phenotypic qualities (properties, attributes or characteristics).	An ontology representation of the NCBI organismal taxonomy	an application ontology for supporting description and annotation of mass-spectrometry and nmr-spectroscopy based metabolomics experiments and fluxomics studies.	CHEBI	The Gene Ontology (GO) provides a framework and set of concepts for describing the functions of gene products from all organisms.	An ontology for representing biomedical investigations.	Metrical units for use in conjunction with PATO.	UBERON is an integrated cross-species anatomy ontology representing a variety of entities classified according to traditional anatomical criteria such as structure, function and developmental lineage. .	Medical Subject Headings
+INVESTIGATION
+Investigation Identifier	PTX_Pilot_Daphnia_magna
+Investigation Title	PrecisionTox
+Investigation Description	PTX_Pilot_Daphnia_magna
+Investigation Submission Date	
+Investigation Public Release Date	
+INVESTIGATION PUBLICATIONS
+Investigation PubMed ID
+Investigation Publication DOI
+Investigation Publication Author List
+Investigation Publication Title
+Investigation Publication Status
+Investigation Publication Status Term Accession Number
+Investigation Publication Status Term Source REF
+INVESTIGATION CONTACTS
+Investigation Person Last Name
+Investigation Person First Name
+Investigation Person Mid Initials
+Investigation Person Email
+Investigation Person Phone
+Investigation Person Fax
+Investigation Person Address
+Investigation Person Affiliation
+Investigation Person Roles
+Investigation Person Roles Term Accession Number
+Investigation Person Roles Term Source REF
+STUDY
+Study Identifier	PTX_Pilot_Daphnia_magna
+Study Title	PTX_Pilot_Daphnia_magna
+Study Description	PTX_Pilot_Daphnia_magna
+Study Submission Date	
+Study Public Release Date	
+Study File Name	s_PTX_Pilot_Daphnia_magna.txt
+STUDY DESIGN DESCRIPTORS
+Study Design Type	factorial design
+Study Design Type Term Accession Number	STATO:0000234
+Study Design Type Term Source REF	STATO
+STUDY PUBLICATIONS
+Study PubMed ID
+Study Publication DOI
+Study Publication Author List
+Study Publication Title
+Study Publication Status
+Study Publication Status Term Accession Number
+Study Publication Status Term Source REF
+STUDY FACTORS
+Study Factor Name	compound	dose	timepoint
+Study Factor Type	compound	dose	timepoint
+Study Factor Type Term Accession Number	CHEBI:24431	OBI:0000969	EFO:0000724
+Study Factor Type Term Source REF	CHEBI	OBI	EFO
+Comment[Precision Tox Compound ID]			
+STUDY ASSAYS
+Study Assay File Name	a_PTX_Pilot_Daphnia_magna_hilic_assay.txt	a_PTX_Pilot_Daphnia_magna_lipid_assay.txt	a_PTX_Pilot_Daphnia_magna_rnaseq_assay.txt
+Study Assay Measurement Type	metabolite profiling	metabolite profiling	transcription profiling
+Study Assay Measurement Type Term Accession Number	OBI:0000366	OBI:0000366	OBI:0000424
+Study Assay Measurement Type Term Source REF	OBI	OBI	OBI
+Study Assay Technology Type	mass spectrometry	mass spectrometry	nucleotide sequencing
+Study Assay Technology Type Term Accession Number	OBI:0003782	OBI:0003782	OBI:0000626
+Study Assay Technology Type Term Source REF	OBI	OBI	OBI
+Study Assay Technology Platform			MGI
+Comment[target repository]	metabolights	metabolights	ena
+STUDY PROTOCOLS
+Study Protocol Name	sample growth culture	sample collection	metabolite extraction	labeling	RNA extraction	library preparation	nucleic acid sequencing	acquisition	mzml_conversion	metabolite identification
+Study Protocol Type	growth protocol	sample collection	extraction	labeling	nucleic acid extraction	library preparation	nucleic acid sequencing	mass spectrometry	data transformation	metabolite identification
+Study Protocol Type Term Accession Number	EFO:0003789	OBI:0000659	MSIO:0000141	MSIO:0000111	OBI:0666667	OBI:0000711	OBI:0000XYZ	OBI:0600013		
+Study Protocol Type Term Source REF	EFO	OBI	MSIO	MSIO	OBI	OBI	OBI	OBI	OBI	OBI
+Study Protocol Description			The overall process of collecting multi-omics samples is illustrated in Figure 1. Flash-frozen Daphnia samples from the exposure assays were processed using an automated workflow on a liquid-handling robot (i7, Beckman Coulter). For each sample, methanol/water (71.1:28.9 %v/v, 780 µL, Optima LC-MS grade methanol and water, Thermo Fisher Scientific) was added to CK14 Precellys homogenisation tubes (Stretton Scientific) prior to homogenisation with a bead-based homogeniser (Geno/Grinder 2020, Spex; 1750 rpm, 60 s). 144 μL of the resulting homogenate was flash frozen in liquid nitrogen and stored at –80 °C for RNA extraction.The remaining homogenate was moved to a 96-well plate (1 mL 96-deep well plate, Eppendorf) and 85 µL chloroform (HPLC Plus chloroform, Sigma Aldrich) was added and then the sample was vortexed (1100 rpm, 90 seconds) before centrifugation (4000 x g, 4 °C, 10 minutes) to remove the protein precipitate and cell debris. 530 µL of the supernatant was removed and added to another 1 mL 96-well plate, containing 277 µL chloroform and 171 µL water. Samples were then vortex mixed (900 rpm, 30 seconds) and incubated at 4 °C for 5 minutes and then centrifuged (4000 x g, 4°C, 10 minutes). After centrifugation, samples were incubated at 4 °C for 10-minutes. 505 µL of the upper (polar) and 245 µL of the lower (non-polar) layers were removed, dried at 35 °C (polar dried in a SpeedVac concentrator, Savant SPD111V230, Thermo Fisher Scientific; non-polar dried under nitrogen gas at room temperature using a Techne FSC400D, Thermo Fisher Scientific) and stored at -80 °C until analysis. Process blank samples are created by using exactly the same procedure above, but with no Daphnia tissue included.		Total RNA extraction was conducted on the Biomek FxP workstation (Beckman Coulter, A31842) using the Agencourt RNAdvance Tissue Total RNA kit (Beckman Coulter), following the manufacturer’s guidelines. mRNA libraries were prepared from the extracted RNA using the NEBNext Ultra Directional RNA Library Prep Kit (New England Biolabs, E7420L) using the NEBNext Multiplex Oligos for Illumina Dual Index Primers (New England Biolabs, E7600S). Library preparation was completed on the Biomek FxP workstation (Beckman Coulter, A31842). The concentration, integrity, and purity of the extracted total RNA and mRNA libraries were assessed using the Nanodrop 8000 Spectrophotometer (Labtech Ltd., U.K.) and the TapeStation 2200 (Agilent Technologies), respectively. All 180 libraries were pooled to a final concentration of 14 nM and sequenced across five lanes, aiming for 5-7 million reads per sample. Sequencing was conducted using a 100-bp paired-end strategy on a DNBseq platform by EnviSion BioSequencing and BioComputing at the University of Birmingham.	NEBNext® Ultra™ Directional RNA Library Prep Kit for Illumina® NEB#E7420L	SOP on Zenodo			
+Study Protocol URI	10.5281/zenodo.18661782	https://doi.org/10.5281/zenodo.18661913					ADD ZENODO DOI			
+Study Protocol Version										
+Study Protocol Parameters Name		number of organism;vehicle compound	Extraction Include Samples;Extraction Replicate Randomisation;Extraction Batch;Extraction Extraction Order Randomisation;Extraction Order;Extraction Plate Position;Extraction Precellys Rack ID;Extraction Precellys Rack Sample Position	derivatization agent	Extraction Include Samples;Extraction Replicate Randomisation;Extraction Batch;Extraction Extraction Order Randomisation;Extraction Order;Extraction Plate Position;Extraction Precellys Rack ID;Extraction Precellys Rack Sample Position	library layout;library strategy;library source;library target;mid	sequencing platform;sequencing instrument;sequencing flowcell id	Injection Order;MS Level;Analysis Batch;Filter Group;Autosampler position;Analysis Order Expected;Scan polarity;Mass analyzer		software
+Study Protocol Parameters Name Term Accession Number		;	;;;;;;;		;;;;;;;	;;;;	;;	;;;;;;;		
+Study Protocol Parameters Name Term Source REF		;	;;;;;;;		;;;;;;;	;;;;	;;	;;;;;;;		
+Study Protocol Components Name										
+Study Protocol Components Type										
+Study Protocol Components Type Term Accession Number										
+Study Protocol Components Type Term Source REF										
+Comment[Best Practice Conformance]		OECD Guidance Document No. 409: Good Practices and Standardisation of Sample Collection for Omics Analysis.								
+STUDY CONTACTS
+Study Person Last Name
+Study Person First Name
+Study Person Mid Initials
+Study Person Email
+Study Person Phone
+Study Person Fax
+Study Person Address
+Study Person Affiliation
+Study Person Roles
+Study Person Roles Term Accession Number
+Study Person Roles Term Source REF
