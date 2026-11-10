@@ -20,7 +20,7 @@ Data deposition is done by FTP or Globus and is managed by the brokering platfor
 This endpoint is used to initiate a submission to the target repository. It is also used to fetch data upload information for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
-The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id.
+The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id as a comment at the assay level.
 
 ### Response
 The response must be JSON of the following format:
@@ -51,7 +51,7 @@ where:
 This endpoint is used to perform a submission to the target repository. It is also used to poll for status for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
-The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository. If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay.
+The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository. If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay with the name `<repo_id>_submission_id` (e.g. `eva_submission_id`).
 
 The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-modified-isa.json#L379)).
 
