@@ -6,17 +6,43 @@ layout: ../../layouts/Layout.astro
 This document is to define the interface between the broker and the target repository services.
 This applies to all repositories, including BioSamples.
 
-There is one required endpoint, `submit`, as well as a submission status endpoint recommended for long-running submission processing. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
+There are two required endpoints, `initiate` and `submit`. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
 
 ## Authentication
-If the repository requires authentication to submit data, the submit endpoint must allow authentication via an authorization header.
-
-Other specifics remain to be determined.
+If the repository requires authentication to submit data, the below endpoints must allow authentication via an authorization header.
 
 ## Data deposition
-If the repository requires data validation in order to accept a submission, then the repository must be able to fetch the file using a URI, which can be included in the ISA-JSON, so that data file validation can be performed at submission time. (For example, an FTP dropbox or Globus.)
+Data deposition is managed by the brokering platform and should be possible by FTP or Globus. It should take place after initiation but before submission.
 
-At present there is no other requirement for data deposition, this is assumed to be managed by the brokering platform.
+## Initiate endpoint
+`POST /initiate`
+
+This endpoint is used to initiate a submission to the target repository.
+
+### Request
+
+### Response
+The response must be JSON of the following format:
+```jsonc
+{
+  "targetRepository": "repo_id",
+  "submissionId": "submission_id",
+  "ftpCredentials": {
+    "host": "ftp.ebi.ac.uk",
+    "upload_path": "/path/to/upload/folder",
+    "username": "username",
+    "password": "password"
+  },
+  "comments": [
+    // comment objects
+  ]
+}
+
+```
+where:
+* (optional) `submissionId` is a temporary internal identifier for the submission. It is only used to track in-flight submissions. If it is missing, it is assumed that the repository will either start a new submission on every run, or has another way of resuming submissions (e.g. via data file identity).
+* `ftpCredentials` describes info required to upload data to FTP
+* (optional) `comments` is a list of objects described [here](#comment-object).
 
 ## Submit endpoint
 `POST /submit`
@@ -24,11 +50,11 @@ At present there is no other requirement for data deposition, this is assumed to
 This endpoint is used to perform a submission to the target repository.
 
 ### Request
-The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository and only samples referenced in those assays.
+The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository. If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay.
 
 The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-modified-isa.json#L379)).
 
-### Response
+### Response (MARS Receipt)
 The response must be JSON in the following format:
 ```jsonc
 {
@@ -106,26 +132,40 @@ The status object looks like the following:
 ```jsonc
 {
   "statusUrl": "...",
-  "id": "...",
-  "percentComplete": 0.25,
+  "submissionId": "..."
 }
 ```
 where:
 * `statusUrl` is a URL that can be queried to determine the completion status of the submission (see [status endpoint](#submission-status-endpoint) section below)
-* (optional) `id` is an identifier for the submission
-* (optional) `percentComplete` is a number between 0 and 1 indicating the approximate percentage of the processing by the repository that is complete
+* `submissionId` is an identifier for the submission
 
 #### Info object
 The info object looks like the following:
 ```jsonc
 {
-    "name": "...",
-    "message": "..."
+  "name": "...",
+  "message": "..."
 }
 ```
 where `name` (optional) and `message` are strings at the repository’s discretion.
 
 This can be used to provide any additional information back to the user, not relating to accessions or errors. For example, it could include the submission date and when the data will be made public. This will not be processed further by the broker but will only be presented to the user.
+
+#### Comment object
+The comment object allows target repositories to request arbitrary information to be placed into the ISA-JSON as comments. It looks like the following:
+```jsonc
+{
+  "name": "repo_id_...",
+  "value": "...",
+  "path": [
+    // path objects as defined above
+  ]
+}
+```
+where:
+* `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
+* `value` is the value for the comment.
+* `path` describes where in the ISA-JSON the comment should be placed.
 
 ## Submission status endpoint
 `GET /{submission_id}/status`
@@ -136,7 +176,7 @@ This endpoint is used to poll for the status of a previous submission. It should
 
 ### Response
 
-The response must be the same format as for the submit endpoint (i.e. the [MARS receipt](#response)), again indicating whether the submission is complete and successful, complete with errors, or still pending.
+The response must be the same format as for the submit endpoint (i.e. the [MARS receipt](#response-mars-receipt)), again indicating whether the submission is complete and successful, complete with errors, or still pending.
 
 ## Examples
 
