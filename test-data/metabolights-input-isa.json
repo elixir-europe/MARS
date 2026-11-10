@@ -1,7 +1,9 @@
 {
+  "@id": "#investigation/BH2024",
   "identifier": "",
   "title": "",
   "description": "",
+  "filename": "i_BH2024-investigation.txt",
   "publicReleaseDate": "",
   "submissionDate": "",
   "comments": [],
@@ -65,6 +67,7 @@
   "publications": [],
   "studies": [
       {
+          "@id": "#study/BH2024",
           "filename": "s_BH2024-study.txt",
           "identifier": "BH2024",
           "title": "synthetic experiment BH2024",

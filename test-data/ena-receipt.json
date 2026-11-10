@@ -10,7 +10,7 @@
     ],
     "runs": [
         {
-            "alias": "#data/334",
+            "alias": "#data_file/334",
             "accession": "ERR9669128",
             "status": "PRIVATE"
         }

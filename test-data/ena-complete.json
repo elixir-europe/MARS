@@ -1,4 +1,5 @@
 {
+  "@id": "#investigation/bobs_investigation",
   "identifier": "investigation1",
   "title": "Bob's investigation project",
   "description": "Arabidopsis thaliana sequencing project for MARS PoC validation.",
@@ -54,6 +55,7 @@
   ],
   "studies": [
     {
+      "@id": "#study/arabidopsis_thaliana",
       "identifier": "study1",
       "title": "Integrated multi-omics profiling of Arabidopsis thaliana under controlled experimental conditions",
       "description": "A coordinated multi-omics study combining sequencing-based and molecular profiling approaches to characterize Arabidopsis thaliana responses under controlled experimental conditions.\r\n",
@@ -1009,7 +1011,7 @@
                       "@id": "#characteristic_category/Title_350"
                     },
                     "value": {
-                      "annotationValue": "Arabidopsis leaf amplicon sequencing experiment",
+                      "annotationValue": "Arabidopsis leaf paired-end genomic sequencing experiment",
                       "termAccession": "",
                       "termSource": ""
                     }
@@ -1044,7 +1046,7 @@
                       "@id": "#characteristic_category/Title_350"
                     },
                     "value": {
-                      "annotationValue": "Arabidopsis leaf amplicon sequencing experiment 2",
+                      "annotationValue": "Arabidopsis root amplicon sequencing experiment",
                       "termAccession": "",
                       "termSource": ""
                     }
@@ -1106,7 +1108,7 @@
                 "comments": []
               },
               "previousProcess": {
-                "@id": "#process/sample_collection/332",
+                "@id": "#process/sample_collection/331",
                 "inputs": [],
                 "outputs": [],
                 "parameterValues": [],
@@ -1585,7 +1587,7 @@
           ],
           "dataFiles": [
             {
-              "@id": "#data/334",
+              "@id": "#data_file/334",
               "name": "ENA_TEST2.EXP1.R1.fastq.gz",
               "type": "Raw Data File",
               "comments": [
@@ -1616,7 +1618,7 @@
               ]
             },
             {
-              "@id": "#data/335",
+              "@id": "#data_file/335",
               "name": "ENA_TEST2.EXP1.R2.fastq.gz",
               "type": "Raw Data File",
               "comments": [
@@ -1647,7 +1649,7 @@
               ]
             },
             {
-              "@id": "#data/336",
+              "@id": "#data_file/336",
               "name": "ENA_TEST2.EXP2.SE.fastq.gz",
               "type": "Raw Data File",
               "comments": [
