@@ -7,10 +7,34 @@
   "publicReleaseDate": "",
   "ontologySourceReferences": [
     {
-      "name": "efo",
-      "file": "",
+      "name": "EFO",
+      "file": "http://www.ebi.ac.uk/efo/efo.owl",
+      "version": "3.95.0",
+      "description": "Experimental Factor Ontology"
+    },
+    {
+      "name": "NCBITAXON",
+      "file": "http://purl.obolibrary.org/obo/ncbitaxon.owl",
+      "version": "2026-07-12",
+      "description": "NCBI organismal classification"
+    },
+    {
+      "name": "UBERON",
+      "file": "http://purl.obolibrary.org/obo/uberon.owl",
       "version": "",
-      "description": ""
+      "description": "Uber-anatomy ontology"
+    },
+    {
+      "name": "OBI",
+      "file": "http://purl.obolibrary.org/obo/obi.owl",
+      "version": "2026-07-27",
+      "description": "Ontology for Biomedical Investigations"
+    },
+    {
+      "name": "NCIT",
+      "file": "http://purl.obolibrary.org/obo/ncit.owl",
+      "version": "26.02d",
+      "description": "NCI Thesaurus OBO Edition"
     }
   ],
   "filename": "i_Multi-omics in chickens.txt",
@@ -154,9 +178,9 @@
         {
           "@id": "#characteristic_category/organism_2890",
           "characteristicType": {
-            "annotationValue": "organism",
-            "termAccession": "http://purl.obolibrary.org/obo/OBI_0100026",
-            "termSource": "efo"
+            "annotationValue": "Organism",
+            "termAccession": "http://purl.obolibrary.org/obo/NCIT_C14250",
+            "termSource": "NCIT"
           }
         },
         {
@@ -306,9 +330,9 @@
         {
           "@id": "#characteristic_category/Organism_part_2913",
           "characteristicType": {
-            "annotationValue": "Organism part",
-            "termAccession": "http://www.ebi.ac.uk/efo/EFO_0000635",
-            "termSource": "efo"
+            "annotationValue": "Organism Part",
+            "termAccession": "http://purl.obolibrary.org/obo/NCIT_C103199",
+            "termSource": "NCIT"
           }
         },
         {
@@ -659,7 +683,7 @@
                 },
                 "value": {
                   "annotationValue": "Gallus gallus",
-                  "termSource": "efo",
+                  "termSource": "NCBITAXON",
                   "termAccession": "http://purl.obolibrary.org/obo/NCBITaxon_9031"
                 },
                 "unit": {
@@ -957,7 +981,7 @@
                 },
                 "value": {
                   "annotationValue": "caecum",
-                  "termSource": "efo",
+                  "termSource": "UBERON",
                   "termAccession": "http://purl.obolibrary.org/obo/UBERON_0001153"
                 },
                 "unit": {
@@ -972,23 +996,6 @@
                 },
                 "value": {
                   "annotationValue": "SAMEA112907471",
-                  "termSource": "",
-                  "termAccession": ""
-                },
-                "unit": {
-                  "termSource": "",
-                  "termAccession": "",
-                  "comments": []
-                }
-              }
-            ],
-            "factorValues": [
-              {
-                "category": {
-                  "@id": ""
-                },
-                "value": {
-                  "annotationValue": "",
                   "termSource": "",
                   "termAccession": ""
                 },
@@ -1075,7 +1082,7 @@
                 },
                 "value": {
                   "annotationValue": "ileum",
-                  "termSource": "efo",
+                  "termSource": "UBERON",
                   "termAccession": "http://purl.obolibrary.org/obo/UBERON_0002116"
                 },
                 "unit": {
@@ -1090,23 +1097,6 @@
                 },
                 "value": {
                   "annotationValue": "SAMEA13901688",
-                  "termSource": "",
-                  "termAccession": ""
-                },
-                "unit": {
-                  "termSource": "",
-                  "termAccession": "",
-                  "comments": []
-                }
-              }
-            ],
-            "factorValues": [
-              {
-                "category": {
-                  "@id": ""
-                },
-                "value": {
-                  "annotationValue": "",
                   "termSource": "",
                   "termAccession": ""
                 },
@@ -1308,11 +1298,6 @@
                       "termAccession": "",
                       "comments": []
                     }
-                  }
-                ],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/3066"
                   }
                 ]
               }
@@ -1562,9 +1547,9 @@
             "termAccession": ""
           },
           "technologyType": {
-            "annotationValue": "",
-            "termSource": "",
-            "termAccession": ""
+            "annotationValue": "mass spectrometry assay",
+            "termSource": "OBI",
+            "termAccession": "http://purl.obolibrary.org/obo/OBI_0000470"
           },
           "comments": [
             {
@@ -1593,23 +1578,13 @@
                 "@id": "#other_material/3207",
                 "name": "1167_C",
                 "type": "Extract Name",
-                "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/3065"
-                  }
-                ]
+                "characteristics": []
               },
               {
                 "@id": "#other_material/3208",
                 "name": "1167_C",
                 "type": "Labeled Extract Name",
-                "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#other_material/3207"
-                  }
-                ]
+                "characteristics": []
               }
             ]
           },

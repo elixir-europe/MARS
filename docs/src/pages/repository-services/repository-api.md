@@ -6,42 +6,72 @@ layout: ../../layouts/Layout.astro
 This document is to define the interface between the broker and the target repository services.
 This applies to all repositories, including BioSamples.
 
-There is one required endpoint, `submit`, as well as a submission status endpoint recommended for long-running submission processing. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
+There are two required endpoints, `initiate` and `submit`. Authentication and data transfer are not covered in this document, but some assumptions are laid out below.
 
 ## Authentication
-If the repository requires authentication to submit data, the submit endpoint must allow authentication via an authorization header.
-
-Other specifics remain to be determined.
+If the repository requires authentication to submit data, the below endpoints must allow authentication via an authorization header.
 
 ## Data deposition
-If the repository requires data validation in order to accept a submission, then the repository must be able to fetch the file using a URI, which can be included in the ISA-JSON, so that data file validation can be performed at submission time. (For example, an FTP dropbox or Globus.)
+Data deposition is done by FTP or Globus and is managed by the brokering platform. It should take place after initiation but before metadata submission.
 
-At present there is no other requirement for data deposition, this is assumed to be managed by the brokering platform.
+## Initiate endpoint
+`POST /initiate`
+
+This endpoint is used to initiate a submission to the target repository. It is also used to fetch data upload information for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
+
+### Request
+The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id.
+
+### Response
+The response must be JSON of the following format:
+```jsonc
+{
+  "submissionId": "submission_id",
+  "ftpCredentials": {
+    "host": "ftp.ebi.ac.uk",
+    "uploadPath": "/path/to/upload/folder",
+    "username": "username",
+    "password": "password"
+  },
+  // other file transfer credentials to be added as needed
+  "assayComments": [
+    // assay comment objects
+  ]
+}
+
+```
+where:
+* (optional) `submissionId` is a temporary internal identifier for the submission. It is only used to track in-flight submissions. If it is missing, it is assumed that the repository will either start a new submission on every run, or has another way of resuming submissions (e.g. via data file identity).
+* `ftpCredentials` describes info required to upload data to FTP.
+* (optional) `assayComments` is a list of objects described [here](#assay-comment-object). This allows additional repository-specific information to be added to the ISA-JSON at the assay level.
 
 ## Submit endpoint
 `POST /submit`
 
-This endpoint is used to perform a submission to the target repository.
+This endpoint is used to perform a submission to the target repository. It is also used to poll for status for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
-The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository and only samples referenced in those assays.
+The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository.
+
+If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay with the name `<repo_id>_submission_id` (e.g. `eva_submission_id`).
 
 The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/ena-minimal-after-biosamples.json#L419-L433)).
 
-### Response
-The response must be JSON in the following format:
+### Response (MARS Receipt)
+The response must be JSON in the following format, often referred to as the "MARS receipt".
 ```jsonc
 {
     "targetRepository": "repo_id",
+    "submissionStatus": "status",
     "accessions": [
         // accession objects
     ],
     "errors": [ 
         // error objects
     ],
-    "status": {
-      // status object
-    },
+    "assayComments": [
+        // comment objects
+    ],
     "info": [ 
         // info objects
     ]
@@ -49,14 +79,16 @@ The response must be JSON in the following format:
 ```
 where:
 * `targetRepository` is the identifier used to annotate the ISA-JSON and should take values from [identifiers.org](http://identifiers.org/)
-* Exactly one of the following:
-  * `accessions`: list of objects defined [here](#accession-object)
-  * `errors`: list of objects defined [here](#error-object)
-  * `status`: object defined [here](#status-object)
-* Presence of `accession`, `errors`, or `status` indicates whether the submission was a success, failure, or is still pending (asynchronous response).
-* (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response.
+* `submissionStatus`: indicates the status of the submission and is one of the following string values:
+  * **SUCCESS**: the submission has completed successfully, accessions are returned.
+  * **FAILURE**: the submission has failed, errors are returned.
+  * **PENDING**: the submission is still being processed, client should query `submit` again to get the final status.
+* `accessions`: list of objects defined [here](#accession-object). Must be present only if status is `SUCCESS`.
+* `errors`: list of objects defined [here](#error-object). Must be present only if status is `FAILURE`.
+* (optional) `assayComments` is a list of objects described [here](#assay-comment-object). This allows additional repository-specific information to be added to the ISA-JSON at the assay level.
+* (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response but not persisted.
 
-This object is frequently referred to as the "receipt" or the "MARS receipt".
+The service should employ appropriate HTTP status codes to indicate success or failure of the request; `submissionStatus` is only to indicate the status of the submission as a whole. For example, if the service can respond to the request but the submission as a whole is invalid, the response code should be `200` while the `submissionStatus` should be **FAILURE**.
 
 #### Accession object
 The accession object looks like the following:
@@ -99,44 +131,27 @@ where:
 
 The error objects being returned by the repository may be used by developers to improve data producing or brokering platforms, and as a last resort will be used to provide feedback on problems with the submission to the end user. Repositories should set error messages accordingly, i.e. human-readable, informative, and actionable.
 
-Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
-
-#### Status object
-The status object looks like the following:
+#### Assay comment object
+The comment object allows target repositories to request arbitrary information (e.g. release date) to be placed into the ISA-JSON as comments at the assay level. It looks like the following:
 ```jsonc
 {
-  "statusUrl": "...",
-  "id": "...",
-  "percentComplete": 0.25,
+  "name": "repo_id_...",
+  "value": "..."
 }
 ```
 where:
-* `statusUrl` is a URL that can be queried to determine the completion status of the submission (see [status endpoint](#submission-status-endpoint) section below)
-* (optional) `id` is an identifier for the submission
-* (optional) `percentComplete` is a number between 0 and 1 indicating the approximate percentage of the processing by the repository that is complete
+* `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
+* `value` is the value for the comment, any string value chosen by the repository.
 
 #### Info object
-The info object looks like the following:
+The info object can be used to provide any additional information back to the user, not relating to errors and not persisted to the ISA-JSON. It looks like the following:
 ```jsonc
 {
-    "name": "...",
-    "message": "..."
+  "name": "...",
+  "message": "..."
 }
 ```
 where `name` (optional) and `message` are strings at the repository’s discretion.
-
-This can be used to provide any additional information back to the user, not relating to accessions or errors. For example, it could include the submission date and when the data will be made public. This will not be processed further by the broker but will only be presented to the user.
-
-## Submission status endpoint
-`GET /{submission_id}/status`
-
-(The endpoint path is only a suggestion, the actual path can differ as long as it is accurately returned in the `status` field of the receipt.)
-
-This endpoint is used to poll for the status of a previous submission. It should be used whenever the time from data and metadata submission until the issuing of accessions exceeds a reasonable duration, and it must be returned in the `status` field of the receipt.
-
-### Response
-
-The response must be the same format as for the submit endpoint (i.e. the [MARS receipt](#response)), again indicating whether the submission is complete and successful, complete with errors, or still pending.
 
 ## Examples
 
@@ -148,14 +163,15 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
- "info": [
+ "submissionStatus": "SUCCESS",
+ "assayComments": [
    {
-     "name": "Submission date",
-     "message": "2024-03-22"
+     "name": "ena_submission_date",
+     "value": "2024-03-22"
    },
    {
-     "name": "Release date",
-     "message": "2025-03-22"
+     "name": "ena_release_date",
+     "value": "2025-03-22"
    }
  ],
  "accessions": [
@@ -164,6 +180,10 @@ For illustration only.
        {
          "key": "studies",
          "where": {"key": "title", "value": "Arabidopsis thaliana"}
+       },
+       {
+         "key": "assays",
+         "where": {"key": "@id", "value": "#assay/18_20_21"}
        }
      ],
      "value": "PRJEB100893"
@@ -225,6 +245,7 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
+ "submissionStatus": "FAILURE",
  "errors": [
    {
      "type": "INVALID_METADATA",
@@ -255,16 +276,5 @@ For illustration only.
      ]
    }
  ]
-}
-```
-
-### Status response
-```json
-{
-  "targetRepository": "eva",
-  "status": {
-    "id": "123-456",
-    "statusUrl": "https://ebi.ac.uk/eva/submission/123-456/status"
-  }
 }
 ```
