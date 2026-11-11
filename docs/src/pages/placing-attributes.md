@@ -62,7 +62,7 @@ level.
   <https://elixir-europe.github.io/MARS/mars-isa-json/>
 - For how specific repository attributes resolve to specific MARS ISA-JSON fields,
   see the per-repository mapping pages: 
-  - BioSamples
+  - BioSamples - <https://elixir-europe.github.io/MARS/biosamples-example.md/>
   - ENA
   - MetaboLights
   Each page applies the rule on this page attribute by attribute, for that
