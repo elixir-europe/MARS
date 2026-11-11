@@ -1,7 +1,12 @@
+# garbage
+.gitignore~
+.DS_Store
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*$py.clagss
 
 # C extensions
 *.so
