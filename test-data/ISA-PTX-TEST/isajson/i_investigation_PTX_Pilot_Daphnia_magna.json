@@ -1,6 +1,7 @@
 {
     "@id": "#investigation/3b4e3f64-0628-4035-8295-93cff3afd51c",
     "identifier": "PTX_Pilot_Daphnia_magna",
+    "filename": "i_investigation_PTX_Pilot_Daphnia_magna.json",
     "title": "PrecisionTox",
     "description": "PTX_Pilot_Daphnia_magna",
     "publicReleaseDate": "",
@@ -3495,7 +3496,7 @@
                     "unitCategories": [],
                     "comments": [
                         {
-                            "name": "target repository",
+                            "name": "target_repository",
                             "value": "metabolights"
                         }
                     ],
@@ -5181,7 +5182,7 @@
                     "unitCategories": [],
                     "comments": [
                         {
-                            "name": "target repository",
+                            "name": "target_repository",
                             "value": "metabolights"
                         }
                     ],

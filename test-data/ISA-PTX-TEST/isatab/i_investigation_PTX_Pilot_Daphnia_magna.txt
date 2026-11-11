@@ -63,7 +63,7 @@ Study Assay Technology Type	mass spectrometry	mass spectrometry	nucleotide seque
 Study Assay Technology Type Term Accession Number	OBI:0003782	OBI:0003782	OBI:0000626
 Study Assay Technology Type Term Source REF	OBI	OBI	OBI
 Study Assay Technology Platform			MGI
-Comment[target repository]	metabolights	metabolights	ena
+Comment[target_repository]	metabolights	metabolights	ena
 STUDY PROTOCOLS
 Study Protocol Name	sample growth culture	sample collection	metabolite extraction	labeling	RNA extraction	library preparation	nucleic acid sequencing	acquisition	mzml_conversion	metabolite identification
 Study Protocol Type	growth protocol	sample collection	extraction	labeling	nucleic acid extraction	library preparation	nucleic acid sequencing	mass spectrometry	data transformation	metabolite identification
