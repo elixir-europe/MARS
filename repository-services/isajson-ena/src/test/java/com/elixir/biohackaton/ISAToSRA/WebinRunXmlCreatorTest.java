@@ -38,7 +38,7 @@ class WebinRunXmlCreatorTest {
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     // Load ISA JSON file
-    String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
+    String isaJsonFilePath = "../../test-data/ena-minimal.json";
     String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
 

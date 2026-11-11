@@ -55,7 +55,7 @@ The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be 
 
 If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay with the name `<repo_id>_submission_id` (e.g. `eva_submission_id`).
 
-The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-modified-isa.json#L379)).
+The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/ena-minimal-after-biosamples.json#L419-L433)).
 
 ### Response (MARS Receipt)
 The response must be JSON in the following format, often referred to as the "MARS receipt".
@@ -156,7 +156,7 @@ where `name` (optional) and `message` are strings at the repository’s discreti
 ## Examples
 
 ### Submission request
-See [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-input-isa.json).
+See [here](https://github.com/elixir-europe/MARS/blob/main/test-data/ena-minimal.json).
 
 ### Success response
 For illustration only.

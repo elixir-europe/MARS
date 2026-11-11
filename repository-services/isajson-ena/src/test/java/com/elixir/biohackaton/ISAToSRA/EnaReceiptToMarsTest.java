@@ -44,7 +44,7 @@ class EnaReceiptToMarsTest {
       try {
         // Reading Inputs
         String receiptFile = Files.readString(new File(enaReceiptFilePath).toPath());
-        String isaJsonFilePath = "../../test-data/biosamples-modified-isa.json";
+        String isaJsonFilePath = "../../test-data/ena-minimal-after-biosamples.json";
         String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
 
         // Mapping inputs to the proper objects
