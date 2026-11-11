@@ -29,6 +29,12 @@
       "file": "http://purl.obolibrary.org/obo/obi.owl",
       "version": "2026-07-27",
       "description": "Ontology for Biomedical Investigations"
+    },
+    {
+      "name": "NCIT",
+      "file": "http://purl.obolibrary.org/obo/ncit.owl",
+      "version": "26.02d",
+      "description": "NCI Thesaurus OBO Edition"
     }
   ],
   "filename": "i_Multi-omics in chickens.txt",
