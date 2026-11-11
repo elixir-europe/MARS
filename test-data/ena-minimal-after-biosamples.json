@@ -377,7 +377,8 @@
                   }
                 },
                 "value": {
-                  "annotationValue": "",
+                  "@id": "#ontology_annotation/accession_source_330",
+                  "annotationValue": "SAMEA131393368",
                   "termSource": "",
                   "termAccession": ""
                 }
@@ -413,6 +414,21 @@
                   "annotationValue": "young rosette leaf collected for DNA extraction",
                   "termSource": "",
                   "termAccession": ""
+                }
+              },
+              {
+                "@id": "#material_attribute_value/accession_329",
+                "category": {
+                  "@id": "#characteristic_category/accession_329",
+                  "characteristicType": {
+                    "annotationValue": "accession",
+                    "termAccession": "",
+                    "termSource": ""
+                  }
+                },
+                "value": {
+                  "@id": "#ontology_annotation/accession_sample_331",
+                  "annotationValue": "SAMEA131393369"
                 }
               }
             ],
@@ -741,23 +757,13 @@
                       "termSource": ""
                     }
                   }
-                ],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/331"
-                  }
                 ]
               },
               {
                 "@id": "#other_material/333",
                 "name": "library 1",
                 "type": "library name",
-                "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#other_material/332"
-                  }
-                ]
+                "characteristics": []
               }
             ]
           },

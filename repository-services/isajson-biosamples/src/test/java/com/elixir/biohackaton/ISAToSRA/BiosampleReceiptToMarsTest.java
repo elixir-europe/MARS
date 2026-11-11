@@ -27,7 +27,7 @@ class BiosampleReceiptToMarsTest {
     try {
 
       // Reading Inputs
-      String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
+      String isaJsonFilePath = "../../test-data/ena-minimal.json";
       String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
 
       // Try
@@ -52,7 +52,7 @@ class BiosampleReceiptToMarsTest {
       MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(accessionsMap, isaJson);
 
       // Saving the result as a Json file
-      String marsReceiptPath = "../../test-data/mars-biosample-receipt.json";
+      String marsReceiptPath = "../../test-data/mars-biosamples-receipt.json";
       Files.write(new File(marsReceiptPath).toPath(), jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception ex) {
       System.console().printf("%s", ex);
@@ -62,7 +62,7 @@ class BiosampleReceiptToMarsTest {
   @Test
   void createBioSamplesUsesSampleCollectionProcessParametersForChildSampleAttributes()
       throws Exception {
-    final String isaJsonFilePath = "../../test-data/biosamples-input-isa.json";
+    final String isaJsonFilePath = "../../test-data/ena-minimal.json";
     final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
     final ObjectMapper objectMapper = isaJsonObjectMapper();
     final IsaJson isaJson = objectMapper.readValue(isaJsonFile, IsaJson.class);
