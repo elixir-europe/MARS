@@ -20,30 +20,30 @@ Data deposition is done by FTP or Globus and is managed by the brokering platfor
 This endpoint is used to initiate a submission to the target repository. It is also used to fetch data upload information for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
-The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id as a comment at the assay level.
+The initiate endpoint must accept ISA-JSON as the body. This is guaranteed to match what is sent to [submit](#submit-endpoint) (i.e. syntactically valid and filtered), including potentially an existing submission id.
 
 ### Response
 The response must be JSON of the following format:
 ```jsonc
 {
-  "targetRepository": "repo_id",
   "submissionId": "submission_id",
   "ftpCredentials": {
     "host": "ftp.ebi.ac.uk",
-    "upload_path": "/path/to/upload/folder",
+    "uploadPath": "/path/to/upload/folder",
     "username": "username",
     "password": "password"
   },
-  "comments": [
-    // comment objects
+  // other file transfer credentials to be added as needed
+  "assayComments": [
+    // assay comment objects
   ]
 }
 
 ```
 where:
 * (optional) `submissionId` is a temporary internal identifier for the submission. It is only used to track in-flight submissions. If it is missing, it is assumed that the repository will either start a new submission on every run, or has another way of resuming submissions (e.g. via data file identity).
-* `ftpCredentials` describes info required to upload data to FTP
-* (optional) `comments` is a list of objects described [here](#comment-object).
+* `ftpCredentials` describes info required to upload data to FTP.
+* (optional) `assayComments` is a list of objects described [here](#assay-comment-object). This allows additional repository-specific information to be added to the ISA-JSON at the assay level.
 
 ## Submit endpoint
 `POST /submit`
@@ -51,21 +51,26 @@ where:
 This endpoint is used to perform a submission to the target repository. It is also used to poll for status for a pending submission: the repository adapter must recognise when a submission ID corresponds to an existing submission.
 
 ### Request
-The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository. If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay with the name `<repo_id>_submission_id` (e.g. `eva_submission_id`).
+The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository.
+
+If provided by [initiate](#initiate-endpoint), the submission ID will be included as a comment on the assay with the name `<repo_id>_submission_id` (e.g. `eva_submission_id`).
 
 The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-modified-isa.json#L379)).
 
 ### Response (MARS Receipt)
-The response must be JSON in the following format:
+The response must be JSON in the following format, often referred to as the "MARS receipt".
 ```jsonc
 {
     "targetRepository": "repo_id",
-    "status": "status",
+    "submissionStatus": "status",
     "accessions": [
         // accession objects
     ],
     "errors": [ 
         // error objects
+    ],
+    "assayComments": [
+        // comment objects
     ],
     "info": [ 
         // info objects
@@ -74,15 +79,16 @@ The response must be JSON in the following format:
 ```
 where:
 * `targetRepository` is the identifier used to annotate the ISA-JSON and should take values from [identifiers.org](http://identifiers.org/)
-* `status`: is one of the following string values:
+* `submissionStatus`: indicates the status of the submission and is one of the following string values:
   * **SUCCESS**: the submission has completed successfully, accessions are returned.
   * **FAILURE**: the submission has failed, errors are returned.
   * **PENDING**: the submission is still being processed, client should query `submit` again to get the final status.
 * `accessions`: list of objects defined [here](#accession-object). Must be present only if status is `SUCCESS`.
 * `errors`: list of objects defined [here](#error-object). Must be present only if status is `FAILURE`.
-* (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response.
+* (optional) `assayComments` is a list of objects described [here](#assay-comment-object). This allows additional repository-specific information to be added to the ISA-JSON at the assay level.
+* (optional) `info` is a list of objects of the form described [below](#info-object). This allows additional repository-specific information to be returned in the response but not persisted.
 
-This object is frequently referred to as the "receipt" or the "MARS receipt".
+The service should employ appropriate HTTP status codes to indicate success or failure of the request; `submissionStatus` is only to indicate the status of the submission as a whole. For example, if the service can respond to the request but the submission as a whole is invalid, the response code should be `200` while the `submissionStatus` should be **FAILURE**.
 
 #### Accession object
 The accession object looks like the following:
@@ -125,10 +131,20 @@ where:
 
 The error objects being returned by the repository may be used by developers to improve data producing or brokering platforms, and as a last resort will be used to provide feedback on problems with the submission to the end user. Repositories should set error messages accordingly, i.e. human-readable, informative, and actionable.
 
-Besides this error reporting, the service should employ other HTTP error codes as usual (e.g. 401).
+#### Assay comment object
+The comment object allows target repositories to request arbitrary information (e.g. release date) to be placed into the ISA-JSON as comments at the assay level. It looks like the following:
+```jsonc
+{
+  "name": "repo_id_...",
+  "value": "..."
+}
+```
+where:
+* `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
+* `value` is the value for the comment, any string value chosen by the repository.
 
 #### Info object
-The info object looks like the following:
+The info object can be used to provide any additional information back to the user, not relating to errors and not persisted to the ISA-JSON. It looks like the following:
 ```jsonc
 {
   "name": "...",
@@ -136,24 +152,6 @@ The info object looks like the following:
 }
 ```
 where `name` (optional) and `message` are strings at the repository’s discretion.
-
-This can be used to provide any additional information back to the user, not relating to accessions or errors. For example, it could include the submission date and when the data will be made public. This will not be processed further by the broker but will only be presented to the user.
-
-#### Comment object
-The comment object allows target repositories to request arbitrary information to be placed into the ISA-JSON as comments. It looks like the following:
-```jsonc
-{
-  "name": "repo_id_...",
-  "value": "...",
-  "path": [
-    // path objects as defined above
-  ]
-}
-```
-where:
-* `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
-* `value` is the value for the comment.
-* `path` describes where in the ISA-JSON the comment should be placed. Note repositories should only provide comments within their assay.
 
 ## Examples
 
@@ -165,15 +163,15 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
- "status": "SUCCESS",
- "info": [
+ "submissionStatus": "SUCCESS",
+ "assayComments": [
    {
-     "name": "Submission date",
-     "message": "2024-03-22"
+     "name": "ena_submission_date",
+     "value": "2024-03-22"
    },
    {
-     "name": "Release date",
-     "message": "2025-03-22"
+     "name": "ena_release_date",
+     "value": "2025-03-22"
    }
  ],
  "accessions": [
@@ -182,6 +180,10 @@ For illustration only.
        {
          "key": "studies",
          "where": {"key": "title", "value": "Arabidopsis thaliana"}
+       },
+       {
+         "key": "assays",
+         "where": {"key": "@id", "value": "#assay/18_20_21"}
        }
      ],
      "value": "PRJEB100893"
@@ -243,7 +245,7 @@ For illustration only.
 ```json
 {
  "targetRepository": "ena",
- "status": "FAILURE",
+ "submissionStatus": "FAILURE",
  "errors": [
    {
      "type": "INVALID_METADATA",
