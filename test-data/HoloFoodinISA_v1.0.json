@@ -1299,11 +1299,6 @@
                       "comments": []
                     }
                   }
-                ],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/3066"
-                  }
                 ]
               }
             ]
@@ -1583,23 +1578,13 @@
                 "@id": "#other_material/3207",
                 "name": "1167_C",
                 "type": "Extract Name",
-                "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/3065"
-                  }
-                ]
+                "characteristics": []
               },
               {
                 "@id": "#other_material/3208",
                 "name": "1167_C",
                 "type": "Labeled Extract Name",
-                "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#other_material/3207"
-                  }
-                ]
+                "characteristics": []
               }
             ]
           },
