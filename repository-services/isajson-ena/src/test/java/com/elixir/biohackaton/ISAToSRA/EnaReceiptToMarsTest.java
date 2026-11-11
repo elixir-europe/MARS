@@ -2,17 +2,16 @@
 package com.elixir.biohackaton.ISAToSRA;
 
 import com.elixir.mars.repository.MarsReceiptException;
+import com.elixir.mars.repository.models.receipt.MarsError;
+import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
-import com.elixir.biohackaton.ISAToSRA.sra.model.Messages;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
-import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -35,7 +34,7 @@ class EnaReceiptToMarsTest {
 
   void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
-    MarsReceiptService marsReceiptService = new MarsReceiptService();
+    MarsReceipt marsReceipt;
     try {
       try {
         // Reading Inputs
@@ -48,19 +47,33 @@ class EnaReceiptToMarsTest {
         IsaJson isaJson = jsonMapper.readValue(isaJsonFile, IsaJson.class);
 
         // Converting ENA receipt to MARS receipt
-        marsReceiptService.convertReceiptToMars(receipt, isaJson);
+        marsReceipt = new MarsReceiptService().convertReceiptToMars(receipt, isaJson);
       } catch (MarsReceiptException e) {
-        marsReceiptService.setMarsReceiptErrors(e.getError());
+        marsReceipt = errorReceipt(e.getError());
       } catch (Exception e) {
-        marsReceiptService.setMarsReceiptErrors(e.getMessage());
+        marsReceipt = errorReceipt(
+            MarsError.builder().message(String.valueOf(e.getMessage())).build());
       }
 
-      // Saving the result as a Json file
       Files.write(
           new File(marsReceiptPath).toPath(),
-          jsonMapper.writeValueAsBytes(marsReceiptService.getMarsReceipt()));
+          jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private MarsReceipt errorReceipt(final MarsError error) {
+    return MarsReceipt.builder()
+        .targetRepository("ena")
+        .errors(List.of(
+            MarsError.builder()
+                .type(MarsErrorType.INVALID_METADATA)
+                .message(error.message)
+                .path(error.path)
+                .build()))
+        .info(List.of())
+        .accessions(List.of())
+        .build();
   }
 }

@@ -44,11 +44,9 @@ public class MarsReceiptService extends MarsReceiptProvider {
    * @param isaJson {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
    */
-  public MarsReceipt convertReceiptToMars(
-      final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
-    // The service is a singleton, so discard accessions collected for an earlier request.
-    resetMarsReceipt();
-    buildMarsReceipt(
+  public MarsReceipt convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap,
+                                          final IsaJson isaJson) {
+    return buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
         biosampleAccessionsMap.sourceAccessionsMap,
@@ -57,11 +55,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
         null,
         null,
         isaJson);
-    return getMarsReceipt();
   }
 
-  @Override
-  public String convertMarsReceiptToJson() {
-    throw new RuntimeException("UNIMPLEMENTED");
-  }
 }

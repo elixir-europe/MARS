@@ -1,7 +1,6 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.mars.repository.MarsReceiptException;
 import com.elixir.mars.repository.MarsReceiptProvider;
 import com.elixir.mars.repository.ReceiptAccessionsMap;
 import com.elixir.mars.repository.IsaJsonGraphLookup;
@@ -10,8 +9,6 @@ import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.OtherMaterial;
 import com.elixir.mars.repository.models.isa.ProcessSequence;
-import com.elixir.mars.repository.models.receipt.MarsError;
-import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
@@ -26,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.springframework.context.annotation.Scope;
@@ -66,14 +62,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
     }
   }
 
-  public void setMarsReceiptErrors(String... errors) {
-    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
-  }
-
-  public void setMarsReceiptErrors(MarsError... errors) {
-    super.setMarsReceiptErrors(MarsErrorType.INVALID_METADATA, errors);
-  }
-
   /**
    * Converting ENA receipt to Mars data format
    *
@@ -84,9 +72,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
-    // The service is a singleton, so discard accessions collected for an earlier request.
-    resetMarsReceipt();
-    buildMarsReceipt(
+    return buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
             // the assay rather than the parent study title.
@@ -99,18 +85,15 @@ public class MarsReceiptService extends MarsReceiptProvider {
         receipt.getMessages().getInfoMessages(),
         receipt.getMessages().getErrorMessages(),
         isaJson);
-    return getMarsReceipt();
   }
-
   /**
    * Extracts receipt alias/accession pairs for a single ISA item type.
    *
    * <p>The alias stored in the ENA receipt includes the random submission suffix, so keys are
    * normalized back to the original ISA IDs before building the MARS accession map.
    */
-  private ReceiptAccessionsMap getAliasAccessionPairs(
-      String keyNameInput, final List<ReceiptObject> items) {
-    Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
+  private ReceiptAccessionsMap getAliasAccessionPairs(String keyNameInput,
+                                                      final List<ReceiptObject> items) {
     Function<ReceiptObject, String> getPreRandomizedAliasFn = this::getPreRandomizedAlias;
 
     return new ReceiptAccessionsMap() {
@@ -119,7 +102,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
         accessionMap =
             new HashMap<>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-                    .filter(aliasAccessionPairValidateFn)
                     .collect(
                         Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
       }
@@ -134,17 +116,12 @@ public class MarsReceiptService extends MarsReceiptProvider {
    */
   private ReceiptAccessionsMap getRunAliasAccessionPairs(
       final List<ReceiptObject> items, final IsaJson isaJson) {
-    Predicate<ReceiptObject> aliasAccessionPairValidateFn = this::aliasAccessionPairFilter;
     final Map<String, String> runAccessionMap = new HashMap<>();
     final List<List<String>> sequencingProcessDataFiles =
         getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
     int sequencingProcessIndex = 0;
 
     for (ReceiptObject receiptObject : Optional.ofNullable(items).orElse(new ArrayList<>())) {
-      if (!aliasAccessionPairValidateFn.test(receiptObject)) {
-        continue;
-      }
-
       final String processId = getPreRandomizedAlias(receiptObject);
       List<String> dataFileIds = getDataFileIdsForSequencingProcess(isaJson, processId);
       if (dataFileIds.isEmpty() && sequencingProcessIndex < sequencingProcessDataFiles.size()) {
@@ -246,24 +223,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
     }
   }
 
-  private boolean aliasAccessionPairFilter(ReceiptObject item) {
-    if (item == null) {
-      setMarsReceiptErrors("ENA receipt: Item is NULL");
-      return false;
-    }
-    boolean valid = true;
-    if (item.getAlias() == null) {
-      setMarsReceiptErrors("ENA receipt: Alias is NULL");
-      valid = false;
-    }
-    if (item.getAccession() == null) {
-      setMarsReceiptErrors(
-          String.format("ENA receipt: Accession number of %s is NULL", item.getAlias()));
-      valid = false;
-    }
-    return valid;
-  }
-
   /**
    * Removes the generated submission suffix from an ENA alias to recover the original ISA item ID.
    */
@@ -275,8 +234,4 @@ public class MarsReceiptService extends MarsReceiptProvider {
         0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
   }
 
-  @Override
-  public String convertMarsReceiptToJson() {
-    throw new MarsReceiptException("METHOD NOT IMPLEMENTED");
-  }
 }
