@@ -78,13 +78,13 @@ public class MarsReceiptService extends MarsReceiptProvider {
             // the assay rather than the parent study title.
             Assay.Fields.id,
             Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
-        null,
-        null,
-        getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
-        getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
-        receipt.getMessages().getInfoMessages(),
-        receipt.getMessages().getErrorMessages(),
-        isaJson);
+            null,
+            null,
+            getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
+            getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
+            receipt.getMessages().getInfoMessages(),
+            receipt.getMessages().getErrorMessages(),
+            isaJson);
   }
   /**
    * Extracts receipt alias/accession pairs for a single ISA item type.
@@ -117,8 +117,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
   private ReceiptAccessionsMap getRunAliasAccessionPairs(
       final List<ReceiptObject> items, final IsaJson isaJson) {
     final Map<String, String> runAccessionMap = new HashMap<>();
-    final List<List<String>> sequencingProcessDataFiles =
-        getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
+    final List<List<String>> sequencingProcessDataFiles = getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
     int sequencingProcessIndex = 0;
 
     for (ReceiptObject receiptObject : Optional.ofNullable(items).orElse(new ArrayList<>())) {
@@ -129,7 +128,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
       }
 
       dataFileIds.forEach(
-          dataFileId -> runAccessionMap.put(dataFileId, receiptObject.getAccession()));
+          dataFileId -> 
+              runAccessionMap.put(dataFileId, receiptObject.getAccession()));
       sequencingProcessIndex++;
     }
 
@@ -198,24 +198,21 @@ public class MarsReceiptService extends MarsReceiptProvider {
   /**
    * Adds one output data-file group for each sequencing process in an assay.
    */
-  private void addAssaySequencingProcessOutputs(
-      final List<List<String>> sequencingProcessDataFiles,
-      final Set<String> processedSequencingProcesses,
-      final Assay assay) {
+  private void addAssaySequencingProcessOutputs(final List<List<String>> sequencingProcessDataFiles,
+                                                final Set<String> processedSequencingProcesses,
+                                                final Assay assay) {
     if (assay.getDataFiles() == null || assay.getProcessSequence() == null) {
       return;
     }
 
     for (final DataFile dataFile : assay.getDataFiles()) {
-      final ProcessSequence sequencingProcess =
-          IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
+      final ProcessSequence sequencingProcess = IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
       if (sequencingProcess == null || !processedSequencingProcesses.add(sequencingProcess.getId())) {
         continue;
       }
 
       final List<String> dataFileIds = new ArrayList<>();
-      IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
-              sequencingProcess, assay.getDataFiles())
+      IsaJsonGraphLookup.findDataFilesFromProcessOutputs(sequencingProcess, assay.getDataFiles())
           .stream()
           .map(DataFile::getId)
           .forEach(dataFileIds::add);
@@ -230,8 +227,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
     // Convert #assay/18_20_21-0.49105604184136276 -> #assay/18_20_21
     final String alias = receiptObject.getAlias();
     final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
-    return alias.substring(
-        0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
+    return alias.substring(0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
   }
 
 }
