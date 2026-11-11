@@ -2,6 +2,7 @@
 import astroConfig from "../../astro.config.mjs";
 import { Image } from "astro:assets";
 import logo from "../assets/logo-small.png";
+const mappingUrl = `${astroConfig.base}placing-attributes`;
 
 const homeUrl = `${astroConfig.base}`;
 const isaJsonSpecsUrl = `${astroConfig.base}mars-isa-json`;
@@ -17,9 +18,11 @@ const currentPath = normalizePath(Astro.url.pathname);
 
 const navItems = [
   { href: homeUrl, label: "Home" },
-  { href: isaJsonSpecsUrl, label: "ISA-JSON model" },
+  { href: isaJsonSpecsUrl, label: "ISA-JSON specification" },
   { href: stakeholdersUrl, label: "Stakeholders" },
   { href: repositoryApiUrl, label: "Repository API" },
+  { href: mappingUrl, label: "Mapping" },
+
 ].map((item) => ({
   ...item,
   isActive: currentPath === normalizePath(item.href) || (item.href === homeUrl && currentPath === "/"),
