@@ -913,7 +913,11 @@
                               }
                           }
                       ],
-                      "derivesFrom": [],
+                      "derivesFrom": [
+                          {
+                              "@id": "#source/e038efd9-fbc6-4716-a5e6-c7b255f749bd"
+                          }
+                      ],
                       "comments": []
                   },
                   {
@@ -964,7 +968,11 @@
                               }
                           }
                       ],
-                      "derivesFrom": [],
+                      "derivesFrom": [
+                          {
+                              "@id": "#source/7f3d0289-70a3-4d1e-8238-d7b7807113b6"
+                          }
+                      ],
                       "comments": []
                   },
                   {
@@ -1015,7 +1023,11 @@
                               }
                           }
                       ],
-                      "derivesFrom": [],
+                      "derivesFrom": [
+                          {
+                              "@id": "#source/e038efd9-fbc6-4716-a5e6-c7b255f749bd"
+                          }
+                      ],
                       "comments": []
                   },
                   {
@@ -1066,7 +1078,11 @@
                               }
                           }
                       ],
-                      "derivesFrom": [],
+                      "derivesFrom": [
+                          {
+                              "@id": "#source/7f3d0289-70a3-4d1e-8238-d7b7807113b6"
+                          }
+                      ],
                       "comments": []
                   }
               ],
@@ -1221,6 +1237,7 @@
           "unitCategories": [],
           "assays": [
               {
+                  "@id": "#assay/a_BH2024-lc-ms-assay",
                   "measurementType": {
                       "@id": "#ontology_annotation/9c0e3587-10bf-4206-928a-2dc1d4a34f19",
                       "annotationValue": "metabolite profiling",
@@ -1237,7 +1254,14 @@
                   },
                   "technologyPlatform": "",
                   "filename": "a_BH2024-lc-ms-assay.txt",
-                  "characteristicCategories": [],
+                  "characteristicCategories": [
+                      {
+                          "@id": "#characteristic_category/assay_material_type",
+                          "characteristicType": {
+                              "annotationValue": "material type"
+                          }
+                      }
+                  ],
                   "unitCategories": [],
                   "comments": [
                       {

@@ -811,23 +811,16 @@
           "name": "",
           "performer": "",
           "executesProtocol": {
-            "@id": "#protocol/18_10",
-            "components": [],
-            "parameters": []
+            "@id": "#protocol/18_10"
           },
           "inputs": [
             {
-              "@id": "#source/330",
-              "comments": [],
-              "characteristics": []
+              "@id": "#source/330"
             }
           ],
           "outputs": [
             {
-              "@id": "#sample/331",
-              "comments": [],
-              "characteristics": [],
-              "derivesFrom": []
+              "@id": "#sample/331"
             }
           ],
           "parameterValues": [
@@ -862,18 +855,8 @@
               }
             }
           ],
-          "nextProcess": {
-            "inputs": [],
-            "outputs": [],
-            "parameterValues": [],
-            "comments": []
-          },
-          "previousProcess": {
-            "inputs": [],
-            "outputs": [],
-            "parameterValues": [],
-            "comments": []
-          },
+          "nextProcess": {},
+          "previousProcess": {},
           "comments": []
         },
         {
@@ -882,23 +865,16 @@
           "name": "",
           "performer": "",
           "executesProtocol": {
-            "@id": "#protocol/18_10",
-            "components": [],
-            "parameters": []
+            "@id": "#protocol/18_10"
           },
           "inputs": [
             {
-              "@id": "#source/430",
-              "comments": [],
-              "characteristics": []
+              "@id": "#source/430"
             }
           ],
           "outputs": [
             {
-              "@id": "#sample/431",
-              "comments": [],
-              "characteristics": [],
-              "derivesFrom": []
+              "@id": "#sample/431"
             }
           ],
           "parameterValues": [
@@ -933,18 +909,8 @@
               }
             }
           ],
-          "nextProcess": {
-            "inputs": [],
-            "outputs": [],
-            "parameterValues": [],
-            "comments": []
-          },
-          "previousProcess": {
-            "inputs": [],
-            "outputs": [],
-            "parameterValues": [],
-            "comments": []
-          },
+          "nextProcess": {},
+          "previousProcess": {},
           "comments": []
         }
       ],
@@ -1017,11 +983,6 @@
                     }
                   }
                 ],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/331"
-                  }
-                ],
                 "comments": []
               },
               {
@@ -1029,11 +990,6 @@
                 "name": "library 1",
                 "type": "library name",
                 "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#other_material/332"
-                  }
-                ],
                 "comments": []
               },
               {
@@ -1052,11 +1008,6 @@
                     }
                   }
                 ],
-                "derivesFrom": [
-                  {
-                    "@id": "#sample/431"
-                  }
-                ],
                 "comments": []
               },
               {
@@ -1064,11 +1015,6 @@
                 "name": "library 2",
                 "type": "library name",
                 "characteristics": [],
-                "derivesFrom": [
-                  {
-                    "@id": "#other_material/337"
-                  }
-                ],
                 "comments": []
               }
             ]
@@ -1080,39 +1026,24 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/19_18",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/19_18"
               },
               "inputs": [
                 {
-                  "@id": "#sample/331",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#sample/331"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#other_material/332",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#other_material/332"
                 }
               ],
               "parameterValues": [],
               "nextProcess": {
-                "@id": "#process/library_construction/333",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/library_construction/333"
               },
               "previousProcess": {
-                "@id": "#process/sample_collection/331",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/sample_collection/331"
               },
               "comments": []
             },
@@ -1122,23 +1053,16 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/20_20",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/20_20"
               },
               "inputs": [
                 {
-                  "@id": "#other_material/332",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#other_material/332"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#other_material/333",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#other_material/333"
                 }
               ],
               "parameterValues": [
@@ -1242,18 +1166,10 @@
                 }
               ],
               "nextProcess": {
-                "@id": "#process/nucleic_acid_sequencing/334",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/nucleic_acid_sequencing/334"
               },
               "previousProcess": {
-                "@id": "#process/nucleic_acid_extraction/332",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/nucleic_acid_extraction/332"
               },
               "comments": []
             },
@@ -1263,29 +1179,19 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/21_21",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/21_21"
               },
               "inputs": [
                 {
-                  "@id": "#other_material/333",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#other_material/333"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#data_file/334",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#data_file/334"
                 },
                 {
-                  "@id": "#data_file/335",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#data_file/335"
                 }
               ],
               "parameterValues": [
@@ -1317,18 +1223,9 @@
                   }
                 }
               ],
-              "nextProcess": {
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
-              },
+              "nextProcess": {},
               "previousProcess": {
-                "@id": "#process/library_construction/333",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/library_construction/333"
               },
               "comments": []
             },
@@ -1338,39 +1235,24 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/19_18",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/19_18"
               },
               "inputs": [
                 {
-                  "@id": "#sample/431",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#sample/431"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#other_material/337",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#other_material/337"
                 }
               ],
               "parameterValues": [],
               "nextProcess": {
-                "@id": "#process/library_construction/338",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/library_construction/338"
               },
               "previousProcess": {
-                "@id": "#process/sample_collection/431",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/sample_collection/431"
               },
               "comments": []
             },
@@ -1380,23 +1262,16 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/20_20",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/20_20"
               },
               "inputs": [
                 {
-                  "@id": "#other_material/337",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#other_material/337"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#other_material/338",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#other_material/338"
                 }
               ],
               "parameterValues": [
@@ -1500,18 +1375,10 @@
                 }
               ],
               "nextProcess": {
-                "@id": "#process/nucleic_acid_sequencing/339",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/nucleic_acid_sequencing/339"
               },
               "previousProcess": {
-                "@id": "#process/nucleic_acid_extraction/337",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/nucleic_acid_extraction/337"
               },
               "comments": []
             },
@@ -1521,23 +1388,16 @@
               "name": "",
               "performer": "",
               "executesProtocol": {
-                "@id": "#protocol/21_21",
-                "components": [],
-                "parameters": []
+                "@id": "#protocol/21_21"
               },
               "inputs": [
                 {
-                  "@id": "#other_material/338",
-                  "comments": [],
-                  "characteristics": []
+                  "@id": "#other_material/338"
                 }
               ],
               "outputs": [
                 {
-                  "@id": "#data_file/336",
-                  "comments": [],
-                  "characteristics": [],
-                  "derivesFrom": []
+                  "@id": "#data_file/336"
                 }
               ],
               "parameterValues": [
@@ -1569,18 +1429,9 @@
                   }
                 }
               ],
-              "nextProcess": {
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
-              },
+              "nextProcess": {},
               "previousProcess": {
-                "@id": "#process/library_construction/338",
-                "inputs": [],
-                "outputs": [],
-                "parameterValues": [],
-                "comments": []
+                "@id": "#process/library_construction/338"
               },
               "comments": []
             }
