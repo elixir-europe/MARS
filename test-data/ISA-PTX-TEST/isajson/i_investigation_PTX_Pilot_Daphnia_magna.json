@@ -6868,7 +6868,7 @@
                     "unitCategories": [],
                     "comments": [
                         {
-                            "name": "target repository",
+                            "name": "target_repository",
                             "value": "ena"
                         }
                     ],
@@ -6904,7 +6904,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -6939,7 +6939,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -6974,7 +6974,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7009,7 +7009,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7044,7 +7044,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7079,7 +7079,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7114,7 +7114,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7149,7 +7149,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7184,7 +7184,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7219,7 +7219,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7254,7 +7254,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
@@ -7289,7 +7289,7 @@
                                         "category": {
                                             "@id": "#characteristic_category/4023da65-9349-48d0-8891-466084418384"
                                         },
-                                        "value": NaN,
+                                        "value": "Not Reported",
                                         "comments": []
                                     }
                                 ],
