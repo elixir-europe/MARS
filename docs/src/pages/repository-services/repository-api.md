@@ -26,7 +26,7 @@ This endpoint is used to perform a submission to the target repository.
 ### Request
 The submit endpoint must receive ISA-JSON as the body. This is guaranteed to be syntactically correct ISA-JSON and will be filtered to contain only assays to be deposited at the receiving repository and only samples referenced in those assays.
 
-The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-modified-isa.json#L379)).
+The repository service must accept existing BioSamples accessions in the ISA-JSON and should not broker to BioSamples itself. BioSamples accessions will be present as characteristics of the samples (example [here](https://github.com/elixir-europe/MARS/blob/main/test-data/ena-minimal-after-biosamples.json#L419-L433)).
 
 ### Response
 The response must be JSON in the following format:
@@ -141,7 +141,7 @@ The response must be the same format as for the submit endpoint (i.e. the [MARS 
 ## Examples
 
 ### Submission request
-See [here](https://github.com/elixir-europe/MARS/blob/main/test-data/biosamples-input-isa.json).
+See [here](https://github.com/elixir-europe/MARS/blob/main/test-data/ena-minimal.json).
 
 ### Success response
 For illustration only.

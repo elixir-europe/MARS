@@ -1,5 +1,5 @@
 {
-  "@id": "#investigation_80"
+  "@id": "#investigation_80",
   "identifier": "investigation_1",
   "title": "Multi-omics in chickens",
   "description": "Multi-modal investigation in chickens",
@@ -86,7 +86,7 @@
   ],
   "studies": [
     {
-       "@id": "#investigation_98"
+      "@id": "#investigation_98",
       "identifier": "study_1",
       "title": "Impact of host–microbiota on chicken production",
       "description": "Hologenomic approach to understand the impact of host–microbiota interactions on chicken production by analysing multiomic data, phenotypic characteristics, and associated metadata in response to novel feeds.",
