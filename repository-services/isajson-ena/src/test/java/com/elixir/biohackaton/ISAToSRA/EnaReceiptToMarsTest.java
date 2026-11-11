@@ -9,6 +9,7 @@ import com.elixir.mars.repository.models.receipt.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
@@ -34,6 +35,7 @@ class EnaReceiptToMarsTest {
 
   void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
+    jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MarsReceipt marsReceipt;
     try {
       try {
