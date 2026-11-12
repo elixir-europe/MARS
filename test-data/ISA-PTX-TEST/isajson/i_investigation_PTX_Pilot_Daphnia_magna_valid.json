@@ -494,10 +494,20 @@
           ],
           "parameters": [
             {
+              "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89",
+              "parameterName": {
+                "@id": "#ontology_annotation/DESIGN_DESCRIPTION_bcc2d42f-9ca8-4dbb-8ced-e77bd7b32493",
+                "annotationValue": "DESIGN_DESCRIPTION",
+                "termSource": "",
+                "termAccession": "",
+                "comments": []
+              }
+            },
+            {
               "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89",
               "parameterName": {
                 "@id": "#ontology_annotation/bcc2d42f-9ca8-4dbb-8ced-e77bd7b32493",
-                "annotationValue": "library layout",
+                "annotationValue": "LIBRARY_LAYOUT",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -507,7 +517,7 @@
               "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df",
               "parameterName": {
                 "@id": "#ontology_annotation/22ff29ea-5b7f-474a-9803-5348034542a5",
-                "annotationValue": "library strategy",
+                "annotationValue": "LIBRARY_STRATEGY",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -517,7 +527,7 @@
               "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf",
               "parameterName": {
                 "@id": "#ontology_annotation/5892e022-1b67-4e90-aea3-f0bc72d982c6",
-                "annotationValue": "library source",
+                "annotationValue": "LIBRARY_SOURCE",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -527,7 +537,7 @@
               "@id": "#protocol_parameter/1aa22b63-88dc-4193-bd72-80d7fa644789",
               "parameterName": {
                 "@id": "#ontology_annotation/4f80c908-a5e3-4e40-9980-6a4a9ea3b4b7",
-                "annotationValue": "library target",
+                "annotationValue": "LIBRARY_SELECTION",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -570,7 +580,7 @@
               "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6",
               "parameterName": {
                 "@id": "#ontology_annotation/7ec39b6d-5d02-43bd-881c-e5de00ab4bf5",
-                "annotationValue": "sequencing platform",
+                "annotationValue": "PLATFORM",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -580,7 +590,7 @@
               "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095",
               "parameterName": {
                 "@id": "#ontology_annotation/4ce0ae09-8c46-40ce-ad9a-9b01bd8afd60",
-                "annotationValue": "sequencing instrument",
+                "annotationValue": "INSTRUMENT_MODEL",
                 "termSource": "",
                 "termAccession": "",
                 "comments": []
@@ -5468,7 +5478,7 @@
             "termAccession": "OBI:0000626",
             "comments": []
           },
-          "technologyPlatform": "MGI",
+          "technologyPlatform": "DNBSEQ",
           "filename": "a_PTX_Pilot_Daphnia_magna_rnaseq_assay.txt",
           "characteristicCategories": [
             {
@@ -5484,6 +5494,10 @@
           ],
           "unitCategories": [],
           "comments": [
+            {
+              "name": "STUDY_TYPE",
+              "value": "RNASeq"
+            },
             {
               "name": "target_repository",
               "value": "ena"
@@ -5688,8 +5702,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LA2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5699,8 +5721,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LA2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5710,8 +5740,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LB2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5721,8 +5759,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LB2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5732,8 +5778,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LC1_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5743,8 +5797,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LC1_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5754,8 +5816,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LC2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5765,8 +5835,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LC2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5776,8 +5854,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LD1_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5787,8 +5873,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LD1_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5798,8 +5892,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LE2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5809,8 +5911,16 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "Checksum Type",
-                  "value": "sha1"
+                  "name": "checksum_method",
+                  "value": "MD5"
+                },
+                {
+                  "name": "checksum",
+                  "value": "DAA006LE2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             }
@@ -5971,6 +6081,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -5979,13 +6095,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6023,6 +6139,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -6031,13 +6153,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6075,6 +6197,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -6083,13 +6211,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6127,6 +6255,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -6135,13 +6269,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6179,6 +6313,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -6187,13 +6327,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6231,6 +6371,12 @@
               "parameterValues": [
                 {
                   "category": {
+                    "@id": "#protocol_parameter/DESIGN_DESCRIPTION_bec72179-fd78-40f2-9b35-0929a7793d89"
+                  },
+                  "value": "rna library for sequencing"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/bec72179-fd78-40f2-9b35-0929a7793d89"
                   },
                   "value": "PAIRED"
@@ -6239,13 +6385,13 @@
                   "category": {
                     "@id": "#protocol_parameter/d9622d8e-6e42-464d-acba-d37fad5786df"
                   },
-                  "value": "RNA-SEQ"
+                  "value": "RNA-Seq"
                 },
                 {
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "mRNA"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6285,7 +6431,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6310,7 +6462,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
@@ -6330,7 +6482,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6355,7 +6513,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
@@ -6375,7 +6533,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6400,7 +6564,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
@@ -6420,7 +6584,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6445,7 +6615,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
@@ -6465,7 +6635,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6490,7 +6666,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
@@ -6510,7 +6686,13 @@
                   "category": {
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
-                  "value": "MGI"
+                  "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6535,7 +6717,7 @@
               "comments": [
                 {
                   "name": "Original sequencing instrument",
-                  "value": "DNBSeq-G400"
+                  "value": "DNBSEQ-G400"
                 }
               ],
               "previousProcess": {
