@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -306,5 +307,93 @@ class WebinExperimentXmlCreatorTest {
     Assertions.assertTrue(
         experimentSequence.containsKey("#other_material/338"),
         "Expected the single-end data file to resolve to library 2");
+  }
+
+  @Test
+  void testExperimentResolvesLibraryThroughPreviousProcessWhenSequencingHasNoInputs()
+      throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    findAssayProcess(studies, "#process/nucleic_acid_sequencing/334").getInputs().clear();
+
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final Map<String, String> experimentSequence =
+        experimentXmlCreator.createENAExperimentSetElement(
+            defaultBioSampleAccessions(), webinElement, studies, "test-previous-process");
+
+    Assertions.assertEquals(
+        Set.of("#other_material/333"),
+        experimentSequence.keySet(),
+        "Library should be resolved from the outputs of the previous process");
+    assertLibraryAndPlatformMetadata(webinElement);
+  }
+
+  @Test
+  void testExperimentResolvesLibraryConstructionThroughNextProcessWhenItHasNoOutputs()
+      throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    findAssayProcess(studies, "#process/library_construction/333").getOutputs().clear();
+
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final Map<String, String> experimentSequence =
+        experimentXmlCreator.createENAExperimentSetElement(
+            defaultBioSampleAccessions(), webinElement, studies, "test-next-process");
+
+    Assertions.assertEquals(Set.of("#other_material/333"), experimentSequence.keySet());
+    // Library metadata lives on the library construction process, so this only resolves when the
+    // process is found through the inputs of its next process.
+    assertLibraryAndPlatformMetadata(webinElement);
+  }
+
+  @Test
+  void testExperimentIncludesProcessesChainedWithoutLibraryMaterial() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    findAssayProcess(studies, "#process/library_construction/333").getOutputs().clear();
+    findAssayProcess(studies, "#process/nucleic_acid_sequencing/334").getInputs().clear();
+
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final Map<String, String> experimentSequence =
+        experimentXmlCreator.createENAExperimentSetElement(
+            defaultBioSampleAccessions(), webinElement, studies, "test-process-chain");
+
+    Assertions.assertEquals(
+        Set.of("#other_material/332"),
+        experimentSequence.keySet(),
+        "Without a library node, the material entering the process chain backs the experiment");
+    assertLibraryAndPlatformMetadata(webinElement);
+  }
+
+  private void assertLibraryAndPlatformMetadata(final Element webinElement) {
+    @SuppressWarnings("unchecked")
+    final List<Element> experiments = webinElement.element("EXPERIMENT_SET").elements("EXPERIMENT");
+    Assertions.assertEquals(1, experiments.size());
+
+    final Element experiment = experiments.get(0);
+    final Element libraryDescriptor = experiment.element("DESIGN").element("LIBRARY_DESCRIPTOR");
+    Assertions.assertEquals(
+        "Amplicon sequencing of Arabidopsis thaliana leaf DNA.",
+        experiment.element("DESIGN").elementText("DESIGN_DESCRIPTION"));
+    Assertions.assertEquals("AMPLICON", libraryDescriptor.elementText("LIBRARY_STRATEGY"));
+    Assertions.assertEquals("GENOMIC", libraryDescriptor.elementText("LIBRARY_SOURCE"));
+    Assertions.assertEquals("PCR", libraryDescriptor.elementText("LIBRARY_SELECTION"));
+    Assertions.assertEquals(
+        "MinION",
+        experiment.element("PLATFORM").element("OXFORD_NANOPORE").elementText("INSTRUMENT_MODEL"));
+  }
+
+  private static Map<String, String> defaultBioSampleAccessions() {
+    final Map<String, String> bioSampleAccessions = new HashMap<>();
+    bioSampleAccessions.put("SOURCE", "SAMEA130793922");
+    return bioSampleAccessions;
+  }
+
+  private static ProcessSequence findAssayProcess(
+      final List<Study> studies, final String processId) {
+    return studies.get(0).getAssays().get(0).getProcessSequence().stream()
+        .filter(process -> processId.equals(process.getId()))
+        .findFirst()
+        .orElseThrow();
   }
 }

@@ -5,6 +5,7 @@ import com.elixir.biohackaton.ISAToSRA.biosamples.model.Attribute;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.Relationship;
+import com.elixir.mars.repository.IsaJsonGraphLookup;
 import com.elixir.mars.repository.ReceiptAccessionsMap;
 import com.elixir.mars.repository.models.isa.*;
 import java.time.Instant;
@@ -62,9 +63,10 @@ public class BioSamplesSubmitter {
 
         for (final Sample sample : study.getMaterials().getSamples()) {
           final ProcessSequence sampleCollectionProcess =
-              findProcessByOutputId(study.getProcessSequence(), sample.getId());
+              IsaJsonGraphLookup.findProcessByOutputId(study.getProcessSequence(), sample.getId());
           final BioSample sourceBioSample =
-              findSourceBioSampleForSample(sample, sampleCollectionProcess, sourceBioSamplesById);
+              findSourceBioSampleForSample(
+                  sample, sampleCollectionProcess, study.getProcessSequence(), sourceBioSamplesById);
           final BioSample persistedChildSample =
               this.createAndUpdateChildSampleWithRelationship(
                   sample,
@@ -72,7 +74,7 @@ public class BioSamplesSubmitter {
                   webinToken,
                   characteristicKeyLookup,
                   protocolToParameterNameMap,
-                  sampleCollectionProcess);
+                  findSampleCollectionProcesses(study.getProcessSequence(), sampleCollectionProcess));
 
           if (persistedChildSample != null) {
             typeToBioSamplesAccessionMap.sampleAccessionsMap.accessionMap.put(
@@ -97,14 +99,14 @@ public class BioSamplesSubmitter {
       final String webinToken,
       final Map<String, String> characteristicKeyLookup,
       final Map<String, Map<String, String>> protocolToParameterNameMap,
-      final ProcessSequence sampleCollectionProcess) {
+      final List<ProcessSequence> sampleCollectionProcesses) {
     final SortedSet<Attribute> childSampleAttributes =
         buildChildSampleAttributes(
             sample,
             sourceBioSample,
             characteristicKeyLookup,
             protocolToParameterNameMap,
-            sampleCollectionProcess);
+            sampleCollectionProcesses);
     final BioSample bioSample =
         new BioSample.Builder(sample.getName() != null ? sample.getName() : "child_sample")
             .withRelease(Instant.now())
@@ -142,16 +144,20 @@ public class BioSamplesSubmitter {
       final BioSample sourceBioSample,
       final Map<String, String> characteristicKeyLookup,
       final Map<String, Map<String, String>> protocolToParameterNameMap,
-      final ProcessSequence sampleCollectionProcess) {
+      final List<ProcessSequence> sampleCollectionProcesses) {
     final SortedSet<Attribute> childSampleAttributes =
         buildAttributesFromCharacteristics(sample.getCharacteristics(), characteristicKeyLookup);
 
     // Direct sample characteristics are the most specific metadata; process parameters only fill
-    // BioSample attributes that are not already present on the output sample.
-    addAttributesIfMissing(
-        childSampleAttributes,
-        buildAttributesFromProcessParameters(
-            sampleCollectionProcess, protocolToParameterNameMap));
+    // BioSample attributes that are not already present on the output sample. Processes are
+    // ordered closest to the sample first, so the sample collection process wins over processes
+    // chained before it.
+    for (final ProcessSequence sampleCollectionProcess : sampleCollectionProcesses) {
+      addAttributesIfMissing(
+          childSampleAttributes,
+          buildAttributesFromProcessParameters(
+              sampleCollectionProcess, protocolToParameterNameMap));
+    }
 
     synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, ORGANISM_ATTRIBUTE);
     synchronizeSharedAttribute(childSampleAttributes, sourceBioSample, TAX_ID_ATTRIBUTE);
@@ -195,6 +201,27 @@ public class BioSamplesSubmitter {
   }
 
   /**
+   * Returns the sample collection process followed by the processes chained before it through
+   * {@code previousProcess} without an intermediate material.
+   *
+   * <p>ISA can split one step into several protocols (e.g. growth culture followed by sample
+   * collection), where only the last one declares the sample as output. The parameters of the
+   * earlier protocols still describe the same sample.
+   */
+  private List<ProcessSequence> findSampleCollectionProcesses(
+      final List<ProcessSequence> studyProcesses, final ProcessSequence sampleCollectionProcess) {
+    final List<ProcessSequence> sampleCollectionProcesses = new ArrayList<>();
+    if (sampleCollectionProcess == null) {
+      return sampleCollectionProcesses;
+    }
+
+    sampleCollectionProcesses.add(sampleCollectionProcess);
+    sampleCollectionProcesses.addAll(
+        IsaJsonGraphLookup.findLinkedUpstreamProcesses(studyProcesses, sampleCollectionProcess));
+    return sampleCollectionProcesses;
+  }
+
+  /**
    * Resolves the BioSamples source record for a study sample.
    *
    * <p>ISA exports can express source-to-sample lineage either directly through
@@ -204,12 +231,16 @@ public class BioSamplesSubmitter {
   private BioSample findSourceBioSampleForSample(
       final Sample sample,
       final ProcessSequence sampleCollectionProcess,
+      final List<ProcessSequence> studyProcesses,
       final Map<String, BioSample> sourceBioSamplesById) {
     // Prefer explicit material lineage, but fall back to the process input for ISA exports that
     // only carry the source-to-sample relationship in processSequence.
     final Optional<String> sourceId =
         findSourceIdFromSampleDerivesFrom(sample, sourceBioSamplesById)
-            .or(() -> findSourceIdFromProcessInputs(sampleCollectionProcess, sourceBioSamplesById));
+            .or(
+                () ->
+                    findSourceIdFromProcessInputs(
+                        studyProcesses, sampleCollectionProcess, sourceBioSamplesById));
     if (sourceId.isPresent()) {
       return sourceBioSamplesById.get(sourceId.get());
     }
@@ -245,46 +276,17 @@ public class BioSamplesSubmitter {
    * Finds a source ID from the inputs of the process that produced the sample.
    *
    * <p>Some ISA exports keep source-to-sample lineage in {@code processSequence} instead of
-   * {@code sample.derivesFrom}, so this is the fallback lookup for that representation.
+   * {@code sample.derivesFrom}, so this is the fallback lookup for that representation. A sample
+   * collection process without declared inputs is resolved through its {@code previousProcess}
+   * links.
    */
   private Optional<String> findSourceIdFromProcessInputs(
-      final ProcessSequence processSequence, final Map<String, BioSample> sourceBioSamplesById) {
-    if (processSequence == null || processSequence.getInputs() == null) {
-      return Optional.empty();
-    }
-
-    return processSequence.getInputs().stream()
-        .filter(Objects::nonNull)
-        .map(Input::getId)
+      final List<ProcessSequence> studyProcesses,
+      final ProcessSequence sampleCollectionProcess,
+      final Map<String, BioSample> sourceBioSamplesById) {
+    return IsaJsonGraphLookup.findProcessInputIds(studyProcesses, sampleCollectionProcess).stream()
         .filter(sourceBioSamplesById::containsKey)
         .findFirst();
-  }
-
-  /**
-   * Finds the process that produced the given sample output.
-   *
-   * <p>BioSamples uses this to locate the sample collection process, whose inputs can identify the
-   * source material for the child sample.
-   */
-  private ProcessSequence findProcessByOutputId(
-      final List<ProcessSequence> processSequence, final String outputId) {
-    if (processSequence == null || outputId == null) {
-      return null;
-    }
-
-    for (final ProcessSequence process : processSequence) {
-      if (process == null || process.getOutputs() == null) {
-        continue;
-      }
-
-      for (final Output output : process.getOutputs()) {
-        if (output != null && outputId.equals(output.getId())) {
-          return process;
-        }
-      }
-    }
-
-    return null;
   }
 
   /** Converts ISA characteristics to BioSamples attributes using human-readable names. */
