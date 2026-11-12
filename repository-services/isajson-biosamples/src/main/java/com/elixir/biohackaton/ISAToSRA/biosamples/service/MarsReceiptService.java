@@ -8,8 +8,10 @@ import com.elixir.mars.repository.models.receipt.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+@Scope("prototype")
 @Service
 public class MarsReceiptService extends MarsReceiptProvider {
   private final ObjectMapper jsonMapper = new ObjectMapper();
@@ -42,8 +44,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
    * @param isaJson {@link IsaJson} Requested ISA-Json
    * @return {@link MarsReceipt} Mars response data
    */
-  public MarsReceipt convertReceiptToMars(
-      final BiosampleAccessionsMap biosampleAccessionsMap, final IsaJson isaJson) {
+  public MarsReceipt convertReceiptToMars(final BiosampleAccessionsMap biosampleAccessionsMap,
+                                          final IsaJson isaJson) {
     return buildMarsReceipt(
         biosampleAccessionsMap.studyAccessionsMap,
         biosampleAccessionsMap.sampleAccessionsMap,
@@ -52,6 +54,9 @@ public class MarsReceiptService extends MarsReceiptProvider {
         null,
         null,
         null,
+        null,
+        null,
         isaJson);
   }
+
 }

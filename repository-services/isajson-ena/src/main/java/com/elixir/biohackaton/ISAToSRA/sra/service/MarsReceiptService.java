@@ -1,9 +1,9 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA.sra.service;
 
-import com.elixir.mars.repository.IsaJsonGraphLookup;
 import com.elixir.mars.repository.MarsReceiptProvider;
 import com.elixir.mars.repository.ReceiptAccessionsMap;
+import com.elixir.mars.repository.IsaJsonGraphLookup;
 import com.elixir.mars.repository.models.isa.Assay;
 import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.IsaJson;
@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -37,6 +37,7 @@ import org.springframework.validation.annotation.Validated;
  * used by the MARS receipt model.
  */
 @Validated
+@Scope("prototype")
 @Service
 public class MarsReceiptService extends MarsReceiptProvider {
 
@@ -71,46 +72,30 @@ public class MarsReceiptService extends MarsReceiptProvider {
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
-    // Receipt validation errors are collected per call and reported next to the ENA messages.
-    final List<String> validationErrors = new ArrayList<>();
-    final ReceiptAccessionsMap studyAccessions =
+    return buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
             // the assay rather than the parent study title.
             Assay.Fields.id,
-            Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects()),
-            validationErrors);
-    final ReceiptAccessionsMap experimentAccessions =
-        getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments(), validationErrors);
-    final ReceiptAccessionsMap runAccessions =
-        getRunAliasAccessionPairs(receipt.getRuns(), isaJson, validationErrors);
-
-    final List<String> errors =
-        new ArrayList<>(
-            Optional.ofNullable(receipt.getMessages().getErrorMessages()).orElse(List.of()));
-    errors.addAll(validationErrors);
-
-    return buildMarsReceipt(
-        studyAccessions,
-        null,
-        null,
-        experimentAccessions,
-        runAccessions,
-        receipt.getMessages().getInfoMessages(),
-        errors,
-        isaJson);
+            Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
+            null,
+            null,
+            getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
+            getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
+            receipt.getMessages().getInfoMessages(),
+            receipt.getMessages().getErrorMessages(),
+            null,
+            null,
+            isaJson);
   }
-
   /**
    * Extracts receipt alias/accession pairs for a single ISA item type.
    *
    * <p>The alias stored in the ENA receipt includes the random submission suffix, so keys are
    * normalized back to the original ISA IDs before building the MARS accession map.
    */
-  private ReceiptAccessionsMap getAliasAccessionPairs(
-      String keyNameInput, final List<ReceiptObject> items, final List<String> errors) {
-    Predicate<ReceiptObject> aliasAccessionPairValidateFn =
-        item -> aliasAccessionPairFilter(item, errors);
+  private ReceiptAccessionsMap getAliasAccessionPairs(String keyNameInput,
+                                                      final List<ReceiptObject> items) {
     Function<ReceiptObject, String> getPreRandomizedAliasFn = this::getPreRandomizedAlias;
 
     return new ReceiptAccessionsMap() {
@@ -119,7 +104,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
         accessionMap =
             new HashMap<>(
                 Optional.ofNullable(items).orElse(new ArrayList<>()).stream()
-                    .filter(aliasAccessionPairValidateFn)
                     .collect(
                         Collectors.toMap(getPreRandomizedAliasFn, ReceiptObject::getAccession)));
       }
@@ -133,19 +117,12 @@ public class MarsReceiptService extends MarsReceiptProvider {
    * accession attached to each submitted data file produced by that process.
    */
   private ReceiptAccessionsMap getRunAliasAccessionPairs(
-      final List<ReceiptObject> items, final IsaJson isaJson, final List<String> errors) {
-    Predicate<ReceiptObject> aliasAccessionPairValidateFn =
-        item -> aliasAccessionPairFilter(item, errors);
+      final List<ReceiptObject> items, final IsaJson isaJson) {
     final Map<String, String> runAccessionMap = new HashMap<>();
-    final List<List<String>> sequencingProcessDataFiles =
-        getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
+    final List<List<String>> sequencingProcessDataFiles = getSequencingProcessDataFileIdsInSubmissionOrder(isaJson);
     int sequencingProcessIndex = 0;
 
     for (ReceiptObject receiptObject : Optional.ofNullable(items).orElse(new ArrayList<>())) {
-      if (!aliasAccessionPairValidateFn.test(receiptObject)) {
-        continue;
-      }
-
       final String processId = getPreRandomizedAlias(receiptObject);
       List<String> dataFileIds = getDataFileIdsForSequencingProcess(isaJson, processId);
       if (dataFileIds.isEmpty() && sequencingProcessIndex < sequencingProcessDataFiles.size()) {
@@ -153,7 +130,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
       }
 
       dataFileIds.forEach(
-          dataFileId -> runAccessionMap.put(dataFileId, receiptObject.getAccession()));
+          dataFileId -> 
+              runAccessionMap.put(dataFileId, receiptObject.getAccession()));
       sequencingProcessIndex++;
     }
 
@@ -224,17 +202,15 @@ public class MarsReceiptService extends MarsReceiptProvider {
   /**
    * Adds one output data-file group for each sequencing process in an assay.
    */
-  private void addAssaySequencingProcessOutputs(
-      final List<List<String>> sequencingProcessDataFiles,
-      final Set<String> processedSequencingProcesses,
-      final Assay assay) {
+  private void addAssaySequencingProcessOutputs(final List<List<String>> sequencingProcessDataFiles,
+                                                final Set<String> processedSequencingProcesses,
+                                                final Assay assay) {
     if (assay.getDataFiles() == null || assay.getProcessSequence() == null) {
       return;
     }
 
     for (final DataFile dataFile : assay.getDataFiles()) {
-      final ProcessSequence sequencingProcess =
-          IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
+      final ProcessSequence sequencingProcess = IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), dataFile.getId());
       if (sequencingProcess == null || !processedSequencingProcesses.add(sequencingProcess.getId())) {
         continue;
       }
@@ -249,23 +225,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
     }
   }
 
-  private boolean aliasAccessionPairFilter(final ReceiptObject item, final List<String> errors) {
-    if (item == null) {
-      errors.add("ENA receipt: Item is NULL");
-      return false;
-    }
-    boolean valid = true;
-    if (item.getAlias() == null) {
-      errors.add("ENA receipt: Alias is NULL");
-      valid = false;
-    }
-    if (item.getAccession() == null) {
-      errors.add(String.format("ENA receipt: Accession number of %s is NULL", item.getAlias()));
-      valid = false;
-    }
-    return valid;
-  }
-
   /**
    * Removes the generated submission suffix from an ENA alias to recover the original ISA item ID.
    */
@@ -273,7 +232,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
     // Convert #assay/18_20_21-0.49105604184136276 -> #assay/18_20_21
     final String alias = receiptObject.getAlias();
     final int lastIndexOfAcceptableAlias = alias.lastIndexOf('-');
-    return alias.substring(
-        0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
+    return alias.substring(0, lastIndexOfAcceptableAlias > 0 ? lastIndexOfAcceptableAlias : alias.length());
   }
+
 }
