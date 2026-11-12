@@ -136,12 +136,16 @@ The comment object allows target repositories to request arbitrary information (
 ```jsonc
 {
   "name": "repo_id_...",
-  "value": "..."
+  "value": "...",
+  "path": [
+    // path objects as defined above
+  ]
 }
 ```
 where:
 * `name` is the name of the comment. It must be prefixed by the target repository ID to ensure existing comments are not overwritten.
 * `value` is the value for the comment, any string value chosen by the repository.
+* (optional) `path` indicates which assay should hold the comment, defined as described in the accession object section. If omitted, the comment will be applied to all assays assigned to the target repository.
 
 #### Info object
 The info object can be used to provide any additional information back to the user, not relating to errors and not persisted to the ISA-JSON. It looks like the following:
