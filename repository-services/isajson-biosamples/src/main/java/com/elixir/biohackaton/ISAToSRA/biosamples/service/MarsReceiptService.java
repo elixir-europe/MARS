@@ -54,8 +54,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
         null,
         null,
         null,
-        null,
-        null,
         isaJson);
   }
 

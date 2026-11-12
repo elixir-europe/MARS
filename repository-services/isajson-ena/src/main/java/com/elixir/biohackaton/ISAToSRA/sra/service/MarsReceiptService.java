@@ -84,8 +84,6 @@ public class MarsReceiptService extends MarsReceiptProvider {
             getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
             receipt.getMessages().getInfoMessages(),
             receipt.getMessages().getErrorMessages(),
-            null,
-            null,
             isaJson);
   }
   /**
