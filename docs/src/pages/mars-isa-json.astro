@@ -9,6 +9,10 @@ const schemaDefs = schema.$defs ?? [];
 
 <Layout title="MARS ISA-JSON specification">
   <h1>MARS ISA-JSON specification</h1>
+  This table shows MARS ISA-JSON specification based on the [ISA-JSON one](https://isa-specs.readthedocs.io/en/latest/isajson.html#)
+  
+  <h2>MARS required comments<h2>
+  | studies/assays/comments[name=target_repository]/value | ena; metabolights |
 
   {
     Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
