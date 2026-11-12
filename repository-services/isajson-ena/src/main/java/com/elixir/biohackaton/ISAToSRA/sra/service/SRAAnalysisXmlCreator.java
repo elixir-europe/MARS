@@ -8,24 +8,22 @@ import org.springframework.stereotype.Service;
 
 import com.elixir.mars.repository.MarsReceiptException;
 import com.elixir.mars.repository.models.isa.Assay;
-import com.elixir.mars.repository.models.isa.Comment;
 import com.elixir.mars.repository.models.isa.DataFile;
 import com.elixir.mars.repository.models.isa.Study;
 
 /**
  * Creates ENA ANALYSIS XML from ISA derived data files.
  *
- * <p>The analysis path is intentionally limited to derived data files and expects checksum metadata
- * to be supplied through ISA data-file comments.
+ * <p>The analysis path is intentionally limited to derived data files. The attributes of each ENA
+ * {@code FILE} element come from ISA comments named after those attributes ({@code filetype},
+ * {@code checksum_method}, {@code checksum}; see {@link DataFileComments}). The checksum is
+ * required, the checksum method defaults to MD5, and the file type falls back to the file
+ * extension.
  */
 @Service
 @Slf4j
 public class SRAAnalysisXmlCreator {
   private static final String DERIVED_FILE_KEY = "Derived Data File";
-
-  private static final String CHECKSUM_KEY = "checksum";
-
-  private static final String CHECKSUM_TYPE_KEY = "checksum type";
 
   /** Creates the ENA ANALYSIS_SET element for derived data files in each submitted assay. */
   public void createENAAnalysisSetElement(final Element webinElement, final List<Study> studies) {
@@ -63,42 +61,41 @@ public class SRAAnalysisXmlCreator {
       return;
     }
 
-    String filename = dataFile.getName();
-    // TODO any way to get filetype (vcf, bam, etc.) besides extension? also what if files are
-    // compressed?
-    String filetype = dataFile.getName().substring(dataFile.getName().lastIndexOf('.'));
+    final String filename = dataFile.getName();
+
+    // Prefer the declared ENA filetype (vcf, bam, ...); otherwise derive it from the extension.
+    final String declaredFiletype = DataFileComments.findValue(dataFile, DataFileComments.FILETYPE);
+    final String filetype =
+        declaredFiletype != null && !declaredFiletype.isBlank()
+            ? declaredFiletype
+            : filetypeFromExtension(filename);
 
     // Files must have a checksum (stored in comments)
-    final String checksum = findCommentValue(dataFile.getComments(), CHECKSUM_KEY);
-    final String checksumType = findCommentValue(dataFile.getComments(), CHECKSUM_TYPE_KEY);
-
-    if (checksum == null || checksumType == null) {
-      throw new MarsReceiptException("Checksum and checksum type not found");
+    final String checksumMethod = DataFileComments.resolveChecksumMethod(dataFile);
+    final String checksum = DataFileComments.findValue(dataFile, DataFileComments.CHECKSUM);
+    if (checksum == null) {
+      throw new MarsReceiptException(
+          "Data file " + filename + " is missing the '" + DataFileComments.CHECKSUM + "' comment");
     }
 
     Element fileElement = filesElement.addElement("FILE");
     fileElement.addAttribute("filename", filename);
     fileElement.addAttribute("filetype", filetype);
-    fileElement.addAttribute("checksum_method", checksumType);
+    fileElement.addAttribute("checksum_method", checksumMethod);
     fileElement.addAttribute("checksum", checksum);
   }
 
-  /** Finds a data-file comment value using ENA's case-insensitive metadata convention. */
-  private String findCommentValue(final List<Comment> comments, final String commentName) {
-    if (comments == null) {
-      return null;
+  /** Derives an ENA filetype from the file extension, without the leading dot. */
+  private static String filetypeFromExtension(final String filename) {
+    final int dotIndex = filename == null ? -1 : filename.lastIndexOf('.');
+    if (dotIndex < 0 || dotIndex == filename.length() - 1) {
+      throw new MarsReceiptException(
+          "Cannot derive the ENA filetype of data file "
+              + filename
+              + "; add a '"
+              + DataFileComments.FILETYPE
+              + "' comment");
     }
-
-    for (final Comment comment : comments) {
-      if (comment == null || comment.getName() == null) {
-        continue;
-      }
-
-      if (comment.getName().equalsIgnoreCase(commentName)) {
-        return comment.getValue();
-      }
-    }
-
-    return null;
+    return filename.substring(dotIndex + 1);
   }
 }

@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
  *
  * <p>Runs are grouped by the sequencing process that produced one or more data files and are linked
  * back to the ENA experiment generated for the input library.
+ *
+ * <p>Each raw data file supplies the attributes of its ENA {@code FILE} element through ISA
+ * comments named after those attributes: {@code filetype} and {@code checksum} are required, {@code
+ * checksum_method} defaults to MD5 (see {@link DataFileComments}).
  */
 @Service
 public class WebinRunXmlCreator {
@@ -112,35 +116,36 @@ public class WebinRunXmlCreator {
 
     for (final DataFile dataFile : dataFiles) {
       final String fileName = dataFile.getName();
-      String fileType = null;
-      String checksum = null;
-
-      if (dataFile.getComments() != null) {
-        for (final Comment comment : dataFile.getComments()) {
-          if ("file type".equals(comment.getName())) {
-            fileType = comment.getValue() != null ? comment.getValue() : null;
-          }
-          if ("file checksum".equals(comment.getName())) {
-            checksum = comment.getValue() != null ? comment.getValue() : null;
-          }
-        }
-      }
+      final String fileType = DataFileComments.findValue(dataFile, DataFileComments.FILETYPE);
+      final String checksumMethod = DataFileComments.resolveChecksumMethod(dataFile);
+      final String checksum = DataFileComments.findValue(dataFile, DataFileComments.CHECKSUM);
 
       if (fileName == null || fileType == null || checksum == null) {
         throw new RuntimeException(
             "Run file(s) not found or missing required metadata: fileName="
                 + fileName
-                + ", fileType="
+                + ", "
+                + DataFileComments.FILETYPE
+                + "="
                 + fileType
-                + ", checksum="
-                + checksum);
+                + ", "
+                + DataFileComments.CHECKSUM
+                + "="
+                + checksum
+                + ". Each raw data file needs the comments '"
+                + DataFileComments.FILETYPE
+                + "' and '"
+                + DataFileComments.CHECKSUM
+                + "', optionally with '"
+                + DataFileComments.CHECKSUM_METHOD
+                + "'.");
       }
 
       filesElement
           .addElement("FILE")
           .addAttribute("filename", fileName)
           .addAttribute("filetype", fileType)
-          .addAttribute("checksum_method", "MD5")
+          .addAttribute("checksum_method", checksumMethod)
           .addAttribute("checksum", checksum);
     }
   }
