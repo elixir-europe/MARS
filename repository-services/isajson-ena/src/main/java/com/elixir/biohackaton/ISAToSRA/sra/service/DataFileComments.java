@@ -3,20 +3,15 @@ package com.elixir.biohackaton.ISAToSRA.sra.service;
 
 import com.elixir.mars.repository.models.isa.Comment;
 import com.elixir.mars.repository.models.isa.DataFile;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Reads the ISA data-file comments that carry the attributes of an ENA {@code FILE} element.
  *
- * <p>The comment names mirror the attribute names of the {@code FILE} element in ENA's {@code
- * SRA.run.xsd} and {@code SRA.analysis.xsd}: {@code filetype}, {@code checksum_method} and {@code
- * checksum}. The canonical spelling is matched first. Names are otherwise compared ignoring case,
- * spaces and underscores, and the spellings used by earlier MARS test data ({@code file type},
- * {@code file checksum}, {@code checksum type}) are still accepted so existing ISA-JSON keeps
- * working.
+ * <p>The comment names are exactly the attribute names of the {@code FILE} element in ENA's
+ * {@code SRA.run.xsd} and {@code SRA.analysis.xsd}: {@code filetype}, {@code checksum_method}
+ * and {@code checksum}. Matching is strict and case-sensitive; no other spelling is accepted.
  */
 final class DataFileComments {
   /** Comment holding the ENA {@code filetype} attribute, e.g. {@code fastq} or {@code bam}. */
@@ -34,35 +29,16 @@ final class DataFileComments {
   /** Method assumed when the ISA-JSON does not name one. */
   static final String DEFAULT_CHECKSUM_METHOD = "MD5";
 
-  /** Normalized spellings accepted for each canonical comment name. */
-  private static final Map<String, Set<String>> ACCEPTED_NAMES =
-      Map.of(
-          FILETYPE, Set.of("filetype"),
-          CHECKSUM_METHOD, Set.of("checksummethod", "checksumtype"),
-          CHECKSUM, Set.of("checksum", "filechecksum"));
-
   private DataFileComments() {}
 
-  /**
-   * Returns the value of a data-file comment, or {@code null} when no comment with the canonical
-   * name or an accepted legacy spelling exists.
-   */
-  static String findValue(final DataFile dataFile, final String canonicalName) {
+  /** Returns the value of the data-file comment with exactly this name, or {@code null}. */
+  static String findValue(final DataFile dataFile, final String name) {
     if (dataFile == null || dataFile.getComments() == null) {
       return null;
     }
 
-    final List<Comment> comments = dataFile.getComments();
-    for (final Comment comment : comments) {
-      if (comment != null && canonicalName.equals(comment.getName())) {
-        return comment.getValue();
-      }
-    }
-
-    final Set<String> acceptedNames =
-        ACCEPTED_NAMES.getOrDefault(canonicalName, Set.of(normalize(canonicalName)));
-    for (final Comment comment : comments) {
-      if (comment != null && acceptedNames.contains(normalize(comment.getName()))) {
+    for (final Comment comment : dataFile.getComments()) {
+      if (comment != null && name.equals(comment.getName())) {
         return comment.getValue();
       }
     }
@@ -97,9 +73,5 @@ final class DataFileComments {
     }
 
     return checksumMethod;
-  }
-
-  private static String normalize(final String name) {
-    return name == null ? "" : name.replaceAll("[^A-Za-z0-9]", "").toLowerCase(Locale.ROOT);
   }
 }

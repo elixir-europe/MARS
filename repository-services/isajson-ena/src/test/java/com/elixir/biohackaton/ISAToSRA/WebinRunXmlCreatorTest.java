@@ -244,16 +244,14 @@ class WebinRunXmlCreatorTest {
   }
 
   @Test
-  void testRunFileAcceptsLegacyCommentNames() throws Exception {
+  void testRunFileRejectsLegacyCommentNames() throws Exception {
     final List<Study> studies = isaJson.getStudies();
     renameComment(firstDataFile(studies), "filetype", "file type");
     renameComment(firstDataFile(studies), "checksum", "file checksum");
 
-    final Element fileElement = createFirstRunFile(studies, "test-legacy");
-
-    Assertions.assertEquals("fastq", fileElement.attributeValue("filetype"));
-    Assertions.assertEquals(
-        "69c903251902c1e0b75331f70e531012", fileElement.attributeValue("checksum"));
+    // Only the exact XSD attribute names are accepted as comment names.
+    Assertions.assertThrows(
+        RuntimeException.class, () -> createFirstRunFile(studies, "test-legacy"));
   }
 
   @Test
