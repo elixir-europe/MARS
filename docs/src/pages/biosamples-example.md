@@ -1,3 +1,6 @@
+---
+layout: ../layouts/Layout.astro
+---
 # Example of BioSamples mapping to MARS ISA-JSON
 
 This table shows where each piece of information required for a BioSamples submission must be placed in the MARS ISA-JSON.
