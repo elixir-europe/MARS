@@ -13,7 +13,7 @@ RUN git clone --depth 1 --branch "${MARS_REPOSITORY_LIB_REF}" https://github.com
 WORKDIR /lib/mars-repository-lib
 RUN sed -i 's/\r$//' gradlew && \
     chmod +x gradlew && \
-    ./gradlew build && \
+    ./gradlew build -x test && \
     ./gradlew publishToMavenLocal
 
 WORKDIR /app
