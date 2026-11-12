@@ -223,4 +223,87 @@ class WebinRunXmlCreatorTest {
         experimentSequenceMap.get("#other_material/333"),
         runs.get(0).element("EXPERIMENT_REF").attributeValue("refname"));
   }
+
+  @Test
+  void testRunFileUsesDeclaredChecksumMethod() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    setComment(firstDataFile(studies), "checksum_method", "SHA-256");
+
+    final Element fileElement = createFirstRunFile(studies, "test-sha256");
+
+    Assertions.assertEquals("SHA-256", fileElement.attributeValue("checksum_method"));
+  }
+
+  @Test
+  void testRunFileRejectsUnsupportedChecksumMethod() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    setComment(firstDataFile(studies), "checksum_method", "sha1");
+
+    Assertions.assertThrows(
+        IllegalArgumentException.class, () -> createFirstRunFile(studies, "test-sha1"));
+  }
+
+  @Test
+  void testRunFileRejectsLegacyCommentNames() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    renameComment(firstDataFile(studies), "filetype", "file type");
+    renameComment(firstDataFile(studies), "checksum", "file checksum");
+
+    // Only the exact XSD attribute names are accepted as comment names.
+    Assertions.assertThrows(
+        RuntimeException.class, () -> createFirstRunFile(studies, "test-legacy"));
+  }
+
+  @Test
+  void testRunFileRequiresChecksumComment() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    firstDataFile(studies).getComments().removeIf(comment -> "checksum".equals(comment.getName()));
+
+    Assertions.assertThrows(
+        RuntimeException.class, () -> createFirstRunFile(studies, "test-missing-checksum"));
+  }
+
+  private static DataFile firstDataFile(final List<Study> studies) {
+    return studies.get(0).getAssays().get(0).getDataFiles().get(0);
+  }
+
+  private Element createFirstRunFile(final List<Study> studies, final String submissionId) {
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final Map<String, String> bioSampleAccessions = new HashMap<>();
+    bioSampleAccessions.put("SOURCE", "SAMEA130793922");
+    final Map<String, String> experimentSequenceMap =
+        experimentXmlCreator.createENAExperimentSetElement(
+            bioSampleAccessions, webinElement, studies, submissionId);
+    runXmlCreator.createENARunSetElement(
+        webinElement, studies, experimentSequenceMap, submissionId);
+
+    @SuppressWarnings("unchecked")
+    final List<Element> runs = webinElement.element("RUN_SET").elements("RUN");
+    @SuppressWarnings("unchecked")
+    final List<Element> files =
+        runs.get(0).element("DATA_BLOCK").element("FILES").elements("FILE");
+    return files.get(0);
+  }
+
+  private static void setComment(final DataFile dataFile, final String name, final String value) {
+    for (final Comment comment : dataFile.getComments()) {
+      if (name.equals(comment.getName())) {
+        comment.setValue(value);
+        return;
+      }
+    }
+    final Comment comment = new Comment();
+    comment.setName(name);
+    comment.setValue(value);
+    dataFile.getComments().add(comment);
+  }
+
+  private static void renameComment(final DataFile dataFile, final String from, final String to) {
+    for (final Comment comment : dataFile.getComments()) {
+      if (from.equals(comment.getName())) {
+        comment.setName(to);
+      }
+    }
+  }
 }

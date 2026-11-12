@@ -953,15 +953,15 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file name",
+                  "name": "filename",
                   "value": "ENA_TEST2.R2.fastq.gz"
                 },
                 {
-                  "name": "file type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
-                  "name": "file checksum",
+                  "name": "checksum",
                   "value": "69c903251902c1e0b75331f70e531012"
                 },
                 {

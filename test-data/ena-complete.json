@@ -1443,15 +1443,15 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file name",
+                  "name": "filename",
                   "value": "ENA_TEST2.EXP1.R1.fastq.gz"
                 },
                 {
-                  "name": "file type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
-                  "name": "file checksum",
+                  "name": "checksum",
                   "value": ""
                 },
                 {
@@ -1474,15 +1474,15 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file name",
+                  "name": "filename",
                   "value": "ENA_TEST2.EXP1.R2.fastq.gz"
                 },
                 {
-                  "name": "file type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
-                  "name": "file checksum",
+                  "name": "checksum",
                   "value": ""
                 },
                 {
@@ -1505,15 +1505,15 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file name",
+                  "name": "filename",
                   "value": "ENA_TEST2.EXP2.SE.fastq.gz"
                 },
                 {
-                  "name": "file type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
-                  "name": "file checksum",
+                  "name": "checksum",
                   "value": ""
                 },
                 {

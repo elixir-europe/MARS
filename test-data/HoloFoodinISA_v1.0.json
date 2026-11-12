@@ -1471,11 +1471,11 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file_name",
+                  "name": "filename",
                   "value": "CC08_13B1a_RAW_1.fq.gz"
                 },
                 {
-                  "name": "file_type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
@@ -1506,11 +1506,11 @@
               "type": "Raw Data File",
               "comments": [
                 {
-                  "name": "file_name",
+                  "name": "filename",
                   "value": "CC08_13B1a_RAW_2.fq.gz"
                 },
                 {
-                  "name": "file_type",
+                  "name": "filetype",
                   "value": "fastq"
                 },
                 {
