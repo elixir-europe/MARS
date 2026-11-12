@@ -164,7 +164,9 @@ public class MarsReceiptService extends MarsReceiptProvider {
                                 .ifPresent(
                                     process ->
                                         IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
-                                                process, assay.getDataFiles())
+                                                assay.getProcessSequence(),
+                                                process,
+                                                assay.getDataFiles())
                                             .stream()
                                             .map(DataFile::getId)
                                             .forEach(dataFileIds::add))));
@@ -212,7 +214,8 @@ public class MarsReceiptService extends MarsReceiptProvider {
       }
 
       final List<String> dataFileIds = new ArrayList<>();
-      IsaJsonGraphLookup.findDataFilesFromProcessOutputs(sequencingProcess, assay.getDataFiles())
+      IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
+              assay.getProcessSequence(), sequencingProcess, assay.getDataFiles())
           .stream()
           .map(DataFile::getId)
           .forEach(dataFileIds::add);
