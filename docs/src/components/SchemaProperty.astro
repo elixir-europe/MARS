@@ -1,6 +1,5 @@
 ---
 type JsonSchema = {
-  default?: unknown;
   description?: string;
   title?: string;
   type?: string | string[];
@@ -20,7 +19,6 @@ const { name, property, isRequired = false, layout = 'row' } = Astro.props as {
 };
 
 const propertyType = property.type ?? 'any';
-const propertyDefaultValue = property.default ?? 'N/A';
 const propertyDescription = property.description ?? property.title ?? 'N/A';
 const requiredLabel = isRequired ? 'Yes' : 'No';
 const requiredClass = isRequired
@@ -30,7 +28,6 @@ const fields: Field[] = [
   { label: 'Type', value: propertyType, valueClass: 'text-gray-800 dark:text-gray-200 font-mono text-xs' },
   { label: 'Description', value: propertyDescription },
   { label: 'Required', value: requiredLabel, valueClass: requiredClass },
-  { label: 'Default', value: propertyDefaultValue, valueClass: 'text-gray-800 dark:text-gray-200 font-mono text-xs' },
 ];
 ---
 
@@ -55,7 +52,6 @@ const fields: Field[] = [
       <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">{propertyType}</td>
       <td class="break-words px-4 py-3 text-left align-top text-gray-700 dark:text-gray-300">{propertyDescription}</td>
       <td class="px-4 py-3 text-left align-top"><span class={requiredClass}>{requiredLabel}</span></td>
-      <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">{propertyDefaultValue}</td>
     </tr>
   )
 }
