@@ -13,8 +13,43 @@ const schemaDefs = schema.$defs ?? [];
   <a href="https://isa-specs.readthedocs.io/en/latest/isajson.html">
     ISA-JSON one
   </a>
-  <h2>MARS required comments</h2>|
-  studies/assays/comments[name=target_repository]/value | ena; metabolights |
+  <h2>MARS required comments</h2>
+  <div class="not-prose my-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
+    <div class="max-w-full overflow-x-auto">
+      <table class="w-full min-w-[400px] table-fixed text-left text-sm bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+        <colgroup>
+          <col class="w-[16%]" />
+          <col class="w-[18%]" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th
+              scope="col"
+              class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200"
+            >
+              ISA-JSON key
+            </th>
+            <th
+              scope="col"
+              class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200"
+            >
+              Value
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200 bg-white last:border-b-0 dark:border-gray-700 dark:bg-gray-800">
+            <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">
+              studies/assays/comments[name=taret_repository]/value
+            </td>
+            <td class="break-words px-4 py-3 text-left align-top font-mono text-xs text-gray-700 dark:text-gray-300">
+              ena; metabolights
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   {Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
     <SchemaTable title={key} schema={schemadefinition} />
   ))}
