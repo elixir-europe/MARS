@@ -5708,6 +5708,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LA2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5723,6 +5727,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LA2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5738,6 +5746,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LB2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5753,6 +5765,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LB2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5768,6 +5784,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LC1_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5783,6 +5803,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LC1_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5798,6 +5822,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LC2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5813,6 +5841,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LC2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5828,6 +5860,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LD1_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5843,6 +5879,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LD1_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5858,6 +5898,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LE2_1"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             },
@@ -5873,6 +5917,10 @@
                 {
                   "name": "checksum",
                   "value": "DAA006LE2_2"
+                },
+                {
+                  "name": "filetype",
+                  "value": "fastq"
                 }
               ]
             }
@@ -6053,7 +6101,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6111,7 +6159,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6169,7 +6217,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6227,7 +6275,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6285,7 +6333,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6343,7 +6391,7 @@
                   "category": {
                     "@id": "#protocol_parameter/8f9bee1d-1784-4fce-8e1c-bba914c87bcf"
                   },
-                  "value": "TRANSCRIPTOMICS"
+                  "value": "TRANSCRIPTOMIC"
                 },
                 {
                   "category": {
@@ -6384,6 +6432,12 @@
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
                   "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6432,6 +6486,12 @@
                 },
                 {
                   "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/9b566522-54db-4bdb-bbbc-f92ef78b7d39"
                   },
                   "value": "F23A430000432"
@@ -6474,6 +6534,12 @@
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
                   "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
@@ -6522,6 +6588,12 @@
                 },
                 {
                   "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/9b566522-54db-4bdb-bbbc-f92ef78b7d39"
                   },
                   "value": "F23A430000432"
@@ -6567,6 +6639,12 @@
                 },
                 {
                   "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
+                },
+                {
+                  "category": {
                     "@id": "#protocol_parameter/9b566522-54db-4bdb-bbbc-f92ef78b7d39"
                   },
                   "value": "F23A430000432"
@@ -6609,6 +6687,12 @@
                     "@id": "#protocol_parameter/7d65a506-bed0-46b4-89be-d3879e2221b6"
                   },
                   "value": "DNBSEQ"
+                },
+                {
+                  "category": {
+                    "@id": "#protocol_parameter/14490e3b-ea1f-413b-ae51-6ee20395d095"
+                  },
+                  "value": "DNBSEQ-G400"
                 },
                 {
                   "category": {
