@@ -8,7 +8,6 @@ import com.elixir.mars.repository.models.isa.Category;
 import com.elixir.mars.repository.models.isa.Characteristic;
 import com.elixir.mars.repository.models.isa.CharacteristicCategory;
 import com.elixir.mars.repository.models.isa.DataFile;
-import com.elixir.mars.repository.models.isa.DerivesFrom;
 import com.elixir.mars.repository.models.isa.Materials;
 import com.elixir.mars.repository.models.isa.OtherMaterial;
 import com.elixir.mars.repository.models.isa.Parameter;
@@ -177,7 +176,7 @@ public class WebinExperimentXmlCreator {
     experimentSequence.put(library.getId(), experimentId);
 
     final List<OtherMaterial> materialLineage =
-        findMaterialLineageToSample(library, assay.getMaterials());
+        findMaterialLineageToSample(assay.getProcessSequence(), library, assay.getMaterials());
     final ProcessSequence libraryConstructionProcess =
         IsaJsonGraphLookup.findProcessByOutputId(assay.getProcessSequence(), library.getId());
     final List<ProcessSequence> experimentProcesses =
@@ -261,27 +260,33 @@ public class WebinExperimentXmlCreator {
   /**
    * Returns the library and upstream other materials until the chain reaches a study sample.
    *
-   * <p>ISA material lineage is represented as {@code derivesFrom} ID references. This helper keeps
-   * the ENA experiment metadata close to the full library lineage while stopping before biological
-   * samples, which are handled through BioSamples accessions.
+   * <p>ISA material lineage is represented as {@code derivesFrom} ID references or, when those are
+   * absent, by the inputs of the process that produced each material. This helper keeps the ENA
+   * experiment metadata close to the full library lineage while stopping before biological samples,
+   * which are handled through BioSamples accessions.
    */
   private List<OtherMaterial> findMaterialLineageToSample(
-      final OtherMaterial material, final Materials materials) {
+      final List<ProcessSequence> assayProcesses,
+      final OtherMaterial material,
+      final Materials materials) {
     final List<OtherMaterial> materialLineage = new ArrayList<>();
     final Map<String, OtherMaterial> otherMaterialsById =
         IsaJsonGraphLookup.buildOtherMaterialsById(materials);
 
-    collectMaterialLineage(material, otherMaterialsById, materialLineage, new HashSet<>());
+    collectMaterialLineage(
+        assayProcesses, material, otherMaterialsById, materialLineage, new HashSet<>());
 
     return materialLineage;
   }
 
   /**
-   * Recursively follows {@code derivesFrom} links between other materials.
+   * Recursively follows the lineage between other materials (see {@link
+   * IsaJsonGraphLookup#findMaterialOriginIds(List, OtherMaterial)}).
    *
    * <p>The visited set prevents loops in malformed ISA graphs from causing unbounded recursion.
    */
   private void collectMaterialLineage(
+      final List<ProcessSequence> assayProcesses,
       final OtherMaterial material,
       final Map<String, OtherMaterial> otherMaterialsById,
       final List<OtherMaterial> materialLineage,
@@ -292,17 +297,11 @@ public class WebinExperimentXmlCreator {
 
     materialLineage.add(material);
 
-    if (material.getDerivesFrom() == null) {
-      return;
-    }
-
-    for (final DerivesFrom derivesFrom : material.getDerivesFrom()) {
-      if (derivesFrom == null || derivesFrom.getId() == null) {
-        continue;
-      }
-
+    for (final String originId :
+        IsaJsonGraphLookup.findMaterialOriginIds(assayProcesses, material)) {
       collectMaterialLineage(
-          otherMaterialsById.get(derivesFrom.getId()),
+          assayProcesses,
+          otherMaterialsById.get(originId),
           otherMaterialsById,
           materialLineage,
           visitedIds);
@@ -379,7 +378,12 @@ public class WebinExperimentXmlCreator {
         IsaJsonGraphLookup.buildOtherMaterialsById(assay.getMaterials());
 
     final Sample sample =
-        findSampleForMaterialId(library.getId(), samplesById, otherMaterialsById, new HashSet<>());
+        findSampleForMaterialId(
+            assay.getProcessSequence(),
+            library.getId(),
+            samplesById,
+            otherMaterialsById,
+            new HashSet<>());
     if (sample == null) {
       return getBioSampleAccessionFallback(bioSampleAccessions, null);
     }
@@ -418,10 +422,12 @@ public class WebinExperimentXmlCreator {
    * Finds the biological sample at the start of an other-material lineage.
    *
    * <p>Libraries and other materials can derive from other materials before eventually reaching a
-   * study sample. This resolves those ID links recursively so the experiment can reference the
-   * correct BioSamples accession.
+   * study sample. This resolves that lineage recursively (declared {@code derivesFrom} or, when
+   * absent, the inputs of the producing process) so the experiment can reference the correct
+   * BioSamples accession.
    */
   private Sample findSampleForMaterialId(
+      final List<ProcessSequence> assayProcesses,
       final String materialId,
       final Map<String, Sample> samplesById,
       final Map<String, OtherMaterial> otherMaterialsById,
@@ -435,19 +441,12 @@ public class WebinExperimentXmlCreator {
       return sample;
     }
 
-    final OtherMaterial otherMaterial = otherMaterialsById.get(materialId);
-    if (otherMaterial == null || otherMaterial.getDerivesFrom() == null) {
-      return null;
-    }
-
-    for (final DerivesFrom derivesFrom : otherMaterial.getDerivesFrom()) {
-      if (derivesFrom == null || derivesFrom.getId() == null) {
-        continue;
-      }
-
+    for (final String originId :
+        IsaJsonGraphLookup.findMaterialOriginIds(
+            assayProcesses, otherMaterialsById.get(materialId))) {
       final Sample derivedSample =
           findSampleForMaterialId(
-              derivesFrom.getId(), samplesById, otherMaterialsById, visitedIds);
+              assayProcesses, originId, samplesById, otherMaterialsById, visitedIds);
       if (derivedSample != null) {
         return derivedSample;
       }
