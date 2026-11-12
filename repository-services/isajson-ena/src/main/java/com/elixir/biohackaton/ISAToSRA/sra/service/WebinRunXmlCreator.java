@@ -58,7 +58,9 @@ public class WebinRunXmlCreator {
                                     // Find the library (experiment) that was input to sequencing
                                     final OtherMaterial library =
                                         IsaJsonGraphLookup.findOtherMaterialFromProcessInput(
-                                            sequencingProcess, assay.getMaterials());
+                                            assay.getProcessSequence(),
+                                            sequencingProcess,
+                                            assay.getMaterials());
 
                                     if (library != null
                                         && experimentSequenceMap.containsKey(library.getId())) {
@@ -66,7 +68,9 @@ public class WebinRunXmlCreator {
                                           experimentSequenceMap.get(library.getId());
                                       final List<DataFile> runDataFiles =
                                           IsaJsonGraphLookup.findDataFilesFromProcessOutputs(
-                                              sequencingProcess, assay.getDataFiles());
+                                              assay.getProcessSequence(),
+                                              sequencingProcess,
+                                              assay.getDataFiles());
                                       createRunElement(
                                           runSetElement,
                                           sequencingProcess,

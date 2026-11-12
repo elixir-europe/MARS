@@ -167,7 +167,7 @@ public class WebinExperimentXmlCreator {
 
     final OtherMaterial library =
         IsaJsonGraphLookup.findOtherMaterialFromProcessInput(
-            sequencingProcess, assay.getMaterials());
+            assay.getProcessSequence(), sequencingProcess, assay.getMaterials());
 
     if (library == null || experimentSequence.containsKey(library.getId())) {
       return;
@@ -205,7 +205,9 @@ public class WebinExperimentXmlCreator {
    *
    * <p>An ENA experiment is built around the library material. The relevant ISA process context is
    * the process that constructed that library, the sequencing process that produced the data file,
-   * and any upstream material-producing processes in the library-to-sample lineage.
+   * and any upstream material-producing processes in the library-to-sample lineage. Processes
+   * chained to these through {@code previousProcess} without an intermediate material are included
+   * as well, since they act on the same material.
    */
   private List<ProcessSequence> findExperimentProcesses(
       final List<ProcessSequence> assayProcesses,
@@ -215,8 +217,8 @@ public class WebinExperimentXmlCreator {
     final List<ProcessSequence> experimentProcesses = new ArrayList<>();
     final Set<String> processIds = new HashSet<>();
 
-    addExperimentProcess(experimentProcesses, processIds, libraryConstructionProcess);
-    addExperimentProcess(experimentProcesses, processIds, sequencingProcess);
+    addExperimentProcess(assayProcesses, experimentProcesses, processIds, libraryConstructionProcess);
+    addExperimentProcess(assayProcesses, experimentProcesses, processIds, sequencingProcess);
 
     if (materialLineage == null) {
       return experimentProcesses;
@@ -228,6 +230,7 @@ public class WebinExperimentXmlCreator {
       }
 
       addExperimentProcess(
+          assayProcesses,
           experimentProcesses,
           processIds,
           IsaJsonGraphLookup.findProcessByOutputId(assayProcesses, material.getId()));
@@ -237,6 +240,7 @@ public class WebinExperimentXmlCreator {
   }
 
   private void addExperimentProcess(
+      final List<ProcessSequence> assayProcesses,
       final List<ProcessSequence> experimentProcesses,
       final Set<String> processIds,
       final ProcessSequence process) {
@@ -245,6 +249,13 @@ public class WebinExperimentXmlCreator {
     }
 
     experimentProcesses.add(process);
+
+    for (final ProcessSequence linkedProcess :
+        IsaJsonGraphLookup.findLinkedUpstreamProcesses(assayProcesses, process)) {
+      if (linkedProcess.getId() != null && processIds.add(linkedProcess.getId())) {
+        experimentProcesses.add(linkedProcess);
+      }
+    }
   }
 
   /**
