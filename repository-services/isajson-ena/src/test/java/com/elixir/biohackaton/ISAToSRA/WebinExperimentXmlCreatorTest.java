@@ -383,6 +383,28 @@ class WebinExperimentXmlCreatorTest {
         experiment.element("PLATFORM").element("OXFORD_NANOPORE").elementText("INSTRUMENT_MODEL"));
   }
 
+  @Test
+  void testSampleAccessionResolvesThroughProcessLineageWithoutDerivesFrom() throws Exception {
+    // ena-minimal declares no derivesFrom: library 333 <- library construction <- extract 332
+    // <- nucleic acid extraction <- sample "leaf 1" is only known from the process inputs.
+    final List<Study> studies = isaJson.getStudies();
+    final Map<String, String> bioSampleAccessions = defaultBioSampleAccessions();
+    bioSampleAccessions.put("leaf 1", "SAMEA-leaf-1");
+
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    experimentXmlCreator.createENAExperimentSetElement(
+        bioSampleAccessions, webinElement, studies, "test-process-lineage");
+
+    @SuppressWarnings("unchecked")
+    final List<Element> experiments = webinElement.element("EXPERIMENT_SET").elements("EXPERIMENT");
+    Assertions.assertEquals(1, experiments.size());
+    Assertions.assertEquals(
+        "SAMEA-leaf-1",
+        experiments.get(0).element("DESIGN").element("SAMPLE_DESCRIPTOR").attributeValue("accession"),
+        "The sample should be found through the process inputs instead of the SOURCE fallback");
+  }
+
   private static Map<String, String> defaultBioSampleAccessions() {
     final Map<String, String> bioSampleAccessions = new HashMap<>();
     bioSampleAccessions.put("SOURCE", "SAMEA130793922");

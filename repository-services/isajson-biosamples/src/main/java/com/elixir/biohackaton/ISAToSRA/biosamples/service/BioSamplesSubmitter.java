@@ -66,7 +66,7 @@ public class BioSamplesSubmitter {
               IsaJsonGraphLookup.findProcessByOutputId(study.getProcessSequence(), sample.getId());
           final BioSample sourceBioSample =
               findSourceBioSampleForSample(
-                  sample, sampleCollectionProcess, study.getProcessSequence(), sourceBioSamplesById);
+                  sample, study.getProcessSequence(), sourceBioSamplesById);
           final BioSample persistedChildSample =
               this.createAndUpdateChildSampleWithRelationship(
                   sample,
@@ -225,22 +225,18 @@ public class BioSamplesSubmitter {
    * Resolves the BioSamples source record for a study sample.
    *
    * <p>ISA exports can express source-to-sample lineage either directly through
-   * {@code sample.derivesFrom} or indirectly through the sample collection process input. When a
-   * study has a single source, that source is used as a final fallback.
+   * {@code sample.derivesFrom} or indirectly through the sample collection process input (see
+   * {@link IsaJsonGraphLookup#findMaterialOriginIds(List, Sample)}). When a study has a single
+   * source, that source is used as a final fallback.
    */
   private BioSample findSourceBioSampleForSample(
       final Sample sample,
-      final ProcessSequence sampleCollectionProcess,
       final List<ProcessSequence> studyProcesses,
       final Map<String, BioSample> sourceBioSamplesById) {
-    // Prefer explicit material lineage, but fall back to the process input for ISA exports that
-    // only carry the source-to-sample relationship in processSequence.
     final Optional<String> sourceId =
-        findSourceIdFromSampleDerivesFrom(sample, sourceBioSamplesById)
-            .or(
-                () ->
-                    findSourceIdFromProcessInputs(
-                        studyProcesses, sampleCollectionProcess, sourceBioSamplesById));
+        IsaJsonGraphLookup.findMaterialOriginIds(studyProcesses, sample).stream()
+            .filter(sourceBioSamplesById::containsKey)
+            .findFirst();
     if (sourceId.isPresent()) {
       return sourceBioSamplesById.get(sourceId.get());
     }
@@ -251,42 +247,6 @@ public class BioSamplesSubmitter {
 
     throw new IllegalArgumentException(
         "Could not resolve source BioSample for sample " + sample.getId() + ".");
-  }
-
-  /**
-   * Finds a source ID from the sample's explicit ISA material lineage.
-   *
-   * <p>The {@code derivesFrom} entries store IDs, so they are resolved against the source
-   * BioSamples that were already created for the current study.
-   */
-  private Optional<String> findSourceIdFromSampleDerivesFrom(
-      final Sample sample, final Map<String, BioSample> sourceBioSamplesById) {
-    if (sample == null || sample.getDerivesFrom() == null) {
-      return Optional.empty();
-    }
-
-    return sample.getDerivesFrom().stream()
-        .filter(Objects::nonNull)
-        .map(DerivesFrom::getId)
-        .filter(sourceBioSamplesById::containsKey)
-        .findFirst();
-  }
-
-  /**
-   * Finds a source ID from the inputs of the process that produced the sample.
-   *
-   * <p>Some ISA exports keep source-to-sample lineage in {@code processSequence} instead of
-   * {@code sample.derivesFrom}, so this is the fallback lookup for that representation. A sample
-   * collection process without declared inputs is resolved through its {@code previousProcess}
-   * links.
-   */
-  private Optional<String> findSourceIdFromProcessInputs(
-      final List<ProcessSequence> studyProcesses,
-      final ProcessSequence sampleCollectionProcess,
-      final Map<String, BioSample> sourceBioSamplesById) {
-    return IsaJsonGraphLookup.findProcessInputIds(studyProcesses, sampleCollectionProcess).stream()
-        .filter(sourceBioSamplesById::containsKey)
-        .findFirst();
   }
 
   /** Converts ISA characteristics to BioSamples attributes using human-readable names. */
