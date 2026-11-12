@@ -992,7 +992,7 @@
               "type": "array"
             }
           ],
-          "minLength": 1,
+          "default": [],
           "title": "Inputs"
         },
         "name": {
@@ -1045,7 +1045,7 @@
               "type": "array"
             }
           ],
-          "minLength": 1,
+          "default": [],
           "title": "Outputs"
         },
         "parameterValues": {
@@ -1091,9 +1091,7 @@
       "required": [
         "@id",
         "executesProtocol",
-        "inputs",
-        "name",
-        "outputs"
+        "name"
       ],
       "title": "Process",
       "type": "object"
