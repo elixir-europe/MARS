@@ -191,4 +191,36 @@ class WebinRunXmlCreatorTest {
     Assertions.assertEquals(
         1, singleFileElements.size(), "Single-end sequencing run should contain one FASTQ file");
   }
+
+  @Test
+  void testCreateENARunSetElementWhenSequencingHasNoInputs() throws Exception {
+    final List<Study> studies = isaJson.getStudies();
+    final ProcessSequence sequencingProcess =
+        studies.get(0).getAssays().get(0).getProcessSequence().stream()
+            .filter(process -> "#process/nucleic_acid_sequencing/334".equals(process.getId()))
+            .findFirst()
+            .orElseThrow();
+    sequencingProcess.getInputs().clear();
+
+    final Document document = DocumentHelper.createDocument();
+    final Element webinElement = document.addElement("WEBIN");
+    final Map<String, String> bioSampleAccessions = new HashMap<>();
+    bioSampleAccessions.put("SOURCE", "SAMEA130793922");
+    final Map<String, String> experimentSequenceMap =
+        experimentXmlCreator.createENAExperimentSetElement(
+            bioSampleAccessions, webinElement, studies, "test-previous-process");
+
+    runXmlCreator.createENARunSetElement(
+        webinElement, studies, experimentSequenceMap, "test-previous-process");
+
+    @SuppressWarnings("unchecked")
+    final List<Element> runs = webinElement.element("RUN_SET").elements("RUN");
+    Assertions.assertEquals(1, runs.size(), "The sequencing process should still produce a run");
+    Assertions.assertEquals(
+        "#process/nucleic_acid_sequencing/334-test-previous-process",
+        runs.get(0).attributeValue("alias"));
+    Assertions.assertEquals(
+        experimentSequenceMap.get("#other_material/333"),
+        runs.get(0).element("EXPERIMENT_REF").attributeValue("refname"));
+  }
 }

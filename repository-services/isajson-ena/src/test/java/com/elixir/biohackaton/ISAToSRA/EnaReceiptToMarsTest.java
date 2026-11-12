@@ -3,6 +3,8 @@ package com.elixir.biohackaton.ISAToSRA;
 
 import com.elixir.mars.repository.MarsReceiptException;
 import com.elixir.mars.repository.models.isa.IsaJson;
+import com.elixir.mars.repository.models.receipt.MarsError;
+import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Messages;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
@@ -41,6 +43,7 @@ class EnaReceiptToMarsTest {
     jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MarsReceiptService marsReceiptService = new MarsReceiptService();
     try {
+      MarsReceipt marsReceipt;
       try {
         // Reading Inputs
         String receiptFile = Files.readString(new File(enaReceiptFilePath).toPath());
@@ -52,19 +55,32 @@ class EnaReceiptToMarsTest {
         IsaJson isaJson = jsonMapper.readValue(isaJsonFile, IsaJson.class);
 
         // Converting ENA receipt to MARS receipt
-        marsReceiptService.convertReceiptToMars(receipt, isaJson);
+        marsReceipt = marsReceiptService.convertReceiptToMars(receipt, isaJson);
       } catch (MarsReceiptException e) {
-        marsReceiptService.setMarsReceiptErrors(e.getError());
+        marsReceipt = errorReceipt(e.getError());
       } catch (Exception e) {
-        marsReceiptService.setMarsReceiptErrors(e.getMessage());
+        marsReceipt =
+            errorReceipt(
+                MarsError.builder()
+                    .message(e.getMessage())
+                    .type(MarsErrorType.INVALID_METADATA)
+                    .build());
       }
 
       // Saving the result as a Json file
-      Files.write(
-          new File(marsReceiptPath).toPath(),
-          jsonMapper.writeValueAsBytes(marsReceiptService.getMarsReceipt()));
+      Files.write(new File(marsReceiptPath).toPath(), jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /** The provider is stateless, so conversion failures are reported through a receipt of their own. */
+  private static MarsReceipt errorReceipt(final MarsError error) {
+    return MarsReceipt.builder()
+        .targetRepository("ena")
+        .errors(List.of(error))
+        .info(List.of())
+        .accessions(List.of())
+        .build();
   }
 }
