@@ -1,0 +1,2 @@
+# Exclude from release archives (GitHub tarball/zipball, and therefore the Zenodo export)
+/repository-services export-ignore
