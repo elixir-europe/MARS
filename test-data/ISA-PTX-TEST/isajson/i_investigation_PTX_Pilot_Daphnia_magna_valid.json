@@ -2039,7 +2039,7 @@
           "@id": "#characteristic_category/1a6de6bd-12a2-41d7-a8b6-947bcbb14d9c",
           "characteristicType": {
             "@id": "#ontology_annotation/1a6de6bd-12a2-41d7-a8b6-947bcbb14d9c",
-            "annotationValue": "collection_date",
+            "annotationValue": "collection date",
             "termSource": "",
             "termAccession": "",
             "comments": []
