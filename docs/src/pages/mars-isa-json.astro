@@ -1,18 +1,28 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import model from '../../../schemas/isa_json_schema_with_validators.json';
-import SchemaTable from '../components/SchemaTable.astro';
+import Layout from "../layouts/Layout.astro";
+import model from "../../../schemas/isa_json_schema_with_validators.json";
+import SchemaTable from "../components/SchemaTable.astro";
+import TableFrame from "../components/TableFrame.astro";
+import { codeCell, row } from "../components/tableStyles";
 
 const schema = model.schema ?? {};
-const schemaDefs = schema.$defs ?? [];
+const schemaDefs = schema.$defs ?? {};
 ---
 
 <Layout title="MARS ISA-JSON specification">
   <h1>MARS ISA-JSON specification</h1>
-
-  {
-    Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
-      <SchemaTable title={key} schema={schemadefinition} />
-    ))
-  }
+  This table shows MARS ISA-JSON specification based on the{" "}
+  <a href="https://isa-specs.readthedocs.io/en/latest/isajson.html">
+    ISA-JSON one
+  </a>
+  <h2>MARS required comments</h2>
+  <TableFrame columns={["ISA-JSON key", "Value"]} widths={["w-[60%]", "w-[40%]"]}>
+    <tr class={row}>
+      <td class={codeCell}>studies/assays/comments[name=target_repository]/value</td>
+      <td class={codeCell}>ena; metabolights</td>
+    </tr>
+  </TableFrame>
+  {Object.entries(schemaDefs).map(([key, schemadefinition]: any) => (
+    <SchemaTable title={key} schema={schemadefinition} />
+  ))}
 </Layout>

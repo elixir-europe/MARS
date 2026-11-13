@@ -58,12 +58,12 @@ level.
 
 ## Where to go next
 
-- For the complete, generated MARS ISA-JSON field reference:
-  <https://elixir-europe.github.io/MARS/mars-isa-json/>
+- The complete, generated [MARS ISA-JSON field reference](/MARS/mars-isa-json)
 - For how specific repository attributes resolve to specific MARS ISA-JSON fields,
   see the per-repository mapping pages: 
-  - BioSamples
-  - ENA
+  - [BioSamples](/MARS/biosamples-example)
+  - [ENA](/MARS/ena-example)
   - MetaboLights
-  Each page applies the rule on this page attribute by attribute, for that
-  repository's full schema.
+
+Each page applies the rule on this page attribute by attribute, for that
+repository's full schema.
