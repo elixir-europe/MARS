@@ -1,88 +1,60 @@
 ---
-import SchemaProperty from "./SchemaProperty.astro";
+import TableFrame from "./TableFrame.astro";
+import { badge, codeCell, link, nameCell, row } from "./tableStyles";
 
 type JsonSchema = {
+  type?: string;
+  anyOf?: JsonSchema[];
+  items?: JsonSchema;
+  $ref?: string;
   properties?: Record<string, JsonSchema>;
   required?: string[];
 };
 
-const { title, schema } = Astro.props as {
-  title: string;
-  schema: JsonSchema;
-};
+type TypePart = { text: string; ref?: string };
 
-const schemaProperties = Object.entries(schema.properties ?? {});
-const requiredFields = new Set(
-  Array.isArray(schema.required) ? schema.required : [],
-);
-const schemaRows = schemaProperties.map(([name, property]) => ({
+const { title, schema } = Astro.props as { title: string; schema: JsonSchema };
+
+// Renders a JSON-schema type as readable text; a $ref links to that model's section on this page.
+function describe(property: JsonSchema): TypePart[] {
+  if (property.$ref) {
+    const name = property.$ref.split("/").pop() ?? property.$ref;
+    return [{ text: name, ref: `#${name}` }];
+  }
+  if (property.anyOf) {
+    return property.anyOf.flatMap((option, index) =>
+      index === 0 ? describe(option) : [{ text: " | " }, ...describe(option)],
+    );
+  }
+  if (property.type === "array") {
+    return [{ text: "array of " }, ...describe(property.items ?? {})];
+  }
+  return [{ text: property.type ?? "any" }];
+}
+
+const required = new Set(schema.required ?? []);
+const rows = Object.entries(schema.properties ?? {}).map(([name, property]) => ({
   name,
-  property,
-  isRequired: requiredFields.has(name),
+  type: describe(property),
+  isRequired: required.has(name),
 }));
 ---
 
 <section class="my-8">
-  <h3>{title}</h3>
-
-  <div class="relative mt-4 not-prose">
-    <ul
-      class="m-0 list-none space-y-3 p-0 md:hidden"
-      aria-label={`${title} fields`}
-    >
-      {schemaRows.map(({ name, property, isRequired }) => (
-        <li>
-          <SchemaProperty
-            name={name}
-            property={property}
-            isRequired={isRequired}
-            layout="card"
-          />
-        </li>
-      ))}
-    </ul>
-
-    <div class="hidden overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600 md:block">
-      <div class="max-w-full overflow-x-auto">
-        <table class="w-full min-w-[400px] table-fixed text-left text-sm bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
-          <colgroup>
-            <col class="w-[16%]" />
-            <col class="w-[18%]" />
-            <col class="w-[10%]" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th
-                scope="col"
-                class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200"
-              >
-                Field
-              </th>
-              <th
-                scope="col"
-                class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200"
-              >
-                Type
-              </th>
-              <th
-                scope="col"
-                class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-200"
-              >
-                Required
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {schemaRows.map(({ name, property, isRequired }) => (
-              <SchemaProperty
-                name={name}
-                property={property}
-                isRequired={isRequired}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <h3 id={title}>{title}</h3>
+  <TableFrame columns={["Field", "Type", "Required"]} widths={["w-[16%]", "w-[18%]", "w-[10%]"]}>
+    {rows.map(({ name, type, isRequired }) => (
+      <tr class={row}>
+        <th scope="row" class={nameCell}>{name}</th>
+        <td class={codeCell}>
+          {type.map((part) =>
+            part.ref ? <a href={part.ref} class={link}>{part.text}</a> : part.text,
+          )}
+        </td>
+        <td class="px-4 py-3 text-left align-top">
+          <span class={badge(isRequired)}>{isRequired ? "Yes" : "No"}</span>
+        </td>
+      </tr>
+    ))}
+  </TableFrame>
 </section>

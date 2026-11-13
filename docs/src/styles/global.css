@@ -26,20 +26,20 @@
     overflow-wrap: anywhere;
   }
 
-  .prose :where(table) {
+  .prose :where(table):not(:where([class~="not-prose"] *)) {
     display: block;
     max-width: 100%;
     overflow-x: auto;
     white-space: normal;
   }
 
-  .prose :where(th, td) {
+  .prose :where(th, td):not(:where([class~="not-prose"] *)) {
     min-width: 8rem;
     overflow-wrap: anywhere;
     vertical-align: top;
   }
 
-  .prose :where(th:first-child, td:first-child) {
+  .prose :where(th:first-child, td:first-child):not(:where([class~="not-prose"] *)) {
     min-width: 10rem;
   }
 
@@ -54,12 +54,12 @@
       line-height: 1.25;
     }
 
-    .prose :where(table) {
+    .prose :where(table):not(:where([class~="not-prose"] *)) {
       font-size: 0.8125rem;
       line-height: 1.45;
     }
 
-    .prose :where(th, td) {
+    .prose :where(th, td):not(:where([class~="not-prose"] *)) {
       padding: 0.625rem 0.75rem;
     }
   }

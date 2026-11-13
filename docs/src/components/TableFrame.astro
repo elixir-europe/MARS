@@ -1,0 +1,29 @@
+---
+import { headCell } from "./tableStyles";
+
+// The bordered, horizontally scrollable table frame used for every table on the site.
+// Rows are passed as children and go into the table body.
+const { columns, widths = [] } = Astro.props as { columns: string[]; widths?: string[] };
+---
+
+<div class="not-prose my-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
+  <div class="max-w-full overflow-x-auto">
+    <table class="w-full min-w-[400px] table-fixed text-left text-sm bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+      {widths.length > 0 && (
+        <colgroup>
+          {widths.map((width) => <col class={width} />)}
+        </colgroup>
+      )}
+      <thead>
+        <tr>
+          {columns.map((column) => (
+            <th scope="col" class={headCell}>{column}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <slot />
+      </tbody>
+    </table>
+  </div>
+</div>

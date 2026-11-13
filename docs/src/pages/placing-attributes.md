@@ -58,11 +58,11 @@ level.
 
 ## Where to go next
 
-- The complete, generated [MARS ISA-JSON field reference](mars-isa-json)
+- The complete, generated [MARS ISA-JSON field reference](/MARS/mars-isa-json)
 - For how specific repository attributes resolve to specific MARS ISA-JSON fields,
   see the per-repository mapping pages: 
-  - [BioSamples](biosamples-example)
-  - [ENA](ena-example)
+  - [BioSamples](/MARS/biosamples-example)
+  - [ENA](/MARS/ena-example)
   - MetaboLights
 
 Each page applies the rule on this page attribute by attribute, for that
