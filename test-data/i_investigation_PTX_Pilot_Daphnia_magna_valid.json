@@ -121,7 +121,7 @@
           "@id": "#publication/c5943eb9-8d58-4bf5-86ca-0e75d60ea64f",
           "authorList": "Jones R and Algarve R.",
           "doi": "https://doi.org/10.5281/zenodo.18661913",
-          "pubMedID": "123414",
+          "pubMedID": "15963699",
           "status": {
             "@id": "#ontology_annotation/3a0e2913-2557-4729-8997-e8a084e9e0de",
             "annotationValue": "published",
@@ -157,18 +157,7 @@
               "value": ""
             }
           ],
-          "parameters": [
-            {
-              "@id": "#protocol_parameter/0746fdac-8b5d-44fb-97c1-80a0cd1cbc59",
-              "parameterName": {
-                "@id": "#ontology_annotation/179eef98-ff8a-4407-ab6b-38bd7b72ffe2",
-                "annotationValue": "",
-                "termSource": "",
-                "termAccession": "",
-                "comments": []
-              }
-            }
-          ],
+          "parameters": [],
           "protocolType": {
             "@id": "#ontology_annotation/d10f5335-96a7-4ba2-8415-f9e72bca3704",
             "annotationValue": "growth protocol",
@@ -731,18 +720,7 @@
               "value": ""
             }
           ],
-          "parameters": [
-            {
-              "@id": "#protocol_parameter/fdbe6911-4fc9-4748-b3a1-8db089c2fe7f",
-              "parameterName": {
-                "@id": "#ontology_annotation/0ac3cfee-eee5-40a0-b530-8666692a9358",
-                "annotationValue": "",
-                "termSource": "",
-                "termAccession": "",
-                "comments": []
-              }
-            }
-          ],
+          "parameters": [],
           "protocolType": {
             "@id": "#ontology_annotation/c98328c0-b496-42fc-8a9e-2e0a8045ee74",
             "annotationValue": "data transformation",
@@ -2071,7 +2049,7 @@
           "@id": "#characteristic_category/ca3e651b-2238-4ad4-9a97-3149bc489f34",
           "characteristicType": {
             "@id": "#ontology_annotation/ca3e651b-2238-4ad4-9a97-3149bc489f34",
-            "annotationValue": "geographic location",
+            "annotationValue": "geographic location (country and/or sea)",
             "termSource": "",
             "termAccession": "",
             "comments": []
