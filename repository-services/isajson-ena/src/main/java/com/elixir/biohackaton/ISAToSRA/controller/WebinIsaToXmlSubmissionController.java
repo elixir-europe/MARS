@@ -133,8 +133,7 @@ public class WebinIsaToXmlSubmissionController {
                     .password(webinPassword)
                     .build())
             .build();
-    final ObjectMapper responseMapper =
-        this.objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    final ObjectMapper responseMapper = this.objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     return responseMapper.writeValueAsString(response);
   }
 
@@ -196,22 +195,17 @@ public class WebinIsaToXmlSubmissionController {
 
     // Step 1: Convert Study → ENA STUDY (top-down approach)
     final List<Study> studies = getStudies(isaJson);
-    this.webinStudyXmlCreator.createENAStudySetElement(
-        webinElement, studies, randomSubmissionIdentifier);
+    this.webinStudyXmlCreator.createENAStudySetElement(webinElement, studies, randomSubmissionIdentifier);
 
     // Step 2: Get BioSamples accessions for study samples (needed for EXPERIMENT)
     // Use provided bioSampleAccessions if available, otherwise extract from ISA-JSON
-    final Map<String, String> typeToBioSamplesAccessionMap =
-        parseBioSampleAccessions(bioSampleAccessions, studies);
+    final Map<String, String> typeToBioSamplesAccessionMap = parseBioSampleAccessions(bioSampleAccessions, studies);
 
     // Step 3: Convert Library → ENA EXPERIMENT (bottom-up: DataFile → Library → Experiment)
-    final Map<String, String> experimentSequenceMap =
-        this.webinExperimentXmlCreator.createENAExperimentSetElement(
-            typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
+    final Map<String, String> experimentSequenceMap = this.webinExperimentXmlCreator.createENAExperimentSetElement(typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
 
     // Step 4: Convert DataFile → ENA RUN (bottom-up: DataFile → Experiment reference)
-    this.webinRunXmlCreator.createENARunSetElement(
-        webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
+    this.webinRunXmlCreator.createENARunSetElement(webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
 
     // Debug: Print generated XML to console
     final OutputFormat format = OutputFormat.createPrettyPrint();
@@ -219,9 +213,7 @@ public class WebinIsaToXmlSubmissionController {
     writer.write(document);
 
     // Step 5: Submit XML to ENA Webin API
-    final String receiptXml =
-        webinHttpSubmissionService.performWebinSubmission(
-            webinUserName, document.asXML(), webinPassword);
+    final String receiptXml = webinHttpSubmissionService.performWebinSubmission(webinUserName, document.asXML(), webinPassword);
     log.info("ENA Webin receipt:\n{}", receiptXml);
 
     // Step 6: Convert ENA XML receipt to JSON
@@ -325,8 +317,7 @@ public class WebinIsaToXmlSubmissionController {
 
       if (study.materials != null && study.materials.samples != null) {
         for (Sample sample : study.materials.samples) {
-          String sampleAccession =
-              getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
+          String sampleAccession = getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
           if (sampleAccession != null && !sampleAccession.isBlank()) {
             biosamples.put("SOURCE", sampleAccession);
             return biosamples;
@@ -335,8 +326,7 @@ public class WebinIsaToXmlSubmissionController {
       }
     }
 
-    throw new IllegalArgumentException(
-        "No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
+    throw new IllegalArgumentException("No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
   }
 
   private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
@@ -384,12 +374,12 @@ public class WebinIsaToXmlSubmissionController {
       }
 
       final Category category = characteristic.category;
-      final String characteristicName =
-          category.id != null ? characteristicKeyLookup.get(category.id) : null;
-      final boolean accessionCategoryNameMatches =
+      final String characteristicName = category.id != null ? 
+                                          characteristicKeyLookup.get(category.id) : 
+                                          null;
+      final boolean accessionCategoryNameMatches = 
           "accession".equalsIgnoreCase(characteristicName)
-              || (category.characteristicType != null
-                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
+              || (category.characteristicType != null && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
       final boolean accessionCategoryIdMatches =
           !accessionCategoryNameMatches
               && category.id != null
