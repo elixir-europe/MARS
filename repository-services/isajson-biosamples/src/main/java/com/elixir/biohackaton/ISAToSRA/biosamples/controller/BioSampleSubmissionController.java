@@ -35,6 +35,20 @@ public class BioSampleSubmissionController {
         @ApiResponse(responseCode = "408", description = "Request Timeout"),
         @ApiResponse(responseCode = "415", description = "Unsupported media type")
       })
+  /**
+   * BioSamples does not require a data-transfer or repository-initiation step.
+   *
+   * @param submissionPayload filtered ISA-JSON request body accepted for API compatibility
+   * @return an empty successful JSON object
+   */
+  @PostMapping(
+      value = "/initiate",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE},
+      produces = APPLICATION_JSON_VALUE)
+  public String initiateSubmissionToBioSamples(@RequestBody final String submissionPayload) {
+    return "{}";
+  }
+
   @CrossOrigin(origins = "http://localhost:8000")
   @PostMapping(
       value = "/submit",

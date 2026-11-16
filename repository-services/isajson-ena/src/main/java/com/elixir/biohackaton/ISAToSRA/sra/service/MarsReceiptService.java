@@ -10,6 +10,7 @@ import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.OtherMaterial;
 import com.elixir.mars.repository.models.isa.ProcessSequence;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
+import com.elixir.mars.repository.models.receipt.MarsSubmissionStatus;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.model.ReceiptObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -72,22 +73,49 @@ public class MarsReceiptService extends MarsReceiptProvider {
    *     https://github.com/elixir-europe/MARS/blob/refactor/repository-services/repository-api.md#response
    */
   public MarsReceipt convertReceiptToMars(final Receipt receipt, final IsaJson isaJson) {
+    // ENA returns assay aliases in either the studies or projects collection.
+    final List<ReceiptObject> assayReceiptObjects = Optional.ofNullable(receipt.getStudies()).orElseGet(receipt::getProjects);
+
     return buildMarsReceipt(
         getAliasAccessionPairs(
             // ENA study/project aliases are assay-based, so the returned accession path points to
             // the assay rather than the parent study title.
             Assay.Fields.id,
-            Optional.ofNullable(receipt.getStudies()).orElse(receipt.getProjects())),
-            null,
-            null,
-            getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
-            getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
-            receipt.getMessages().getInfoMessages(),
-            receipt.getMessages().getErrorMessages(),
-            null,
-            null,
-            isaJson);
+            assayReceiptObjects),
+        null,
+        null,
+        getAliasAccessionPairs(OtherMaterial.Fields.id, receipt.getExperiments()),
+        getRunAliasAccessionPairs(receipt.getRuns(), isaJson),
+        receipt.getMessages().getInfoMessages(),
+        receipt.getMessages().getErrorMessages(),
+        getAssayComments(receipt, assayReceiptObjects),
+        receipt.isSuccess() ? MarsSubmissionStatus.SUCCESS : MarsSubmissionStatus.FAILURE,
+        isaJson);
   }
+
+  /** Maps ENA repository dates to comments scoped to the corresponding assays. */
+  private List<AssayCommentInput> getAssayComments(final Receipt receipt,
+                                                   final List<ReceiptObject> assayReceiptObjects) {
+    if (!receipt.isSuccess()) {
+      return List.of();
+    }
+
+    final List<AssayCommentInput> comments = new ArrayList<>();
+    final List<ReceiptObject> receiptObjects = Optional.ofNullable(assayReceiptObjects).orElse(List.of());
+    final String receiptDate = receipt.getReceiptDate();
+
+    for (final ReceiptObject receiptObject : receiptObjects) {
+      final String assayId = getPreRandomizedAlias(receiptObject);
+      if (receiptDate != null && !receiptDate.isBlank()) {
+        comments.add(new AssayCommentInput("ena_submission_date", receiptDate, assayId));
+      }
+      if (receiptObject.getHoldUntilDate() != null && !receiptObject.getHoldUntilDate().isBlank()) {
+        comments.add(new AssayCommentInput("ena_release_date", receiptObject.getHoldUntilDate(), assayId));
+      }
+    }
+    return comments;
+  }
+
   /**
    * Extracts receipt alias/accession pairs for a single ISA item type.
    *
@@ -130,7 +158,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
       }
 
       dataFileIds.forEach(
-          dataFileId -> 
+          dataFileId ->
               runAccessionMap.put(dataFileId, receiptObject.getAccession()));
       sequencingProcessIndex++;
     }

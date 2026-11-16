@@ -3,6 +3,7 @@ package com.elixir.biohackaton.ISAToSRA.biosamples.service;
 
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.mars.repository.MarsReceiptProvider;
+import com.elixir.mars.repository.models.receipt.MarsSubmissionStatus;
 import com.elixir.mars.repository.models.isa.*;
 import com.elixir.mars.repository.models.receipt.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -55,8 +56,7 @@ public class MarsReceiptService extends MarsReceiptProvider {
         null,
         null,
         null,
-        null,
+        MarsSubmissionStatus.SUCCESS,
         isaJson);
   }
-
 }

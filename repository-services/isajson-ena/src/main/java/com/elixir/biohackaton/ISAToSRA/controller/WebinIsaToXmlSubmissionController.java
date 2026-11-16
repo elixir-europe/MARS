@@ -17,7 +17,10 @@ import com.elixir.mars.repository.models.isa.CharacteristicCategory;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.Sample;
 import com.elixir.mars.repository.models.isa.Study;
+import com.elixir.mars.repository.models.receipt.MarsFtpCredentials;
+import com.elixir.mars.repository.models.receipt.MarsInitiateResponse;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -81,6 +84,60 @@ public class WebinIsaToXmlSubmissionController {
         @ApiResponse(responseCode = "408", description = "Request Timeout"),
         @ApiResponse(responseCode = "415", description = "Unsupported media type")
       })
+  /**
+   * Returns the ENA FTP location and Webin credentials for the broker's data-transfer step.
+   *
+   * <p>ENA does not create a repository submission identifier during initiation. The request body
+   * is accepted to keep the endpoint contract aligned with {@code /submit}, but it is not parsed or
+   * submitted to ENA at this stage.
+   *
+   * @param submissionPayload filtered ISA-JSON request body
+   * @param host ENA FTP host
+   * @param uploadPath ENA FTP upload path
+   * @param webinUserName ENA Webin username
+   * @param webinPassword ENA Webin password
+   * @return ENA FTP credentials as a MARS initiate response
+   * @throws Exception if the response cannot be serialized
+   */
+  @PostMapping(
+      value = "/initiate",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE},
+      produces = APPLICATION_JSON_VALUE)
+  public String initiateSubmissionToEna(
+      @RequestBody final String submissionPayload,
+      @RequestParam(value = "host") final String host,
+      @RequestParam(value = "uploadPath") final String uploadPath,
+      @RequestParam(value = "webinUserName") final String webinUserName,
+      @RequestParam(value = "webinPassword") final String webinPassword)
+      throws Exception {
+    if (host == null) {
+      throw new RuntimeException("FTP host is not provided");
+    }
+    if (uploadPath == null) {
+      throw new RuntimeException("FTP upload path is not provided");
+    }
+    if (webinUserName == null) {
+      throw new RuntimeException("Webin Authentication username is not provided");
+    }
+    if (webinPassword == null) {
+      throw new RuntimeException("Webin Authentication password is not provided");
+    }
+
+    final MarsInitiateResponse response =
+        MarsInitiateResponse.builder()
+            .ftpCredentials(
+                MarsFtpCredentials.builder()
+                    .host(host)
+                    .uploadPath(uploadPath)
+                    .username(webinUserName)
+                    .password(webinPassword)
+                    .build())
+            .build();
+    final ObjectMapper responseMapper =
+        this.objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    return responseMapper.writeValueAsString(response);
+  }
+
   /**
    * Main endpoint for submitting ISA-JSON to ENA.
    *
@@ -170,9 +227,8 @@ public class WebinIsaToXmlSubmissionController {
     // Step 6: Convert ENA XML receipt to JSON
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
 
-    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
-    
     // Step 7: Convert ENA receipt to MARS receipt format
+    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 
     // Step 8: Return MARS receipt as JSON

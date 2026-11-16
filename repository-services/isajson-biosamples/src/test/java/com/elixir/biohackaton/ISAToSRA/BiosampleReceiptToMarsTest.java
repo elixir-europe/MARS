@@ -1,6 +1,7 @@
 /** Elixir BioHackathon 2022 */
 package com.elixir.biohackaton.ISAToSRA;
 
+import com.elixir.biohackaton.ISAToSRA.biosamples.controller.BioSampleSubmissionController;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BioSample;
 import com.elixir.biohackaton.ISAToSRA.biosamples.model.BiosampleAccessionsMap;
 import com.elixir.biohackaton.ISAToSRA.biosamples.service.BioSamplesSubmitter;
@@ -8,6 +9,7 @@ import com.elixir.biohackaton.ISAToSRA.biosamples.service.MarsReceiptService;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.Study;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
+import com.elixir.mars.repository.models.receipt.MarsSubmissionStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class BiosampleReceiptToMarsTest {
+
+  @Test
+  void initiateSubmissionToBioSamplesReturnsEmptyJson() {
+    final String response = new BioSampleSubmissionController()
+        .initiateSubmissionToBioSamples("{}");
+
+    Assertions.assertEquals("{}", response);
+  }
 
   @Test
   void convertToMars() {
@@ -60,6 +70,18 @@ class BiosampleReceiptToMarsTest {
   }
 
   @Test
+  void convertReceiptToMarsReportsExplicitSubmissionStatus() throws Exception {
+    final String isaJsonFilePath = "../../test-data/ena-minimal.json";
+    final String isaJsonFile = Files.readString(new File(isaJsonFilePath).toPath());
+    final IsaJson isaJson = isaJsonObjectMapper().readValue(isaJsonFile, IsaJson.class);
+    final MarsReceiptService marsReceiptService = new MarsReceiptService();
+
+    final MarsReceipt successReceipt = marsReceiptService.convertReceiptToMars(new BiosampleAccessionsMap(), isaJson);
+    Assertions.assertEquals(MarsSubmissionStatus.SUCCESS, successReceipt.getSubmissionStatus());
+
+  }
+
+  @Test
   void createBioSamplesUsesSampleCollectionProcessParametersForChildSampleAttributes()
       throws Exception {
     final String isaJsonFilePath = "../../test-data/ena-minimal.json";
@@ -70,11 +92,10 @@ class BiosampleReceiptToMarsTest {
 
     bioSamplesSubmitter.createBioSamples(isaJson.getStudies(), "test-token");
 
-    final BioSample leafSample =
-        bioSamplesSubmitter.updatedSamples.stream()
-            .filter(sample -> "leaf 1".equals(sample.getName()))
-            .findFirst()
-            .orElseThrow();
+    final BioSample leafSample = bioSamplesSubmitter.updatedSamples.stream()
+        .filter(sample -> "leaf 1".equals(sample.getName()))
+        .findFirst()
+        .orElseThrow();
     final BioSample sourceSample = bioSamplesSubmitter.createdSampleByName("plant 1");
 
     Assertions.assertTrue(hasAttribute(sourceSample, "genotype", "Col-0"));
@@ -91,9 +112,8 @@ class BiosampleReceiptToMarsTest {
     Assertions.assertTrue(
         leafSample.getAttributes().stream()
             .anyMatch(
-                attribute ->
-                    "isolation_source".equals(attribute.getType())
-                        && "leaf tissue".equals(attribute.getValue())),
+                attribute -> "isolation_source".equals(attribute.getType())
+                    && "leaf tissue".equals(attribute.getValue())),
         "Expected child BioSample to include the sample-collection process parameter.");
     Assertions.assertTrue(hasAttribute(leafSample, "collection method", "sterile scalpel excision"));
     Assertions.assertTrue(
@@ -170,9 +190,8 @@ class BiosampleReceiptToMarsTest {
       final BioSample sample, final String attributeType, final String attributeValue) {
     return sample.getAttributes().stream()
         .anyMatch(
-            attribute ->
-                attributeType.equals(attribute.getType())
-                    && attributeValue.equals(attribute.getValue()));
+            attribute -> attributeType.equals(attribute.getType())
+                && attributeValue.equals(attribute.getValue()));
   }
 
   private static ObjectMapper isaJsonObjectMapper() {
@@ -188,10 +207,9 @@ class BiosampleReceiptToMarsTest {
 
     @Override
     protected BioSample createSampleInBioSamples(final BioSample sample, final String webinToken) {
-      final BioSample createdSample =
-          BioSample.Builder.fromSample(sample)
-              .withAccession("SAMEA_TEST_" + accessionSequence++)
-              .build();
+      final BioSample createdSample = BioSample.Builder.fromSample(sample)
+          .withAccession("SAMEA_TEST_" + accessionSequence++)
+          .build();
       createdSamples.add(createdSample);
       return createdSample;
     }
