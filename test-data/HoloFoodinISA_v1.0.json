@@ -35,6 +35,12 @@
       "file": "http://purl.obolibrary.org/obo/ncit.owl",
       "version": "26.02d",
       "description": "NCI Thesaurus OBO Edition"
+    },
+    {
+      "name": "MS",
+      "file": "http://purl.obolibrary.org/obo/ms.owl",
+      "version": "",
+      "description": "Mass spectrometry ontology"
     }
   ],
   "filename": "i_Multi-omics in chickens.txt",
@@ -157,7 +163,23 @@
           ]
         }
       ],
-      "studyDesignDescriptors": [],
+      "studyDesignDescriptors": [
+        {
+          "annotationValue": "Gallus gallus",
+          "termSource": "NCBITAXON",
+          "termAccession": "http://purl.obolibrary.org/obo/NCBITaxon_9031"
+        },
+        {
+          "annotationValue": "caecum",
+          "termSource": "UBERON",
+          "termAccession": "http://purl.obolibrary.org/obo/UBERON_0001153"
+        },
+        {
+          "annotationValue": "metabolite profiling assay",
+          "termSource": "OBI",
+          "termAccession": "http://purl.obolibrary.org/obo/OBI_0000366"
+        }
+      ],
       "characteristicCategories": [
         {
           "@id": "#characteristic_category/geographic_location_(country_and/or_sea)_2888",
@@ -347,7 +369,7 @@
       "protocols": [
         {
           "@id": "#protocol/study_98_2908",
-          "name": "sampling from animal",
+          "name": "Sample collection",
           "protocolType": {
             "annotationValue": "sample collection",
             "termAccession": "",
@@ -496,7 +518,7 @@
             "termAccession": "http://www.ebi.ac.uk/efo/EFO_0022981",
             "termSource": "EFO"
           },
-          "description": "HoloFood metabolites extraction",
+          "description": "Extraction of metabolites from HoloFood chicken caecum content samples for LC-MS analysis.",
           "uri": "",
           "version": "",
           "parameters": [
@@ -536,7 +558,7 @@
             "termAccession": "",
             "termSource": ""
           },
-          "description": "HoloFood chromatography",
+          "description": "Reverse-phase nano liquid chromatography of the HoloFood metabolite extracts on an Acclaim PepMap RSLC C18 column (Thermo Scientific Dionex UltiMate 3000 RSLCnano System).",
           "uri": "",
           "version": "",
           "parameters": [
@@ -584,14 +606,14 @@
             "termAccession": "",
             "termSource": ""
           },
-          "description": "",
+          "description": "Untargeted mass spectrometry of the HoloFood metabolite extracts on a Thermo Scientific Q Exactive HF orbitrap with nanoelectrospray ionisation in positive scan polarity (m/z 165-2000).",
           "uri": "",
           "version": "",
           "parameters": [
             {
               "@id": "#parameter/2973",
               "parameterName": {
-                "annotationValue": "scan polarity",
+                "annotationValue": "Scan polarity",
                 "termAccession": "",
                 "termSource": ""
               }
@@ -599,7 +621,7 @@
             {
               "@id": "#parameter/2974",
               "parameterName": {
-                "annotationValue": "scan m/z range",
+                "annotationValue": "Scan m/z range",
                 "termAccession": "",
                 "termSource": ""
               }
@@ -607,7 +629,7 @@
             {
               "@id": "#parameter/2975",
               "parameterName": {
-                "annotationValue": "instrument",
+                "annotationValue": "Instrument",
                 "termAccession": "",
                 "termSource": ""
               }
@@ -615,7 +637,7 @@
             {
               "@id": "#parameter/2976",
               "parameterName": {
-                "annotationValue": "ion source",
+                "annotationValue": "Ion source",
                 "termAccession": "",
                 "termSource": ""
               }
@@ -623,7 +645,7 @@
             {
               "@id": "#parameter/2977",
               "parameterName": {
-                "annotationValue": "mass analyzer",
+                "annotationValue": "Mass analyzer",
                 "termAccession": "",
                 "termSource": ""
               }
@@ -1585,6 +1607,18 @@
                 "name": "1167_C",
                 "type": "Labeled Extract Name",
                 "characteristics": []
+              },
+              {
+                "@id": "#other_material/3210",
+                "name": "1167_C_2",
+                "type": "Extract Name",
+                "characteristics": []
+              },
+              {
+                "@id": "#other_material/3211",
+                "name": "1167_C_2",
+                "type": "Labeled Extract Name",
+                "characteristics": []
               }
             ]
           },
@@ -1760,9 +1794,9 @@
                     "@id": "#parameter/2975"
                   },
                   "value": {
-                    "annotationValue": "Thermo Scientific Q Exactive HF",
-                    "termSource": "",
-                    "termAccession": ""
+                    "annotationValue": "Q Exactive HF",
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1002523"
                   },
                   "unit": {
                     "termSource": "",
@@ -1776,8 +1810,8 @@
                   },
                   "value": {
                     "annotationValue": "nanoelectrospray",
-                    "termSource": "",
-                    "termAccession": ""
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1000398"
                   },
                   "unit": {
                     "termSource": "",
@@ -1791,8 +1825,8 @@
                   },
                   "value": {
                     "annotationValue": "orbitrap",
-                    "termSource": "",
-                    "termAccession": ""
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1000484"
                   },
                   "unit": {
                     "termSource": "",
@@ -1817,6 +1851,235 @@
                 "@id": "#process/Chromatography_protocol/3209"
               },
               "nextProcess": {}
+            },
+            {
+              "@id": "#process/Extraction/3210",
+              "name": "",
+              "executesProtocol": {
+                "@id": "#protocol/assay_268_87"
+              },
+              "parameterValues": [
+                {
+                  "category": {
+                    "@id": "#parameter/2962"
+                  },
+                  "value": {
+                    "annotationValue": "",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2963"
+                  },
+                  "value": {
+                    "annotationValue": "",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                }
+              ],
+              "performer": "",
+              "date": "",
+              "inputs": [
+                {
+                  "@id": "#sample/3065"
+                }
+              ],
+              "outputs": [
+                {
+                  "@id": "#other_material/3210"
+                }
+              ],
+              "previousProcess": {
+                "@id": "#process/sample_collection/3065"
+              },
+              "nextProcess": {
+                "@id": "#process/Chromatography_protocol/3211"
+              }
+            },
+            {
+              "@id": "#process/Chromatography_protocol/3211",
+              "name": "",
+              "executesProtocol": {
+                "@id": "#protocol/assay_269_88"
+              },
+              "parameterValues": [
+                {
+                  "category": {
+                    "@id": "#parameter/2967"
+                  },
+                  "value": {
+                    "annotationValue": "Thermo Scientific Dionex UltiMate 3000 RSLCnano System ",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2968"
+                  },
+                  "value": {
+                    "annotationValue": "Acclaim PepMap RSLC C18 (3 µm, 0.075 mm x 150 mm; Thermo Scientific)",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2969"
+                  },
+                  "value": {
+                    "annotationValue": "",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                }
+              ],
+              "performer": "",
+              "date": "",
+              "inputs": [
+                {
+                  "@id": "#other_material/3210"
+                }
+              ],
+              "outputs": [
+                {
+                  "@id": "#other_material/3211"
+                }
+              ],
+              "previousProcess": {
+                "@id": "#process/Extraction/3210"
+              },
+              "nextProcess": {
+                "@id": "#process/MS_Protocol/3212"
+              }
+            },
+            {
+              "@id": "#process/MS_Protocol/3212",
+              "name": "",
+              "executesProtocol": {
+                "@id": "#protocol/assay_270_2972"
+              },
+              "parameterValues": [
+                {
+                  "category": {
+                    "@id": "#parameter/2973"
+                  },
+                  "value": {
+                    "annotationValue": "positive",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2974"
+                  },
+                  "value": {
+                    "annotationValue": "165-2000",
+                    "termSource": "",
+                    "termAccession": ""
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2975"
+                  },
+                  "value": {
+                    "annotationValue": "Q Exactive HF",
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1002523"
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2976"
+                  },
+                  "value": {
+                    "annotationValue": "nanoelectrospray",
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1000398"
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                },
+                {
+                  "category": {
+                    "@id": "#parameter/2977"
+                  },
+                  "value": {
+                    "annotationValue": "orbitrap",
+                    "termSource": "MS",
+                    "termAccession": "http://purl.obolibrary.org/obo/MS_1000484"
+                  },
+                  "unit": {
+                    "termSource": "",
+                    "termAccession": "",
+                    "comments": []
+                  }
+                }
+              ],
+              "performer": "",
+              "date": "",
+              "inputs": [
+                {
+                  "@id": "#other_material/3211"
+                }
+              ],
+              "outputs": [
+                {
+                  "@id": "#data_file/3212"
+                }
+              ],
+              "previousProcess": {
+                "@id": "#process/Chromatography_protocol/3211"
+              },
+              "nextProcess": {}
             }
           ],
           "dataFiles": [
@@ -1836,6 +2099,33 @@
                 {
                   "name": "Derived Spectral Data File",
                   "value": "FILES/DERIVED_FILES/1167_C.mzML"
+                },
+                {
+                  "name": "Metabolite Identification protocol",
+                  "value": "Metabolite identification"
+                },
+                {
+                  "name": "Metabolite Assignment File",
+                  "value": "m_MTBLS6988_LC-MS_positive_reverse-phase_metabolite_profiling_v2_maf.tsv"
+                }
+              ]
+            },
+            {
+              "@id": "#data_file/3212",
+              "name": "FILES/RAW_FILES/1167_C_2.raw",
+              "type": "Raw Spectral Data File",
+              "comments": [
+                {
+                  "name": "MS Assay Name",
+                  "value": "1167_C_2"
+                },
+                {
+                  "name": "Data transformation protocol",
+                  "value": "Data transformation"
+                },
+                {
+                  "name": "Derived Spectral Data File",
+                  "value": "FILES/DERIVED_FILES/1167_C_2.mzML"
                 },
                 {
                   "name": "Metabolite Identification protocol",
