@@ -119,7 +119,8 @@ class EnaReceiptToMarsTest {
           new File(marsReceiptPath).toPath(),
           jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception e) {
-      e.printStackTrace();
+      return errorReceipt(
+          MarsError.builder().message(String.valueOf(e.getMessage())).build());
     }
     return marsReceipt;
   }
