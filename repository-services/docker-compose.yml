@@ -11,6 +11,9 @@ services:
       build:
         context: ..
         dockerfile: repository-services/isajson-ena/Dockerfile
+      environment:
+        MARS_ENA_FTP_HOST: ${MARS_ENA_FTP_HOST:-webin2.ebi.ac.uk}
+        MARS_ENA_FTP_UPLOAD_PATH: ${MARS_ENA_FTP_UPLOAD_PATH:-/}
       ports:
         - "8042:8042"
       restart: unless-stopped
