@@ -36,6 +36,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,6 +76,12 @@ public class WebinIsaToXmlSubmissionController {
 
   @Autowired private ObjectProvider<MarsReceiptService> marsReceiptServiceProvider;
 
+  @Value("${mars.ena.ftp.host}")
+  private String ftpHost;
+
+  @Value("${mars.ena.ftp.upload-path}")
+  private String ftpUploadPath;
+
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Ok"),
@@ -85,18 +92,15 @@ public class WebinIsaToXmlSubmissionController {
         @ApiResponse(responseCode = "415", description = "Unsupported media type")
       })
   /**
-   * Returns the ENA FTP location and Webin credentials for the broker's data-transfer step.
+   * Returns the ENA FTP location for the broker's data-transfer step.
    *
-   * <p>ENA does not create a repository submission identifier during initiation. The request body
-   * is accepted to keep the endpoint contract aligned with {@code /submit}, but it is not parsed or
-   * submitted to ENA at this stage.
+   * <p>ENA Webin credentials authenticate the request but are intentionally not returned in the
+   * response. The FTP location is adapter configuration rather than request data.
    *
    * @param submissionPayload filtered ISA-JSON request body
-   * @param host ENA FTP host
-   * @param uploadPath ENA FTP upload path
    * @param webinUserName ENA Webin username
    * @param webinPassword ENA Webin password
-   * @return ENA FTP credentials as a MARS initiate response
+   * @return configured ENA FTP location as a MARS initiate response
    * @throws Exception if the response cannot be serialized
    */
   @PostMapping(
@@ -105,17 +109,9 @@ public class WebinIsaToXmlSubmissionController {
       produces = APPLICATION_JSON_VALUE)
   public String initiateSubmissionToEna(
       @RequestBody final String submissionPayload,
-      @RequestParam(value = "host") final String host,
-      @RequestParam(value = "uploadPath") final String uploadPath,
       @RequestParam(value = "webinUserName") final String webinUserName,
       @RequestParam(value = "webinPassword") final String webinPassword)
       throws Exception {
-    if (host == null) {
-      throw new RuntimeException("FTP host is not provided");
-    }
-    if (uploadPath == null) {
-      throw new RuntimeException("FTP upload path is not provided");
-    }
     if (webinUserName == null) {
       throw new RuntimeException("Webin Authentication username is not provided");
     }
@@ -127,10 +123,8 @@ public class WebinIsaToXmlSubmissionController {
         MarsInitiateResponse.builder()
             .ftpCredentials(
                 MarsFtpCredentials.builder()
-                    .host(host)
-                    .uploadPath(uploadPath)
-                    .username(webinUserName)
-                    .password(webinPassword)
+                    .host(ftpHost)
+                    .uploadPath(ftpUploadPath)
                     .build())
             .build();
     final ObjectMapper responseMapper = this.objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_NULL);

@@ -14,33 +14,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource(properties = {
+  "mars.ena.ftp.host=ftp.example.org",
+  "mars.ena.ftp.upload-path=/incoming"
+})
 class EnaReceiptToMarsTest {
+
+  @Autowired private WebinIsaToXmlSubmissionController controller;
 
   @Test
   void initiateSubmissionToEnaReturnsConfiguredFtpCredentials() throws Exception {
-    final WebinIsaToXmlSubmissionController controller = new WebinIsaToXmlSubmissionController();
-    final Field objectMapperField =
-        WebinIsaToXmlSubmissionController.class.getDeclaredField("objectMapper");
-    objectMapperField.setAccessible(true);
-    objectMapperField.set(controller, new ObjectMapper());
-
     final String response =
         controller.initiateSubmissionToEna(
-            "{}", "ftp.example.org", "/incoming", "webin-user", "webin-password");
+            "{}", "webin-user", "webin-password");
     final JsonNode responseJson = new ObjectMapper().readTree(response);
 
     Assertions.assertEquals("ftp.example.org", responseJson.at("/ftpCredentials/host").asText());
     Assertions.assertEquals("/incoming", responseJson.at("/ftpCredentials/uploadPath").asText());
-    Assertions.assertEquals("webin-user", responseJson.at("/ftpCredentials/username").asText());
-    Assertions.assertEquals("webin-password", responseJson.at("/ftpCredentials/password").asText());
+    Assertions.assertFalse(responseJson.at("/ftpCredentials").has("username"));
+    Assertions.assertFalse(responseJson.at("/ftpCredentials").has("password"));
     Assertions.assertFalse(responseJson.has("submissionId"));
   }
 
