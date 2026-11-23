@@ -17,7 +17,10 @@ import com.elixir.mars.repository.models.isa.CharacteristicCategory;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.isa.Sample;
 import com.elixir.mars.repository.models.isa.Study;
+import com.elixir.mars.repository.models.receipt.MarsFtpCredentials;
+import com.elixir.mars.repository.models.receipt.MarsInitiateResponse;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,6 +36,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,6 +76,12 @@ public class WebinIsaToXmlSubmissionController {
 
   @Autowired private ObjectProvider<MarsReceiptService> marsReceiptServiceProvider;
 
+  @Value("${mars.ena.ftp.host}")
+  private String ftpHost;
+
+  @Value("${mars.ena.ftp.upload-path}")
+  private String ftpUploadPath;
+
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Ok"),
@@ -81,6 +91,46 @@ public class WebinIsaToXmlSubmissionController {
         @ApiResponse(responseCode = "408", description = "Request Timeout"),
         @ApiResponse(responseCode = "415", description = "Unsupported media type")
       })
+  /**
+   * Returns the ENA FTP location for the broker's data-transfer step.
+   *
+   * <p>ENA Webin credentials authenticate the request but are intentionally not returned in the
+   * response. The FTP location is adapter configuration rather than request data.
+   *
+   * @param submissionPayload filtered ISA-JSON request body
+   * @param webinUserName ENA Webin username
+   * @param webinPassword ENA Webin password
+   * @return configured ENA FTP location as a MARS initiate response
+   * @throws Exception if the response cannot be serialized
+   */
+  @PostMapping(
+      value = "/initiate",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE},
+      produces = APPLICATION_JSON_VALUE)
+  public String initiateSubmissionToEna(
+      @RequestBody final String submissionPayload,
+      @RequestParam(value = "webinUserName") final String webinUserName,
+      @RequestParam(value = "webinPassword") final String webinPassword)
+      throws Exception {
+    if (webinUserName == null) {
+      throw new RuntimeException("Webin Authentication username is not provided");
+    }
+    if (webinPassword == null) {
+      throw new RuntimeException("Webin Authentication password is not provided");
+    }
+
+    final MarsInitiateResponse response =
+        MarsInitiateResponse.builder()
+            .ftpCredentials(
+                MarsFtpCredentials.builder()
+                    .host(ftpHost)
+                    .uploadPath(ftpUploadPath)
+                    .build())
+            .build();
+    final ObjectMapper responseMapper = this.objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    return responseMapper.writeValueAsString(response);
+  }
+
   /**
    * Main endpoint for submitting ISA-JSON to ENA.
    *
@@ -139,22 +189,17 @@ public class WebinIsaToXmlSubmissionController {
 
     // Step 1: Convert Study → ENA STUDY (top-down approach)
     final List<Study> studies = getStudies(isaJson);
-    this.webinStudyXmlCreator.createENAStudySetElement(
-        webinElement, studies, randomSubmissionIdentifier);
+    this.webinStudyXmlCreator.createENAStudySetElement(webinElement, studies, randomSubmissionIdentifier);
 
     // Step 2: Get BioSamples accessions for study samples (needed for EXPERIMENT)
     // Use provided bioSampleAccessions if available, otherwise extract from ISA-JSON
-    final Map<String, String> typeToBioSamplesAccessionMap =
-        parseBioSampleAccessions(bioSampleAccessions, studies);
+    final Map<String, String> typeToBioSamplesAccessionMap = parseBioSampleAccessions(bioSampleAccessions, studies);
 
     // Step 3: Convert Library → ENA EXPERIMENT (bottom-up: DataFile → Library → Experiment)
-    final Map<String, String> experimentSequenceMap =
-        this.webinExperimentXmlCreator.createENAExperimentSetElement(
-            typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
+    final Map<String, String> experimentSequenceMap = this.webinExperimentXmlCreator.createENAExperimentSetElement(typeToBioSamplesAccessionMap, webinElement, studies, randomSubmissionIdentifier);
 
     // Step 4: Convert DataFile → ENA RUN (bottom-up: DataFile → Experiment reference)
-    this.webinRunXmlCreator.createENARunSetElement(
-        webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
+    this.webinRunXmlCreator.createENARunSetElement(webinElement, studies, experimentSequenceMap, randomSubmissionIdentifier);
 
     // Debug: Print generated XML to console
     final OutputFormat format = OutputFormat.createPrettyPrint();
@@ -162,17 +207,14 @@ public class WebinIsaToXmlSubmissionController {
     writer.write(document);
 
     // Step 5: Submit XML to ENA Webin API
-    final String receiptXml =
-        webinHttpSubmissionService.performWebinSubmission(
-            webinUserName, document.asXML(), webinPassword);
+    final String receiptXml = webinHttpSubmissionService.performWebinSubmission(webinUserName, document.asXML(), webinPassword);
     log.info("ENA Webin receipt:\n{}", receiptXml);
 
     // Step 6: Convert ENA XML receipt to JSON
     final Receipt receiptJson = receiptConversionService.readReceiptXml(receiptXml);
 
-    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
-    
     // Step 7: Convert ENA receipt to MARS receipt format
+    final MarsReceiptService marsReceiptService = marsReceiptServiceProvider.getObject();
     final MarsReceipt marsReceipt = marsReceiptService.convertReceiptToMars(receiptJson, isaJson);
 
     // Step 8: Return MARS receipt as JSON
@@ -269,8 +311,7 @@ public class WebinIsaToXmlSubmissionController {
 
       if (study.materials != null && study.materials.samples != null) {
         for (Sample sample : study.materials.samples) {
-          String sampleAccession =
-              getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
+          String sampleAccession = getCharacteresticAnnotation(sample.characteristics, characteristicKeyLookup);
           if (sampleAccession != null && !sampleAccession.isBlank()) {
             biosamples.put("SOURCE", sampleAccession);
             return biosamples;
@@ -279,8 +320,7 @@ public class WebinIsaToXmlSubmissionController {
       }
     }
 
-    throw new IllegalArgumentException(
-        "No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
+    throw new IllegalArgumentException("No BioSamples accession found on any Study sample. ENA submission requires a sample accession.");
   }
 
   private Map<String, String> buildCharacteristicKeyLookup(final Study study) {
@@ -328,12 +368,12 @@ public class WebinIsaToXmlSubmissionController {
       }
 
       final Category category = characteristic.category;
-      final String characteristicName =
-          category.id != null ? characteristicKeyLookup.get(category.id) : null;
-      final boolean accessionCategoryNameMatches =
+      final String characteristicName = category.id != null ? 
+                                          characteristicKeyLookup.get(category.id) : 
+                                          null;
+      final boolean accessionCategoryNameMatches = 
           "accession".equalsIgnoreCase(characteristicName)
-              || (category.characteristicType != null
-                  && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
+              || (category.characteristicType != null && "accession".equalsIgnoreCase(category.characteristicType.annotationValue));
       final boolean accessionCategoryIdMatches =
           !accessionCategoryNameMatches
               && category.id != null

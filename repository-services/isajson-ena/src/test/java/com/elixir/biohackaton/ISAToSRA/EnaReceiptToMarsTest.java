@@ -6,34 +6,92 @@ import com.elixir.mars.repository.models.receipt.MarsError;
 import com.elixir.mars.repository.models.receipt.MarsErrorType;
 import com.elixir.mars.repository.models.isa.IsaJson;
 import com.elixir.mars.repository.models.receipt.MarsReceipt;
+import com.elixir.mars.repository.models.receipt.MarsSubmissionStatus;
+import com.elixir.biohackaton.ISAToSRA.controller.WebinIsaToXmlSubmissionController;
 import com.elixir.biohackaton.ISAToSRA.sra.model.Receipt;
 import com.elixir.biohackaton.ISAToSRA.sra.service.MarsReceiptService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource(properties = {
+  "mars.ena.ftp.host=ftp.example.org",
+  "mars.ena.ftp.upload-path=/incoming"
+})
 class EnaReceiptToMarsTest {
+
+  @Autowired private WebinIsaToXmlSubmissionController controller;
+
+  @Test
+  void initiateSubmissionToEnaReturnsConfiguredFtpCredentials() throws Exception {
+    final String response =
+        controller.initiateSubmissionToEna(
+            "{}", "webin-user", "webin-password");
+    final JsonNode responseJson = new ObjectMapper().readTree(response);
+
+    Assertions.assertEquals("ftp.example.org", responseJson.at("/ftpCredentials/host").asText());
+    Assertions.assertEquals("/incoming", responseJson.at("/ftpCredentials/uploadPath").asText());
+    Assertions.assertFalse(responseJson.at("/ftpCredentials").has("username"));
+    Assertions.assertFalse(responseJson.at("/ftpCredentials").has("password"));
+    Assertions.assertFalse(responseJson.has("submissionId"));
+  }
 
   @Test
   void convertToMars_validInput() {
     String enaReceiptFilePath = "../../test-data/ena-receipt.json";
     String marsReceiptPath = "../../test-data/mars-ena-receipt.json";
-    convertToMars(enaReceiptFilePath, marsReceiptPath);
+    MarsReceipt marsReceipt = convertToMars(enaReceiptFilePath, marsReceiptPath);
+
+    Assertions.assertEquals(MarsSubmissionStatus.SUCCESS, marsReceipt.getSubmissionStatus());
+    Assertions.assertEquals(2, marsReceipt.getAssayComments().size());
+    Assertions.assertEquals("ena_submission_date", marsReceipt.getAssayComments().get(0).getName());
+    Assertions.assertEquals("2023-11-16T10:44:41.618Z", marsReceipt.getAssayComments().get(0).getValue());
+    Assertions.assertEquals(
+        "#assay/18_20_21",
+        marsReceipt.getAssayComments().get(0).getPath().get(1).getWhere().getValue());
+    Assertions.assertEquals("ena_release_date", marsReceipt.getAssayComments().get(1).getName());
+    Assertions.assertEquals("2023-01-01Z", marsReceipt.getAssayComments().get(1).getValue());
+    Assertions.assertEquals(
+        "#assay/18_20_21",
+        marsReceipt.getAssayComments().get(1).getPath().get(1).getWhere().getValue());
   }
 
   @Test
-  void convertToMars_invalidInput() {
+  void convertToMars_missingAccessionsDoNotChangeRepositoryStatus() {
     String enaReceiptFilePath = "../../test-data/ena-receipt-invalid.json";
     String marsReceiptPath = "../../test-data/mars-ena-receipt-invalid.json";
-    convertToMars(enaReceiptFilePath, marsReceiptPath);
+    MarsReceipt marsReceipt = convertToMars(enaReceiptFilePath, marsReceiptPath);
+
+    Assertions.assertEquals(MarsSubmissionStatus.SUCCESS, marsReceipt.getSubmissionStatus());
   }
 
-  void convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
+  @Test
+  void convertToMars_mapsRepositoryFailureStatus() throws Exception {
+    ObjectMapper jsonMapper = new ObjectMapper();
+    Receipt receipt =
+        jsonMapper.readValue(
+            Files.readString(new File("../../test-data/ena-receipt.json").toPath()), Receipt.class);
+    receipt.setSuccess(false);
+    IsaJson isaJson =
+        jsonMapper.readValue(
+            Files.readString(new File("../../test-data/ena-minimal-after-biosamples.json").toPath()),
+            IsaJson.class);
+
+    MarsReceipt marsReceipt = new MarsReceiptService().convertReceiptToMars(receipt, isaJson);
+
+    Assertions.assertEquals(MarsSubmissionStatus.FAILURE, marsReceipt.getSubmissionStatus());
+  }
+
+  MarsReceipt convertToMars(final String enaReceiptFilePath, final String marsReceiptPath) {
     ObjectMapper jsonMapper = new ObjectMapper();
     jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MarsReceipt marsReceipt;
@@ -61,8 +119,10 @@ class EnaReceiptToMarsTest {
           new File(marsReceiptPath).toPath(),
           jsonMapper.writeValueAsBytes(marsReceipt));
     } catch (Exception e) {
-      e.printStackTrace();
+      return errorReceipt(
+          MarsError.builder().message(String.valueOf(e.getMessage())).build());
     }
+    return marsReceipt;
   }
 
   private MarsReceipt errorReceipt(final MarsError error) {
